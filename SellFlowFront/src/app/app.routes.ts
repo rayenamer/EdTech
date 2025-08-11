@@ -17,17 +17,18 @@ import { CommunityComponent } from './community/community.component';
 import { UserFoAdminComponent } from './users/userFoAdmin.component';
 import { ProgramsComponent } from './programs/programs.component';
 import { AddProgramComponent } from './add-program/add-program.component';
+import { adminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
     {path: '', component: HomeComponent },
-    {path:'programs', component: ProgramsComponent},
-    {path:'add-program', component: AddProgramComponent},
+    {path:'programs', component: ProgramsComponent, canActivate: [adminGuard]},
+    {path:'add-program', component: AddProgramComponent, canActivate: [adminGuard]},
     {path:'community',component:CommunityComponent},
     {path: 'careers', component: CareersComponent },
     {path: 'aboutus', component: AboutusComponent },
     {path:'services', component:OurservicesComponent},
-    {path:'AdminDashboard', component: AdminComponent},
-    {path:'users', component: UserFoAdminComponent},
+    {path:'AdminDashboard', component: AdminComponent, canActivate: [adminGuard]},
+    {path:'users', component: UserFoAdminComponent, canActivate: [adminGuard]},
     {path: 'AdminLogin', component: AdminLoginComponent},
     {path: 'AdminJdid', component: AdminRegisterComponent},
     {path: 'login', component: LoginComponent },
@@ -35,6 +36,5 @@ export const routes: Routes = [
     {path: 'resetpass', component: ResetPasswordComponent },
     {path: 'ForgotPass', component: ForgotPasswordComponent},
     {path : 'Acceuil', component: AcceuilComponent},
-    {path: 'AdminDashboard', component: AdminComponent},
     {path: '**', component: HomeComponent, pathMatch: 'full' },
 ];

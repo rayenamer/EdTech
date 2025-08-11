@@ -17,3 +17,6 @@ SellFlowApi/API/*.bak
 logs/
 .env
 *.env
+
+ng serve --ssl true --ssl-cert localhost.pem --ssl-key localhost-key.pem
+dotnet run --launch-profile https

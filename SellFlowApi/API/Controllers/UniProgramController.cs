@@ -3,6 +3,7 @@ using API.DATA;
 using API.Dtos;
 using API.entities;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -18,6 +19,7 @@ public class UniProgramController : BaseApiController
         _mapper = mapper;
     }
 
+    [Authorize(Policy = "RequireAdminRole")]
     [HttpPost("add-program")]
     public async Task<IActionResult> AddProgram(UniProgramDto UniProgramDto)
     {
@@ -28,12 +30,16 @@ public class UniProgramController : BaseApiController
         return Ok(createdProgram);
     }
 
+    
+    //
     [HttpGet("get-programs")]
     public async Task<ActionResult<IEnumerable<UniProgram>>> GetPrograms()
     {
         var programs = await _repository.GetAllAsync();
         return Ok(programs);
     }
+    
+    //
     [HttpGet("get-program/{id}")]
     public async Task<ActionResult<UniProgram>> GetProgram(int id)
     {
@@ -44,6 +50,8 @@ public class UniProgramController : BaseApiController
         return Ok(programDto);
     }
 
+    
+    [Authorize(Policy = "RequireAdminRole")]
     [HttpDelete("delete-program/{id}")]
     public async Task<IActionResult> DeleteProgram(int id)
     {
@@ -52,6 +60,8 @@ public class UniProgramController : BaseApiController
 
         return Ok();
     }
+    
+    [Authorize(Policy = "RequireAdminRole")]
     [HttpDelete("delete-programs")]
     public async Task<IActionResult> DeleteAllPrograms()
     {

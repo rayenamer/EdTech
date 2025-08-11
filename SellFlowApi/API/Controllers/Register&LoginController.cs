@@ -266,7 +266,7 @@ public class Register_LoginController
         });
 
         _logger.LogInformation("Google login successful for user {Email}", email);
-
+        _logger.LogInformation("user token: {Token}", token);
         // Optionally, pass a status or minimal info in the query string
         var redirectUrl = $"{googleSuccessUrl}?status=success";
 

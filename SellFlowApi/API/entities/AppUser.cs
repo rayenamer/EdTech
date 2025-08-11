@@ -1,4 +1,5 @@
 using System;
+using API.Dtos;
 using EllipticCurve.Utils;
 using Microsoft.AspNetCore.Identity;
 
@@ -15,4 +16,8 @@ public class AppUser : IdentityUser<int>
         public required string Country{get;set;}
         public ICollection<AppUserRole> UserRoles { get; set; } = [];
 
+    public static implicit operator AppUser(AppUserDto v)
+    {
+        throw new NotImplementedException();
+    }
 }
