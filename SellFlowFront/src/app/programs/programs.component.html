@@ -1,0 +1,51 @@
+<div class="programs-container">
+  <div class="section-header">
+    <p>YOU added {{ programs.length }} programs (dont click apply :p)</p>
+    <button (click)="GoToAddProgram()">Add Program</button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading programs...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <div class="error-icon">⚠️</div>
+    <h3>Oops! Something went wrong</h3>
+    <p>{{ error }}</p>
+    <button class="btn-retry" (click)="retryLoad()">
+      <i class="fas fa-redo"></i>
+      Try Again
+    </button>
+  </div>
+
+  <!-- Programs Grid -->
+  <div *ngIf="!loading && !error" class="programs-grid">
+     <div *ngFor="let program of programs" class="program-card-wrapper">
+       <app-program-card
+         [program]="program"
+         (applyClicked)="onProgramApply($event)"
+         (learnMoreClicked)="onProgramLearnMore($event)">
+       </app-program-card>
+      <button 
+        (click)="confirmDelete(program)" 
+        class="btn-delete program-card-btn"
+        [disabled]="deletingProgramId === program.id"
+        [class.deleting]="deletingProgramId === program.id">
+        <i *ngIf="deletingProgramId !== program.id" class="fas fa-trash-alt"></i>
+        <i *ngIf="deletingProgramId === program.id" class="fas fa-spinner fa-spin"></i>
+        <span *ngIf="deletingProgramId !== program.id">Delete</span>
+        <span *ngIf="deletingProgramId === program.id">Deleting...</span>
+      </button>
+     </div>
+   </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && !error && programs.length === 0" class="empty-container">
+    <div class="empty-icon">📚</div>
+    <h3>No Programs Available</h3>
+    <p>There are currently no programs available. Please check back later.</p>
+  </div>
+</div>

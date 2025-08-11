@@ -1,0 +1,88 @@
+.admin-dashboard-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #fff6f6 0%, #f9fafb 100%);
+  font-family: 'Inter', system-ui, sans-serif;
+  padding: 6.5rem 2rem 2rem 2rem; /* add top space to clear fixed navbar */
+}
+
+.admin-dashboard-card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  width: 100%;
+  max-width: 900px;
+  padding: 2.5rem 2rem 2rem 2rem;
+  margin-bottom: 2rem;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.admin-dashboard-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.admin-dashboard-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.admin-dashboard-header h2 {
+  color: #b71c1c;
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.admin-dashboard-header p {
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+.stats-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+.stat-card { background: #fff; border-radius: 16px; padding: 1.25rem; box-shadow: 0 10px 20px rgba(0,0,0,0.08); text-align: center; }
+.stat-value { font-size: 2rem; font-weight: 700; color: #b71c1c; }
+.stat-label { color: #6b7280; margin-top: 0.25rem; }
+.actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+.admin-dashboard-section {
+  margin-bottom: 2rem;
+}
+
+.admin-dashboard-button {
+  background-color: #b71c1c;
+  color: #fff;
+  padding: 0.9rem 2rem;
+  border: none;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.admin-dashboard-button:hover:not(:disabled) {
+  background-color: #a31515;
+  transform: translateY(-2px);
+}
+
+.admin-dashboard-button:disabled {
+  background-color: #e5e7eb;
+  color: #bdbdbd;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 900px) {
+  .admin-dashboard-card {
+    max-width: 100%;
+    padding: 1.2rem;
+  }
+}

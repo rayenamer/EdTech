@@ -1,0 +1,42 @@
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h2>Welcome Back</h2>
+            <p>Please enter your credentials</p>
+        </div>
+
+      
+        <form (ngSubmit)="login()" class="login-form">
+            <div class="form-group">
+                <label for="username">Email</label>
+                <input [(ngModel)]="model.email" name="username" class="form-control" placeholder="Enter your username">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" [(ngModel)]="model.password" name="password" class="form-control"
+                    placeholder="Enter your password">
+            </div>
+
+            <button type="submit" class="login-button"
+                [disabled]="isLoading">
+                @if (!isLoading) {
+                <span>Sign In</span>
+                }
+                @if (isLoading) {
+                <span>Signing In...</span>
+                }
+            </button>
+            
+            <button type="submit" class="login-button" (click)="loginWithGoogle()">Login with Google</button>
+            <div class="login-footer">
+                <a class="cta-button" routerLink="/registerservice" >Go to Register</a>
+            </div>
+            <div class="login-footer">
+                <a class="cta-button" routerLink="/ForgotPass" >Forgot Password</a>
+            </div>
+            
+        </form>
+    </div>
+</div>
+<router-outlet></router-outlet>

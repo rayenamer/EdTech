@@ -1,0 +1,30 @@
+<div class="admin-dashboard-container">
+  <div class="admin-dashboard-card">
+    <div class="admin-dashboard-header">
+      <h2>Admin Dashboard</h2>
+      <p>Overview of key platform stats</p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value">{{ totalUsers }}</div>
+        <div class="stat-label">Users</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ totalPrograms }}</div>
+        <div class="stat-label">Programs</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ totalApplications }}</div>
+        <div class="stat-label">Applications</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <a routerLink="/users" class="admin-dashboard-button">Manage Users</a>
+      <a routerLink="/programs" class="admin-dashboard-button">Manage Programs</a>
+      <a routerLink="/applications" class="admin-dashboard-button">View Applications</a>
+    </div>
+  </div>
+</div>
+  

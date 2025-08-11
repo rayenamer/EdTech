@@ -1,0 +1,122 @@
+<div class="acceuil-container">
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <div class="hero-text">
+        <h1 class="hero-title">Discover Your Future</h1>
+        <p class="hero-subtitle">Explore world-class study programs from leading universities</p>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <span class="stat-number">{{ programs.length }}+</span>
+            <span class="stat-label">Programs</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">50+</span>
+            <span class="stat-label">Universities</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">25+</span>
+            <span class="stat-label">Countries</span>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- Search and Filter Section -->
+  <div class="search-section">
+    <div class="search-container">
+      <div class="search-box">
+        <input type="text" placeholder="Search programs, universities, or locations..." class="search-input">
+        <button class="search-btn">Search</button>
+      </div>
+      <div class="filter-tags">
+        <span class="filter-tag active">All Programs</span>
+        <span class="filter-tag">Engineering</span>
+        <span class="filter-tag">Business</span>
+        <span class="filter-tag">Arts</span>
+        <span class="filter-tag">Science</span>
+        <span class="filter-tag">Technology</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-animation">
+      <div class="loading-spinner"></div>
+      <div class="loading-dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+    <p class="loading-text">Discovering amazing programs for you...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <div class="error-visual">
+      <div class="error-icon">⚠️</div>
+      <div class="error-rings">
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="ring"></div>
+      </div>
+    </div>
+    <h3>Oops! Something went wrong</h3>
+    <p>{{ error }}</p>
+    <button class="btn-retry" (click)="retryLoad()">
+      <i class="fas fa-redo"></i>
+      Try Again
+    </button>
+  </div>
+
+  <!-- Programs Grid -->
+  <div *ngIf="!loading && !error && programs.length > 0" class="programs-section">
+    <div class="section-header">
+      <h2>Study Programs</h2>
+      <p>Browse our collection of study opportunities</p>
+    </div>
+    
+    <div class="programs-grid">
+      <div *ngFor="let program of programs; let i = index" class="program-card-wrapper" [style.animation-delay]="(i * 0.1) + 's'">
+        <app-program-card
+          [program]="program"
+          (applyClicked)="onProgramApply($event)"
+          (learnMoreClicked)="onProgramLearnMore($event)">
+        </app-program-card>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && !error && programs.length === 0" class="empty-container">
+    <div class="empty-visual">
+      <div class="empty-icon">📚</div>
+      <div class="empty-rings">
+        <div class="ring"></div>
+        <div class="ring"></div>
+      </div>
+    </div>
+    <h3>No Programs Available</h3>
+    <p>We're currently updating our program catalog. Check back soon for exciting new opportunities!</p>
+    <button class="btn-refresh" (click)="retryLoad()">
+      <i class="fas fa-sync-alt"></i>
+      Refresh
+    </button>
+  </div>
+
+  <!-- Support CTA -->
+  <div class="cta-section" *ngIf="!loading && !error && programs.length > 0">
+    <div class="cta-content">
+      <h3>Need Help Finding Your Program?</h3>
+      <p>Our support team is here to guide you through your educational journey</p>
+      <button class="cta-btn">
+        <i class="fas fa-headset"></i>
+        Get Support
+      </button>
+    </div>
+  </div>
+</div>

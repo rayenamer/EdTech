@@ -1,0 +1,69 @@
+<div class="program-card">
+  <!-- Card Image Section -->
+  <div class="card-image">
+    <img [src]="getUniversityImage()" [alt]="program.university">
+    <div class="degree-badge">
+      {{ program.degree }}
+    </div>
+    <div class="duration-badge">
+      {{ getDurationText() }}
+    </div>
+  </div>
+
+  <!-- Card Content -->
+  <div class="card-content">
+    <h3 class="program-name">{{ program.name }}</h3>
+    
+    <div class="university-info">
+      <div class="university-name">{{ program.university }}</div>
+      <div class="university-location">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" stroke="currentColor" stroke-width="2"/>
+          <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <span>{{ program.location }}</span>
+      </div>
+    </div>
+
+    <p class="program-description">{{ program.description }}</p>
+    
+    <div class="program-details">
+      <div class="detail-item">
+        <div class="detail-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="detail-content">
+          <span class="detail-label">Start Date</span>
+          <span class="detail-value">{{ getFormattedStartDate() }}</span>
+        </div>
+      </div>
+      
+      <div class="detail-item">
+        <div class="detail-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="detail-content">
+          <span class="detail-label">Duration</span>
+          <span class="detail-value">{{ getDurationText() }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card Footer -->
+  <div class="card-footer">
+    <button class="btn btn-primary" (click)="onApplyClick()">
+      Apply Now
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+        <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <button class="btn btn-secondary" (click)="onLearnMoreClick()">
+      Learn More
+    </button>
+  </div>
+</div>

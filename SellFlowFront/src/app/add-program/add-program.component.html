@@ -1,0 +1,89 @@
+<div class="add-program-container">
+  <div class="form-header">
+    <h2>Add New Program</h2>
+    <p>Fill in the details below to add a new program</p>
+  </div>
+
+  <form (ngSubmit)="onSubmit()" class="add-program-form">
+    <div class="form-group">
+      <label for="name">Program Name</label>
+      <input 
+        type="text" 
+        id="name" 
+        name="name" 
+        [(ngModel)]="program.name" 
+        required 
+        placeholder="Enter program name">
+    </div>
+
+    <div class="form-group">
+      <label for="university">University</label>
+      <input 
+        type="text" 
+        id="university" 
+        name="university" 
+        [(ngModel)]="program.university" 
+        required 
+        placeholder="Enter university name">
+    </div>
+
+    <div class="form-group">
+      <label for="degree">Degree</label>
+      <input 
+        type="text" 
+        id="degree" 
+        name="degree" 
+        [(ngModel)]="program.degree" 
+        required 
+        placeholder="Enter degree type">
+    </div>
+
+    <div class="form-group">
+      <label for="location">Location</label>
+      <input 
+        type="text" 
+        id="location" 
+        name="location" 
+        [(ngModel)]="program.location" 
+        required 
+        placeholder="Enter location">
+    </div>
+
+    <div class="form-group">
+      <label for="programStart">Program Start Date</label>
+      <input 
+        type="date" 
+        id="programStart" 
+        name="programStart" 
+        [(ngModel)]="program.programStart" 
+        required>
+    </div>
+
+    <div class="form-group">
+      <label for="duration">Duration (months)</label>
+      <input 
+        type="number" 
+        id="duration" 
+        name="duration" 
+        [(ngModel)]="program.duration" 
+        required 
+        min="1" 
+        placeholder="Enter duration in months">
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea 
+        id="description" 
+        name="description" 
+        [(ngModel)]="program.description" 
+        required 
+        rows="4" 
+        placeholder="Enter program description"></textarea>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn-submit">Add Program</button>
+    </div>
+  </form>
+</div>
