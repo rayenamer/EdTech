@@ -3,60 +3,43 @@
     <div class="nav-logo">
       <div class="logo-icon">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" fill="#dc2626"/>
-          <polyline points="3.27,6.96 12,12.01 20.73,6.96" stroke="#dc2626" stroke-width="2"/>
-          <line x1="12" y1="22.08" x2="12" y2="12" stroke="#dc2626" stroke-width="2"/>
+          <path
+            d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+            fill="#dc2626" />
+          <polyline points="3.27,6.96 12,12.01 20.73,6.96" stroke="#dc2626" stroke-width="2" />
+          <line x1="12" y1="22.08" x2="12" y2="12" stroke="#dc2626" stroke-width="2" />
         </svg>
       </div>
       <span class="logo-text">EduHelper</span>
     </div>
     <div>
-        
+
     </div>
     <div class="nav-menu" [class.active]="isMenuOpen">
       <!-- Admin menu -->
       <ng-container *ngIf="isAdminLoggedIn(); else notAdmin">
-        <a routerLink="/AdminDashboard" 
-           routerLinkActive="active" 
-           class="nav-link"
-           (click)="closeMenu()">
+        <a routerLink="/AdminDashboard" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
           Dashboard
         </a>
-        <a routerLink="/users" 
-           routerLinkActive="active" 
-           class="nav-link"
-           (click)="closeMenu()">
+        <a routerLink="/users" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
           Users
         </a>
-        <a routerLink="/programs" 
-           routerLinkActive="active" 
-           class="nav-link"
-           (click)="closeMenu()">
+        <a routerLink="/programs" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
           Programs
         </a>
-        <a routerLink="/applications" 
-           routerLinkActive="active" 
-           class="nav-link"
-           (click)="closeMenu()">
+        <a routerLink="/applications" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
           Applications
         </a>
       </ng-container>
 
 
-      <!--not working ignore this-->>
       <!-- Non-admin menus -->
       <ng-template #notAdmin>
         <ng-container *ngIf="isUserLoggedIn(); else guestMenu">
-          <a routerLink="/programs" 
-             routerLinkActive="active" 
-             class="nav-link"
-             (click)="closeMenu()">
+          <a routerLink="/Acceuil" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
             Programs
           </a>
-          <a routerLink="/my-applications" 
-             routerLinkActive="active" 
-             class="nav-link"
-             (click)="closeMenu()">
+          <a routerLink="/my-applications" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
             My Applications
           </a>
         </ng-container>
@@ -64,49 +47,35 @@
 
       <!-- Guest menu (original public links) -->
       <ng-template #guestMenu>
-        <a routerLink="/" 
-           routerLinkActive="active" 
-           [routerLinkActiveOptions]="{exact: true}"
-           class="nav-link"
-           (click)="closeMenu()">
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link"
+          (click)="closeMenu()">
           Home
         </a>
-        <a routerLink="/services" 
-           routerLinkActive="active" 
-           class="nav-link"
-           (click)="closeMenu()">
+        <a routerLink="/services" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
           Services
         </a>
-        <a routerLink="/aboutus" 
-           routerLinkActive="active" 
-           class="nav-link"
-           (click)="closeMenu()">
+        <a routerLink="/aboutus" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
           About Us
         </a>
-        <a routerLink="/careers" 
-           routerLinkActive="active" 
-           class="nav-link"
-           (click)="closeMenu()">
+        <a routerLink="/careers" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
           Careers
         </a>
-        <a routerLink="/community" 
-           routerLinkActive="active" 
-           class="nav-link"
-           (click)="closeMenu()">
+        <a routerLink="/community" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
           Community
         </a>
-        <a routerLink="/AdminLogin" 
-           routerLinkActive="active" 
-           class="nav-link admin-btn"
-           (click)="closeMenu()">
-          Admin
-        </a>
-        <a routerLink="/login" 
-           routerLinkActive="active" 
-           class="nav-link login-btn"
-           (click)="closeMenu()">
-          Login
-        </a>
+        <ng-container *ngIf="!isUserLoggedIn() && !isAdminLoggedIn(); else loggedOut">
+          <a routerLink="/AdminLogin" routerLinkActive="active" class="nav-link admin-btn" (click)="closeMenu()">
+            Admin
+          </a>
+          <a routerLink="/login" routerLinkActive="active" class="nav-link login-btn" (click)="closeMenu()">
+            Login
+          </a>
+        </ng-container>
+
+        <ng-template #loggedOut>
+          <a (click)="logout()" class="nav-link logout-btn">Logout</a>
+        </ng-template>
+
       </ng-template>
     </div>
 

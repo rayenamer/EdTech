@@ -40,4 +40,7 @@ export class NavbarComponent implements OnInit {
   closeMenu() {
     this.isMenuOpen = false;
   }
+  logout() {
+    this.authService.logout();
+  }
 }

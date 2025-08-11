@@ -68,11 +68,44 @@ export class LoginComponent implements OnInit{
   private handleGoogleRedirect(): void {
     this.route.queryParamMap.subscribe(params => {
       const status = params.get('status');
-      if (status === 'success') {
+      const userDataEncoded = params.get('userData');
+      
+      if (status === 'success' && userDataEncoded) {
+        try {
+          // Decode the base64 user data
+          const userDataJson = atob(userDataEncoded);
+          const userData = JSON.parse(userDataJson);
+          
+          // Create user object matching your User interface
+          const user = {
+            username: userData.username,
+            token: userData.token,
+            gender: userData.gender,
+            email: userData.email,
+            city: userData.city,
+            country: userData.country,
+            phoneNumber: userData.phoneNumber,
+            emailConfirmed: userData.emailConfirmed,
+            password: '' // Google users don't have passwords
+          };
+          
+          // Store user in localStorage and set current user
+          this.authService.setCurrentUser(user);
+          
+          // Navigate to home page
+          this.router.navigate(['/Acceuil']);
+          
+        } catch (error) {
+          console.error('Error parsing user data:', error);
+          this.toastr.error('Failed to process Google login data.');
+          this.router.navigate(['/login']);
+        }
+      } else if (status === 'success') {
+        // Fallback: try to get user from backend if no userData in URL
         this.authService.getCurrentUser().subscribe({
           next: user => {
             this.authService.setCurrentUser(user);
-            this.router.navigate(['/dashboard']);
+            this.router.navigate(['/Acceuil']);
           },
           error: () => {
             this.toastr.error('Failed to fetch user info after Google login.');

@@ -31,7 +31,8 @@ public class UniProgramController : BaseApiController
     }
 
     
-    //
+    
+    [Authorize]
     [HttpGet("get-programs")]
     public async Task<ActionResult<IEnumerable<UniProgram>>> GetPrograms()
     {
@@ -39,7 +40,8 @@ public class UniProgramController : BaseApiController
         return Ok(programs);
     }
     
-    //
+    
+    [Authorize]
     [HttpGet("get-program/{id}")]
     public async Task<ActionResult<UniProgram>> GetProgram(int id)
     {

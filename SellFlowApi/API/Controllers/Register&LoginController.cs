@@ -212,7 +212,7 @@ public class Register_LoginController
         // Get configuration for URLs
         var config = HttpContext.RequestServices.GetService(typeof(IConfiguration)) as IConfiguration;
         var loginFailedUrl = config?["Frontend:LoginFailedUrl"] ?? "https://localhost:4200/login-failed";
-        var googleSuccessUrl = config?["Frontend:GoogleSuccessUrl"] ?? "https://localhost:4200/Acceuil";
+        var googleSuccessUrl = config?["Frontend:GoogleSuccessUrl"] ?? "https://localhost:4200/login";
 
         var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
@@ -266,9 +266,26 @@ public class Register_LoginController
         });
 
         _logger.LogInformation("Google login successful for user {Email}", email);
-        _logger.LogInformation("user token: {Token}", token);
-        // Optionally, pass a status or minimal info in the query string
-        var redirectUrl = $"{googleSuccessUrl}?status=success";
+
+        // Create user data to pass to frontend
+        var userData = new
+        {
+            username = user.UserName ?? "",
+            token = token,
+            gender = user.Gender,
+            email = user.Email ?? "",
+            city = user.city,
+            country = user.Country,
+            phoneNumber = user.PhoneNumber ?? "",
+            emailConfirmed = user.EmailConfirmed
+        };
+
+        // Encode user data as base64 to pass safely in URL
+        var userDataJson = System.Text.Json.JsonSerializer.Serialize(userData);
+        var userDataEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(userDataJson));
+
+        // Redirect back to frontend with user data
+        var redirectUrl = $"{googleSuccessUrl}?status=success&userData={Uri.EscapeDataString(userDataEncoded)}";
 
         // Optionally, pass the state parameter back for CSRF protection
         if (!string.IsNullOrEmpty(state))
