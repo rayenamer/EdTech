@@ -6,7 +6,7 @@ namespace API.entities;
 
 public class UniProgram
 {
-     [Key]
+    [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
@@ -18,6 +18,7 @@ public class UniProgram
     public string University { get; set; } = string.Empty;
     public string Degree { get; set; } = string.Empty;
 
-    public int Duration { get; set; } // Duration in months
-    // Additional properties can be added as needed
+    public int Duration { get; set; }
+    public ICollection<Application> Applications { get; set; } = [];
+    
 }

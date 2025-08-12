@@ -145,6 +145,126 @@ namespace API.Migrations
                     b.ToTable("AspNetUserRoles", (string)null);
                 });
 
+            modelBuilder.Entity("API.entities.Application", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("BaccalaureatDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("BaccalaureatDegree")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("BaccalaureatInstitution")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("BachelorDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("BachelorDegree")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("BachelorInstitution")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("EngDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EngDegree")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EngInstitution")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LifeOutSide")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LinkedinLink")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("MasterDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("MasterDegree")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("MasterInstitution")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Motivation")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ProgramId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("WorkExperience")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProgramId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Applications");
+                });
+
+            modelBuilder.Entity("API.entities.Document", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ApplicationId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<byte[]>("Content")
+                        .IsRequired()
+                        .HasColumnType("BLOB");
+
+                    b.Property<string>("DocumentType")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UploadDate")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationId");
+
+                    b.ToTable("Document");
+                });
+
             modelBuilder.Entity("API.entities.UniProgram", b =>
                 {
                     b.Property<int>("Id")
@@ -285,6 +405,36 @@ namespace API.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("API.entities.Application", b =>
+                {
+                    b.HasOne("API.entities.UniProgram", "Program")
+                        .WithMany("Applications")
+                        .HasForeignKey("ProgramId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API.Entities.AppUser", "User")
+                        .WithMany("Applications")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Program");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("API.entities.Document", b =>
+                {
+                    b.HasOne("API.entities.Application", "Application")
+                        .WithMany("Documents")
+                        .HasForeignKey("ApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Application");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.HasOne("API.Entities.AppRole", null)
@@ -328,7 +478,19 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Entities.AppUser", b =>
                 {
+                    b.Navigation("Applications");
+
                     b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("API.entities.Application", b =>
+                {
+                    b.Navigation("Documents");
+                });
+
+            modelBuilder.Entity("API.entities.UniProgram", b =>
+                {
+                    b.Navigation("Applications");
                 });
 #pragma warning restore 612, 618
         }

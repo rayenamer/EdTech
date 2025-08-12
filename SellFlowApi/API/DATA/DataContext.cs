@@ -7,12 +7,12 @@ using API.entities;
 
 namespace API.Data;
 
-public class DataContext(DbContextOptions options) 
+public class DataContext(DbContextOptions options)
         : IdentityDbContext
         <
-          AppUser ,
+          AppUser,
           AppRole,
-          int, 
+          int,
           IdentityUserClaim<int>,
           AppUserRole,
           IdentityUserLogin<int>,
@@ -20,8 +20,9 @@ public class DataContext(DbContextOptions options)
           IdentityUserToken<int>
         >(options)
 {
-          public DbSet<UniProgram> UniPrograms { get; set; }
-    protected override void OnModelCreating(ModelBuilder builder)
+        public DbSet<UniProgram> UniPrograms { get; set; }
+        public DbSet<Application> Applications { get; set; }
+        protected override void OnModelCreating(ModelBuilder builder)
         {
                 base.OnModelCreating(builder);
 
@@ -36,5 +37,21 @@ public class DataContext(DbContextOptions options)
                         .WithOne(u => u.Role)
                         .HasForeignKey(ur => ur.RoleId)
                         .IsRequired();
+                builder.Entity<Application>()
+                        .HasOne(a => a.User)
+                        .WithMany(u => u.Applications)
+                        .HasForeignKey(a => a.UserId);
+
+                builder.Entity<Application>()
+                        .HasOne(a => a.Program)
+                        .WithMany(p => p.Applications)
+                        .HasForeignKey(a => a.ProgramId);
+                //doc
+                builder.Entity<Application>()
+                        .HasMany(a => a.Documents)
+                        .WithOne(d => d.Application)
+                        .HasForeignKey(d => d.ApplicationId)
+                        .OnDelete(DeleteBehavior.Cascade);
+
         }
 }

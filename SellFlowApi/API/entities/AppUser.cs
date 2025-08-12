@@ -2,6 +2,8 @@ using System;
 using API.Dtos;
 using EllipticCurve.Utils;
 using Microsoft.AspNetCore.Identity;
+using API.Entities;
+using API.entities; // Add this if Application is in the same namespace, or replace with the correct namespace
 
 namespace API.Entities;
 
@@ -15,9 +17,11 @@ public class AppUser : IdentityUser<int>
         public required string city{get;set;}
         public required string Country{get;set;}
         public ICollection<AppUserRole> UserRoles { get; set; } = [];
+        
+        public ICollection<Application> Applications { get; set; } = [];
 
-    public static implicit operator AppUser(AppUserDto v)
-    {
-        throw new NotImplementedException();
-    }
+    //public static implicit operator AppUser(AppUserDto v)
+    //{
+    //    throw new NotImplementedException();
+    //}
 }
