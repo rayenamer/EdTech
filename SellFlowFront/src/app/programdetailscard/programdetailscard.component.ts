@@ -1,27 +1,39 @@
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { UniProgram } from '../../models/UniProgram';
-import { routes } from '../../app.routes';
+import { ActivatedRoute, Router } from '@angular/router';
+import { UniProgram } from '../models/UniProgram';
+import { UniProgramService } from '../services/uni-program.service';
 
 @Component({
-  selector: 'app-program-card',
+  selector: 'app-programdetailscard',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './program-card.component.html',
-  styleUrl: './program-card.component.css'
+  templateUrl: './programdetailscard.component.html',
+  styleUrl: './programdetailscard.component.css'
 })
-export class ProgramCardComponent implements OnInit {
+export class ProgramdetailscardComponent implements OnInit {
   @Input() program!: UniProgram;
   @Output() applyClicked = new EventEmitter<UniProgram>();
-  @Output() learnMoreClicked = new EventEmitter<UniProgram>();
+  @Output() backToListClicked = new EventEmitter<void>();
 
+  
+  constructor(
+    private uniProgramService: UniProgramService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
   private universityImage: string = '';
-  
-  constructor(private router: Router) {}
-  
+
   ngOnInit(): void {
     this.universityImage = this.getRandomUniversityImage();
+    
+    // Get the program ID from route parameters
+    this.route.params.subscribe(params => {
+      const programId = params['id'];
+      if (programId) {
+        this.loadProgramDetails(programId);
+      }
+    });
   }
 
   getDurationText(): string {
@@ -35,7 +47,8 @@ export class ProgramCardComponent implements OnInit {
     const date = new Date(this.program.programStart);
     return date.toLocaleDateString('en-US', { 
       month: 'long', 
-      year: 'numeric' 
+      year: 'numeric',
+      day: 'numeric'
     });
   }
 
@@ -66,9 +79,42 @@ export class ProgramCardComponent implements OnInit {
     this.applyClicked.emit(this.program);
   }
 
-  onLearnMoreClick(): void {
-    // Navigate to program details with the program ID
-    this.router.navigate(['/programdetails', this.program.id]);
+  onBackToListClick(): void {
+    this.backToListClicked.emit();
   }
-  
+
+  private loadProgramDetails(programId: string): void {
+    const id = parseInt(programId, 10);
+    if (isNaN(id)) {
+      console.error('Invalid program ID:', programId);
+      return;
+    }
+
+    this.uniProgramService.getProgramById(id).subscribe({
+      next: (program) => {
+        console.log('Program details loaded successfully:', program);
+        this.program = program;
+      },
+      error: (error) => {
+        console.error('Error loading program details:', error);
+        // TODO: Implement error handling
+      }
+    });
+  }
+
+  getProgramById(id: number): void {
+    this.uniProgramService.getProgramById(id).subscribe({
+      next: (program) => {
+        console.log('Program details loaded successfully:', program);
+        // TODO: Implement logic to display program details
+      },
+      error: (error) => {
+        console.error('Error loading program details:', error);
+        // TODO: Implement error handling
+      }
+    });
+  }
+  onBrowseOtherProgramsClick(): void {
+    this.router.navigate(['/Acceuil']);
+  }
 }

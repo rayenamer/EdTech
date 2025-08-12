@@ -15,7 +15,7 @@ export class UniProgramService {
     return this.http.get<UniProgram[]>(`${this.baseUrl}UniProgram/get-programs`);
   }
 
-  getProgramById(id: string) {
+  getProgramById(id: number) {
     return this.http.get<UniProgram>(`${this.baseUrl}UniProgram/get-program/${id}`);
   }
   addProgram(program: UniProgram) {

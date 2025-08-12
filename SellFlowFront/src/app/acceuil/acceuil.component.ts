@@ -55,4 +55,16 @@ export class AcceuilComponent implements OnInit {
     // TODO: Implement learn more logic
     // This could open a detailed view, navigate to program details page, etc.
   }
+  getProgramById(id: number): void {
+    this.uniProgramService.getProgramById(id).subscribe({
+      next: (program) => {
+        console.log('Program details loaded successfully:', program);
+        // TODO: Implement logic to display program details
+      },
+      error: (error) => {
+        console.error('Error loading program details:', error);
+        // TODO: Implement error handling
+      }
+    });
+  }
 }
