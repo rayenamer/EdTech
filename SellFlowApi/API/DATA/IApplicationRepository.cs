@@ -9,4 +9,6 @@ public interface IApplicationRepository
     Task<Application> AddAsync(Application application);
     Task<bool> DeleteAsync(int id);
     Task<Document> AddDocumentAsync(int applicationId, Document document);
+    Task<Document?> GetDocumentByIdAsync(int documentId);
+    Task<IEnumerable<Application>> GetByUserIdAsync(int userId);
 }

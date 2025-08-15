@@ -59,4 +59,22 @@ public class TestAuthController : ControllerBase
             AllClaims = User.Claims.Select(c => new { c.Type, c.Value })
         });
     }
+
+    [Authorize]
+    [HttpGet("current-user-id")]
+    public IActionResult GetCurrentUserId()
+    {
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim))
+            return Unauthorized("User identifier claim not found.");
+        
+        if (!int.TryParse(userIdClaim, out int userId))
+            return BadRequest("User identifier claim is not a valid integer.");
+        
+        return Ok(new { 
+            UserId = userId,
+            Username = User.Identity?.Name,
+            Email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+        });
+    }
 } 

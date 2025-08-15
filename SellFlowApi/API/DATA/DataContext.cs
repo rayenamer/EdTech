@@ -20,8 +20,9 @@ public class DataContext(DbContextOptions options)
           IdentityUserToken<int>
         >(options)
 {
-        public DbSet<UniProgram> UniPrograms { get; set; }
-        public DbSet<Application> Applications { get; set; }
+        public DbSet<UniProgram> UniPrograms { get; set; } = null!;
+        public DbSet<Application> Applications { get; set; } = null!;
+        public DbSet<Document> Documents { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder builder)
         {
                 base.OnModelCreating(builder);

@@ -5,9 +5,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.DATA;
 
-public class ApplicationRepository() : IApplicationRepository
+public class ApplicationRepository : IApplicationRepository
 {
     private readonly DataContext _context;
+
+    public ApplicationRepository(DataContext context)
+    {
+        _context = context;
+    }
 
     public async Task<IEnumerable<Application>> GetAllAsync()
     {
@@ -51,5 +56,19 @@ public class ApplicationRepository() : IApplicationRepository
         application.Documents.Add(document);
         await _context.SaveChangesAsync();
         return document;
+    }
+
+    public async Task<Document?> GetDocumentByIdAsync(int documentId)
+    {
+        return await _context.Documents
+            .FirstOrDefaultAsync(d => d.Id == documentId);
+    }
+
+    public async Task<IEnumerable<Application>> GetByUserIdAsync(int userId)
+    {
+        return await _context.Applications
+            .Include(a => a.Documents)
+            .Where(a => a.UserId == userId)
+            .ToListAsync();
     }
 }

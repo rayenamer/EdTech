@@ -113,11 +113,11 @@ public class Register_LoginController
 
         // ⚠️⚠️⚠️ we will comment this so everyone can test on their machines⚠️⚠️⚠️
         
-        if (!user.EmailConfirmed)
-        {
-            // If the email is not confirmed, reject login attempt
-            return Unauthorized("Email is not confirmed.");
-        }
+       //if (!user.EmailConfirmed)
+       //{
+       //    // If the email is not confirmed, reject login attempt
+       //    return Unauthorized("Email is not confirmed.");
+       //}
 
 
 

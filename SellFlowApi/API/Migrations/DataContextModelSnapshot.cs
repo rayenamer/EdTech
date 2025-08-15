@@ -262,7 +262,7 @@ namespace API.Migrations
 
                     b.HasIndex("ApplicationId");
 
-                    b.ToTable("Document");
+                    b.ToTable("Documents");
                 });
 
             modelBuilder.Entity("API.entities.UniProgram", b =>
