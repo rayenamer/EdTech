@@ -16,31 +16,29 @@ namespace API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class ApplicationController : ControllerBase
+public class UserDataController : ControllerBase
 {
-    private readonly IApplicationRepository _applicationRepository;
+    private readonly IUserDataRepository _UserDataRepository;
     private readonly IMapper _mapper;
 
-    public ApplicationController(IApplicationRepository applicationRepository, IMapper mapper)
+    public UserDataController(IUserDataRepository UserDataRepository, IMapper mapper)
     {
-        _applicationRepository = applicationRepository;
+        _UserDataRepository = UserDataRepository;
         _mapper = mapper;
     }
 
     // all apps for admin working good
-    [HttpGet("get-all-applications")]
-    public async Task<ActionResult<IEnumerable<ApplicationDto>>> GetAll()
+    [HttpGet("get-all-UserDatas")]
+    public async Task<ActionResult<IEnumerable<UserDataDto>>> GetAll()
     {
-        var applications = await _applicationRepository.GetAllAsync();
-        
-        // Map applications to DTOs with documents included (without content for efficiency)
-        var applicationDtos = applications.Select(app => new ApplicationDto
+        var UserDatas = await _UserDataRepository.GetAllAsync();
+
+        // Map UserDatas to DTOs with documents included (without content for efficiency)
+        var UserDataDtos = UserDatas.Select(app => new UserDataDto
         {
             Id = app.Id,
             FullName = app.FullName,
             Number = app.Number,
-            Status = app.Status,
-            CreatedAt = app.CreatedAt,
             DateOfBirth = app.DateOfBirth,
             Motivation = app.Motivation,
             LifeOutSide = app.LifeOutSide,
@@ -59,7 +57,6 @@ public class ApplicationController : ControllerBase
             WorkExperience = app.WorkExperience,
             LinkedinLink = app.LinkedinLink,
             UserId = app.UserId,
-            ProgramId = app.ProgramId,
             Documents = app.Documents.Select(doc => new DocumentDto
             {
                 Id = doc.Id,
@@ -67,16 +64,16 @@ public class ApplicationController : ControllerBase
                 UploadDate = doc.UploadDate,
                 DocumentType = doc.DocumentType,
                 Content = Array.Empty<byte>(), // Don't include content in list view for performance
-                ApplicationId = doc.ApplicationId
+                UserDataId = doc.UserDataId
             }).ToList()
         });
-        
-        return Ok(applicationDtos);
+
+        return Ok(UserDataDtos);
     }
 
-    // GET: api/application/get-user-applications
-    [HttpGet("get-user-applications")]
-    public async Task<ActionResult<IEnumerable<ApplicationDto>>> GetUserApplications()
+    // GET: api/UserData/get-user-UserDatas
+    [HttpGet("get-user-UserDatas")]
+    public async Task<ActionResult<UserDataDto>> GetUserUserDatas()
     {
         try
         {
@@ -84,21 +81,19 @@ public class ApplicationController : ControllerBase
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim))
                 return Unauthorized("User identifier claim not found.");
-            
+
             if (!int.TryParse(userIdClaim, out int userId))
                 return BadRequest("User identifier claim is not a valid integer.");
 
-            // Get applications for the current user
-            var applications = await _applicationRepository.GetByUserIdAsync(userId);
-            
-            // Map applications to DTOs
-            var applicationDtos = applications.Select(app => new ApplicationDto
+            // Get UserDatas for the current user
+            var UserDatas = await _UserDataRepository.GetByUserIdAsync(userId);
+
+            // Map UserDatas to DTOs
+            var UserDataDtos = UserDatas.Select(app => new UserDataDto
             {
                 Id = app.Id,
                 FullName = app.FullName,
                 Number = app.Number,
-                Status = app.Status,
-                CreatedAt = app.CreatedAt,
                 DateOfBirth = app.DateOfBirth,
                 Motivation = app.Motivation,
                 LifeOutSide = app.LifeOutSide,
@@ -117,7 +112,6 @@ public class ApplicationController : ControllerBase
                 WorkExperience = app.WorkExperience,
                 LinkedinLink = app.LinkedinLink,
                 UserId = app.UserId,
-                ProgramId = app.ProgramId,
                 Documents = app.Documents.Select(doc => new DocumentDto
                 {
                     Id = doc.Id,
@@ -125,70 +119,67 @@ public class ApplicationController : ControllerBase
                     UploadDate = doc.UploadDate,
                     DocumentType = doc.DocumentType,
                     Content = Array.Empty<byte>(), // Don't include content in list view for performance
-                    ApplicationId = doc.ApplicationId
+                    UserDataId = doc.UserDataId
                 }).ToList()
             });
-            
-            return Ok(applicationDtos);
+
+            return Ok(UserDataDtos);
         }
         catch (Exception ex)
         {
-            return BadRequest($"Error getting user applications: {ex.Message}");
+            return BadRequest($"Error getting user UserDatas: {ex.Message}");
         }
     }
 
-    // GET: api/application/get-application-by-id/5
-    [HttpGet("get-application-by-id/{id}")]
-    public async Task<ActionResult<ApplicationDto>> GetById(int id)
+    // GET: api/UserData/get-UserData-by-id/5
+    [HttpGet("get-UserData-by-id/{id}")]
+    public async Task<ActionResult<UserDataDto>> GetById(int id)
     {
-        var application = await _applicationRepository.GetByIdAsync(id);
-        if (application == null)
-            return NotFound("Application not found.");
-            
-        // Map application to DTO with documents included
-        var applicationDto = new ApplicationDto
+        var UserData = await _UserDataRepository.GetByIdAsync(id);
+        if (UserData == null)
+            return NotFound("UserData not found.");
+
+        // Map UserData to DTO with documents included
+        var UserDataDto = new UserDataDto
         {
-            Id = application.Id,
-            FullName = application.FullName,
-            Number = application.Number,
-            Status = application.Status,
-            CreatedAt = application.CreatedAt,
-            DateOfBirth = application.DateOfBirth,
-            Motivation = application.Motivation,
-            LifeOutSide = application.LifeOutSide,
-            BaccalaureatDegree = application.BaccalaureatDegree,
-            BaccalaureatInstitution = application.BaccalaureatInstitution,
-            BaccalaureatDate = application.BaccalaureatDate,
-            BachelorDegree = application.BachelorDegree,
-            BachelorInstitution = application.BachelorInstitution,
-            BachelorDate = application.BachelorDate,
-            MasterDegree = application.MasterDegree,
-            MasterInstitution = application.MasterInstitution,
-            MasterDate = application.MasterDate,
-            EngDegree = application.EngDegree,
-            EngInstitution = application.EngInstitution,
-            EngDate = application.EngDate,
-            WorkExperience = application.WorkExperience,
-            LinkedinLink = application.LinkedinLink,
-            UserId = application.UserId,
-            ProgramId = application.ProgramId,
-            Documents = application.Documents.Select(doc => new DocumentDto
+            Id = UserData.Id,
+            FullName = UserData.FullName,
+            Number = UserData.Number,
+            DateOfBirth = UserData.DateOfBirth,
+            Motivation = UserData.Motivation,
+            LifeOutSide = UserData.LifeOutSide,
+            BaccalaureatDegree = UserData.BaccalaureatDegree,
+            BaccalaureatInstitution = UserData.BaccalaureatInstitution,
+            BaccalaureatDate = UserData.BaccalaureatDate,
+            BachelorDegree = UserData.BachelorDegree,
+            BachelorInstitution = UserData.BachelorInstitution,
+            BachelorDate = UserData.BachelorDate,
+            MasterDegree = UserData.MasterDegree,
+            MasterInstitution = UserData.MasterInstitution,
+            MasterDate = UserData.MasterDate,
+            EngDegree = UserData.EngDegree,
+            EngInstitution = UserData.EngInstitution,
+            EngDate = UserData.EngDate,
+            WorkExperience = UserData.WorkExperience,
+            LinkedinLink = UserData.LinkedinLink,
+            UserId = UserData.UserId,
+            Documents = UserData.Documents.Select(doc => new DocumentDto
             {
                 Id = doc.Id,
                 Name = doc.Name,
                 UploadDate = doc.UploadDate,
                 DocumentType = doc.DocumentType,
                 Content = doc.Content, // This will be the byte array for download
-                ApplicationId = doc.ApplicationId
+                UserDataId = doc.UserDataId
             }).ToList()
         };
-        
-        return Ok(applicationDto);
+
+        return Ok(UserDataDto);
     }
 
-    // POST: api/application/add-application (with file upload)
-    [HttpPost("add-application")]
-    public async Task<ActionResult<Application>> Add([FromForm] ApplicationDto applicationDto, [FromForm] List<IFormFile>? files = null)
+    // POST: api/UserData/add-UserData (with file upload)
+    [HttpPost("add-UserData")]
+    public async Task<ActionResult<UserData>> Add([FromForm] UserDataDto UserDataDto, [FromForm] List<IFormFile>? files = null)
     {
         try
         {
@@ -196,11 +187,11 @@ public class ApplicationController : ControllerBase
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim))
                 return Unauthorized("User identifier claim not found.");
-            
+
             if (!int.TryParse(userIdClaim, out int userId))
                 return BadRequest("User identifier claim is not a valid integer.");
-                
-            applicationDto.UserId = userId;
+
+            UserDataDto.UserId = userId;
 
             // Validate and process files
             if (files != null && files.Count > 0)
@@ -245,30 +236,30 @@ public class ApplicationController : ControllerBase
                         DocumentType = documentType
                     };
 
-                    applicationDto.Documents.Add(documentDto);
+                    UserDataDto.Documents.Add(documentDto);
                 }
             }
 
             // Map DTO to entity
-            var application = _mapper.Map<Application>(applicationDto);
+            var UserData = _mapper.Map<UserData>(UserDataDto);
 
-            // Save application with documents
-            var createdApplication = await _applicationRepository.AddAsync(application);
-            return CreatedAtAction(nameof(GetById), new { id = createdApplication.Id }, createdApplication);
+            // Save UserData with documents
+            var createdUserData = await _UserDataRepository.AddAsync(UserData);
+            return CreatedAtAction(nameof(GetById), new { id = createdUserData.Id }, createdUserData);
         }
         catch (Exception ex)
         {
-            return BadRequest($"Error creating application: {ex.Message}");
+            return BadRequest($"Error creating UserData: {ex.Message}");
         }
     }
 
-    // DELETE: api/application/delete-application/5
-    [HttpDelete("delete-application/{id}")]
+    // DELETE: api/UserData/delete-UserData/5
+    [HttpDelete("delete-UserData/{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var deleted = await _applicationRepository.DeleteAsync(id);
+        var deleted = await _UserDataRepository.DeleteAsync(id);
         if (!deleted)
-            return NotFound("Application not found.");
+            return NotFound("UserData not found.");
         return NoContent();
     }
     [HttpGet("download-document/{documentId}")]
@@ -277,7 +268,7 @@ public class ApplicationController : ControllerBase
         try
         {
             // Get the document from the database
-            var document = await _applicationRepository.GetDocumentByIdAsync(documentId);
+            var document = await _UserDataRepository.GetDocumentByIdAsync(documentId);
             if (document == null)
                 return NotFound("Document not found.");
 
@@ -285,10 +276,10 @@ public class ApplicationController : ControllerBase
             var extension = Path.GetExtension(document.Name).ToLower();
             var contentType = extension switch
             {
-                ".pdf" => "application/pdf",
+                ".pdf" => "UserData/pdf",
                 ".jpg" or ".jpeg" => "image/jpeg",
                 ".png" => "image/png",
-                _ => "application/octet-stream"
+                _ => "UserData/octet-stream"
             };
 
             // Return the file as a downloadable response
@@ -299,4 +290,22 @@ public class ApplicationController : ControllerBase
             return BadRequest($"Error downloading document: {ex.Message}");
         }
     }
+    [HttpGet("check-user-has-data")]
+    public async Task<IActionResult> CheckUserHasData()
+    {
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim))
+            return Unauthorized("User identifier claim not found.");
+
+        if (!int.TryParse(userIdClaim, out int userId))
+            return BadRequest("User identifier claim is not a valid integer.");
+
+        var userDatas = await _UserDataRepository.GetByUserIdAsync(userId);
+        bool hasData = userDatas.Any(); // true if any UserData exists
+        return Ok(new { hasData });
+
+    }
+
+
+
 }

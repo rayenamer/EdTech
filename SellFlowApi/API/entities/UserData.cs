@@ -1,32 +1,20 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-using API.entities;
+using System.ComponentModel.DataAnnotations.Schema;
+using API.Entities;
 
-namespace API.Dtos;
+namespace API.entities;
 
-public class ApplicationDto
+public class UserData
 {
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
-    
-    [Required]
     public string FullName { get; set; } = string.Empty;
-    
-    [Required]
     public string Number { get; set; } = string.Empty;
-    
-    public string Status { get; set; } = "Pending";
-    
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    
-    [Required]
     public DateTime DateOfBirth { get; set; }
-    
-    [Required]
     public string Motivation { get; set; } = string.Empty;
-    
-    [Required]
     public string LifeOutSide { get; set; } = string.Empty;
-    
     public string? BaccalaureatDegree { get; set; }
     public string? BaccalaureatInstitution { get; set; } 
     public DateTime? BaccalaureatDate { get; set; }
@@ -41,11 +29,8 @@ public class ApplicationDto
     public DateTime? EngDate { get; set; }
     public string? WorkExperience { get; set; }
     public string? LinkedinLink { get; set; }
-    
-    public int UserId { get; set; } 
-    
-    [Required]
-    public int ProgramId { get; set; }
-    
-    public List<DocumentDto> Documents { get; set; } = new List<DocumentDto>();
+    public int UserId { get; set; } // Foreign key for AppUser
+    public AppUser? User { get; set; } // Navigation property to AppUser
+    public List<Document> Documents { get; set; } = new List<Document>();
+
 }

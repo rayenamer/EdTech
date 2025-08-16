@@ -24,6 +24,36 @@
     </div>
   </div>
 
+    <!-- Profile Status Section -->
+  <div class="profile-status-section">
+    <div class="profile-status-container">
+      <div *ngIf="!hasData" class="profile-status-card profile-status-warning">
+        <div class="status-icon">⚠️</div>
+        <div class="status-content">
+          <h4>Profile Incomplete</h4>
+          <p>Please complete your profile so you can apply for programs.</p>
+          <button class="profile-action-btn profile-action-btn-warning" (click)="completeProfile()">
+            <i class="fas fa-user-edit"></i>
+            Complete Profile
+          </button>
+        </div>
+      </div>
+      <div *ngIf="hasData" class="profile-status-card profile-status-success">
+        <div class="status-icon">✅</div>
+        <div class="status-content">
+          <h4>Profile Complete</h4>
+          <p>Your profile is complete. You can apply for programs.</p>
+          <button class="profile-action-btn profile-action-btn-success" (click)="viewProfile()">
+            <i class="fas fa-eye"></i>
+            View Profile
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
   <!-- Search and Filter Section -->
   <div class="search-section">
     <div class="search-container">

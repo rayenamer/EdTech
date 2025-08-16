@@ -21,7 +21,7 @@ public class DataContext(DbContextOptions options)
         >(options)
 {
         public DbSet<UniProgram> UniPrograms { get; set; } = null!;
-        public DbSet<Application> Applications { get; set; } = null!;
+        public DbSet<UserData> UserDatas { get; set; } = null!;
         public DbSet<Document> Documents { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -38,21 +38,20 @@ public class DataContext(DbContextOptions options)
                         .WithOne(u => u.Role)
                         .HasForeignKey(ur => ur.RoleId)
                         .IsRequired();
-                builder.Entity<Application>()
-                        .HasOne(a => a.User)
-                        .WithMany(u => u.Applications)
-                        .HasForeignKey(a => a.UserId);
 
-                builder.Entity<Application>()
-                        .HasOne(a => a.Program)
-                        .WithMany(p => p.Applications)
-                        .HasForeignKey(a => a.ProgramId);
-                //doc
-                builder.Entity<Application>()
-                        .HasMany(a => a.Documents)
-                        .WithOne(d => d.Application)
-                        .HasForeignKey(d => d.ApplicationId)
-                        .OnDelete(DeleteBehavior.Cascade);
+                // AppUser ↔ UserData (1:1)
+                builder.Entity<AppUser>()
+                    .HasOne(u => u.UserData)
+                    .WithOne(ud => ud.User)
+                    .HasForeignKey<UserData>(ud => ud.UserId); // FK in UserData
+
+                // UserData ↔ Documents (1:many)
+                builder.Entity<UserData>()
+                    .HasMany(ud => ud.Documents)
+                    .WithOne(d => d.UserData)
+                    .HasForeignKey(d => d.UserDataId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
 
         }
 }

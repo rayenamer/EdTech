@@ -19,6 +19,5 @@ public class UniProgram
     public string Degree { get; set; } = string.Empty;
 
     public int Duration { get; set; }
-    public ICollection<Application> Applications { get; set; } = [];
     
 }

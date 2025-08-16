@@ -19,7 +19,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddIdentityServices(builder.Configuration);
 builder.Services.AddScoped<IUniProgramRepository, UniProgramRepository>();
-builder.Services.AddScoped<IApplicationRepository, ApplicationRepository>();
+builder.Services.AddScoped<IUserDataRepository, UserDataRepository>();
 // ======== MAILERSEND SMTP CONFIGURATION ========
 // 1. Bind SMTP settings from configuration
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));

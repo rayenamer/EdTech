@@ -22,14 +22,14 @@ public class AutoMapperProfiles : Profile
         // For inserting/updating → mapping DTO to entity
         CreateMap<UniProgramDto, UniProgram>();
 
-        CreateMap<ApplicationDto, Application>()
+        CreateMap<UserDataDto, UserData>()
             .ForMember(dest => dest.Documents, opt => opt.MapFrom(src => src.Documents));
             
         CreateMap<Document, DocumentDto>();
         CreateMap<DocumentDto, Document>()
-            .ForMember(dest => dest.ApplicationId, opt => opt.Ignore()); // Ignore ApplicationId as it will be set by EF
+            .ForMember(dest => dest.UserDataId, opt => opt.Ignore()); // Ignore UserDataId as it will be set by EF
 
-        CreateMap<Application, ApplicationDto>()
+        CreateMap<UserData, UserDataDto>()
             .ForMember(dest => dest.Documents, opt => opt.MapFrom(src => src.Documents));
     }
 }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { UniProgram } from '../../models/UniProgram';
 import { routes } from '../../app.routes';
+import { UserDataServiceService } from '../../services/user-data-service.service';
 
 @Component({
   selector: 'app-program-card',
@@ -12,16 +13,21 @@ import { routes } from '../../app.routes';
   styleUrl: './program-card.component.css'
 })
 export class ProgramCardComponent implements OnInit {
+  hasData: boolean = true; // store actual boolean, not Observable
   @Input() program!: UniProgram;
   @Output() applyClicked = new EventEmitter<UniProgram>();
   @Output() learnMoreClicked = new EventEmitter<UniProgram>();
 
   private universityImage: string = '';
   
-  constructor(private router: Router) {}
+  constructor(private router: Router,private userDataService: UserDataServiceService) {}
   
   ngOnInit(): void {
     this.universityImage = this.getRandomUniversityImage();
+    this.userDataService.checkUserDataOnce(); // triggers the request
+    this.userDataService.hasData$.subscribe(data => {
+      this.hasData = data;
+    });
   }
 
   getDurationText(): string {

@@ -17,8 +17,8 @@ public class Document
     {
         UploadDate = DateTime.UtcNow;
     }
-    public int ApplicationId { get; set; }
-    public Application? Application { get; set; } // Navigation property to Application
+    public int UserDataId { get; set; }
+    public UserData? UserData { get; set; } // Navigation property to UserData
     public string DocumentType { get; set; } = string.Empty;
 
 

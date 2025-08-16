@@ -127,6 +127,157 @@
   50% { transform: translateY(-20px); }
 }
 
+/* Profile Status Section */
+.profile-status-section {
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  padding: 32px 24px;
+  border-bottom: 2px solid #fecaca;
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-status-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="rgba(220,38,38,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+  opacity: 0.3;
+}
+
+.profile-status-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+.profile-status-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 28px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  transition: all 0.4s ease;
+  animation: fadeInUp 0.8s ease-out forwards;
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-status-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+  animation: shimmer 2s infinite;
+}
+
+.profile-status-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+
+.profile-status-warning {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 2px solid #f59e0b;
+  box-shadow: 0 8px 32px rgba(245, 158, 11, 0.2);
+}
+
+.profile-status-success {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  border: 2px solid #22c55e;
+  box-shadow: 0 8px 32px rgba(34, 197, 94, 0.2);
+}
+
+.status-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+  animation: pulse 2s infinite;
+}
+
+.status-content {
+  flex: 1;
+}
+
+.status-content h4 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #1f2937;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.status-content p {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0 0 16px 0;
+  line-height: 1.6;
+}
+
+.profile-status-warning .status-content h4 {
+  color: #92400e;
+}
+
+.profile-status-success .status-content h4 {
+  color: #166534;
+}
+
+/* Profile Action Buttons */
+.profile-action-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.profile-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.profile-action-btn-warning {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+}
+
+.profile-action-btn-warning:hover {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+}
+
+.profile-action-btn-success {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: white;
+}
+
+.profile-action-btn-success:hover {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+}
+
+/* Animations */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
 /* Search Section */
 .search-section {
   background: white;
@@ -593,6 +744,32 @@
     font-size: 2rem;
   }
   
+  .profile-status-section {
+    padding: 24px 20px;
+  }
+  
+  .profile-status-card {
+    padding: 20px;
+    gap: 16px;
+  }
+  
+  .status-icon {
+    font-size: 2rem;
+  }
+  
+  .status-content h4 {
+    font-size: 1.1rem;
+  }
+  
+  .status-content p {
+    font-size: 0.95rem;
+  }
+  
+  .profile-action-btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+  
   .search-section {
     padding: 30px 20px;
   }
@@ -650,6 +827,34 @@
   .hero-stats {
     flex-direction: column;
     gap: 20px;
+  }
+  
+  .profile-status-section {
+    padding: 20px 16px;
+  }
+  
+  .profile-status-card {
+    padding: 16px;
+    gap: 12px;
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .status-icon {
+    font-size: 1.75rem;
+  }
+  
+  .status-content h4 {
+    font-size: 1rem;
+  }
+  
+  .status-content p {
+    font-size: 0.9rem;
+  }
+  
+  .profile-action-btn {
+    padding: 8px 16px;
+    font-size: 0.85rem;
   }
   
   .search-section {

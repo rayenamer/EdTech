@@ -9,5 +9,5 @@ public class DocumentDto
     public DateTime UploadDate { get; set; }
     public string DocumentType { get; set; } = string.Empty;
     public byte[] Content { get; set; } = Array.Empty<byte>();
-    public int ApplicationId { get; set; }
+    public int UserDataId { get; set; }
 }
