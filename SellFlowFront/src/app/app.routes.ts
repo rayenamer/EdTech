@@ -19,6 +19,7 @@ import { ProgramsComponent } from './programs/programs.component';
 import { AddProgramComponent } from './add-program/add-program.component';
 import { adminGuard } from './guards/admin.guard';
 import {ProgramdetailscardComponent} from './programdetailscard/programdetailscard.component';
+import { UserProfileComponent } from './user-profile/user-profile.component';
 export const routes: Routes = [
     {path: '', component: HomeComponent },
     {path:'programs', component: ProgramsComponent, canActivate: [adminGuard]},
@@ -37,5 +38,6 @@ export const routes: Routes = [
     {path: 'ForgotPass', component: ForgotPasswordComponent},
     {path : 'Acceuil', component: AcceuilComponent},
     {path : 'programdetails/:id', component: ProgramdetailscardComponent},
+    {path: 'user-profile', component: UserProfileComponent},
     {path: '**', component: HomeComponent, pathMatch: 'full' },
 ];

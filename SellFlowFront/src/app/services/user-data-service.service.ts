@@ -18,7 +18,29 @@ export class UserDataServiceService {
     return this.http.get<{ hasData: boolean }>(`${this.baseUrl}UserData/check-user-has-data`);
   }
   AddUserData(data: any) {
-    return this.http.post(`${this.baseUrl}UserData/add-user-data`, data);
+    // Convert JSON data to FormData since the backend expects [FromForm]
+    const formData = new FormData();
+    
+    // Add all the user data fields
+    Object.keys(data).forEach(key => {
+      if (key === 'documents') {
+        // Handle documents array specially
+        if (data[key] && Array.isArray(data[key])) {
+          data[key].forEach((doc: any, index: number) => {
+            formData.append(`documents[${index}].id`, doc.id);
+            formData.append(`documents[${index}].name`, doc.name);
+            formData.append(`documents[${index}].documentType`, doc.documentType);
+            formData.append(`documents[${index}].uploadDate`, doc.uploadDate);
+            formData.append(`documents[${index}].userDataId`, doc.userDataId);
+          });
+        }
+      } else if (data[key] !== null && data[key] !== undefined) {
+        formData.append(key, data[key].toString());
+      }
+    });
+
+    console.log('Sending FormData:', formData);
+    return this.http.post(`${this.baseUrl}UserData/add-UserData`, formData);
   }
 
   checkUserDataOnce(): void {
@@ -30,4 +52,15 @@ export class UserDataServiceService {
       })
     ).subscribe(response => this.hasDataSubject.next(response.hasData));
   }
+
+  getMyUserData(){
+    return this.http.get(`${this.baseUrl}UserData/get-user-UserDatas`).pipe(
+      tap(response => console.log('User data retrieved successfully:', response)),
+      catchError(error => {
+        console.error('Error retrieving user data:', error);
+        return of(null);
+      })
+    );
+  }
+
 }

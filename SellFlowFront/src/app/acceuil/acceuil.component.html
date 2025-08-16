@@ -20,23 +20,26 @@
           </div>
         </div>
       </div>
-      
+
     </div>
   </div>
 
-    <!-- Profile Status Section -->
+  <!-- Profile Status Section -->
   <div class="profile-status-section">
     <div class="profile-status-container">
       <div *ngIf="!hasData" class="profile-status-card profile-status-warning">
         <div class="status-icon">⚠️</div>
         <div class="status-content">
-          <h4>Profile Incomplete</h4>
-          <p>Please complete your profile so you can apply for programs.</p>
-          <button class="profile-action-btn profile-action-btn-warning" (click)="completeProfile()">
-            <i class="fas fa-user-edit"></i>
-            Complete Profile
-          </button>
-        </div>
+  <h4>Profile Incomplete</h4>
+  <p>Please complete your profile so you can apply for programs.</p>
+  <a class="profile-action-btn profile-action-btn-warning" routerLink="/user-profile" routerLinkActive="active">
+    <i class="fas fa-user-edit"></i>
+    Complete Profile
+  </a>
+</div>
+
+
+
       </div>
       <div *ngIf="hasData" class="profile-status-card profile-status-success">
         <div class="status-icon">✅</div>
@@ -109,12 +112,11 @@
       <h2>Study Programs</h2>
       <p>Browse our collection of study opportunities</p>
     </div>
-    
+
     <div class="programs-grid">
-      <div *ngFor="let program of programs; let i = index" class="program-card-wrapper" [style.animation-delay]="(i * 0.1) + 's'">
-        <app-program-card
-          [program]="program"
-          (applyClicked)="onProgramApply($event)"
+      <div *ngFor="let program of programs; let i = index" class="program-card-wrapper"
+        [style.animation-delay]="(i * 0.1) + 's'">
+        <app-program-card [program]="program" (applyClicked)="onProgramApply($event)"
           (learnMoreClicked)="onProgramLearnMore($event)">
         </app-program-card>
       </div>

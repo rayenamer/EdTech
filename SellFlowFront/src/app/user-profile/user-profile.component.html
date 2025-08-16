@@ -1,0 +1,233 @@
+<div class="user-profile-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading your profile...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMessage && !loading" class="error-container">
+    <div class="error-icon">
+      <i class="fas fa-exclamation-triangle"></i>
+    </div>
+    <h2>Error Loading Profile</h2>
+    <p>{{ errorMessage }}</p>
+    <button class="btn-retry" (click)="loadUserData()">
+      <i class="fas fa-redo"></i>
+      Try Again
+    </button>
+  </div>
+
+  <!-- No Data State -->
+  <div *ngIf="!hasData && !loading && !errorMessage" class="no-data-container">
+    <div class="no-data-icon">
+      <i class="fas fa-user-plus"></i>
+    </div>
+    <h2>No Profile Data Found</h2>
+    <p>It looks like you haven't created your profile yet. Please complete your profile to get started.</p>
+    <button class="btn-primary" routerLink="/acceuil">
+      <i class="fas fa-arrow-left"></i>
+      Go Back
+    </button>
+  </div>
+
+  <!-- User Profile Data -->
+  <div *ngIf="userData && !loading" class="profile-data-container">
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <div class="profile-info">
+        <h1>{{ userData.fullName || 'Profile Information' }}</h1>
+        <p class="profile-subtitle">User Profile Details</p>
+      </div>
+    </div>
+
+    <!-- Personal Information Section -->
+    <div class="profile-section">
+      <h2 class="section-title">
+        Personal Information
+      </h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Full Name</label>
+          <span>{{ userData.fullName || 'Not provided' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Phone Number</label>
+          <span>{{ userData.number || 'Not provided' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Date of Birth</label>
+          <span>{{ formatDate(userData.dateOfBirth) }}</span>
+        </div>
+        <div class="info-item">
+          <label>LinkedIn</label>
+          <span *ngIf="userData.linkedinLink; else noLinkedin">
+            <a [href]="userData.linkedinLink" target="_blank" class="linkedin-link">
+              View Profile
+            </a>
+          </span>
+          <ng-template #noLinkedin>Not provided</ng-template>
+        </div>
+      </div>
+    </div>
+
+    <!-- Personal Statements Section -->
+    <div class="profile-section">
+      <h2 class="section-title">
+        Personal Statements
+      </h2>
+      <div class="statements-container">
+        <div class="statement-item">
+          <label>Motivation</label>
+          <p>{{ userData.motivation || 'No motivation statement provided' }}</p>
+        </div>
+        <div class="statement-item">
+          <label>Life Outside</label>
+          <p>{{ userData.lifeOutSide || 'No information provided about life outside academics' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Education Background Section -->
+    <div class="profile-section">
+      <h2 class="section-title">
+        Education Background
+      </h2>
+      
+      <!-- Baccalaureat -->
+      <div class="education-item" *ngIf="userData.baccalaureatDegree || userData.baccalaureatInstitution">
+        <h3>Baccalaureat</h3>
+        <div class="education-details">
+          <div class="detail-item">
+            <label>Degree</label>
+            <span>{{ userData.baccalaureatDegree || 'Not specified' }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Institution</label>
+            <span>{{ userData.baccalaureatInstitution || 'Not specified' }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Date</label>
+            <span>{{ formatDate(userData.baccalaureatDate) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bachelor -->
+      <div class="education-item" *ngIf="userData.bachelorDegree || userData.bachelorInstitution">
+        <h3>Bachelor's Degree</h3>
+        <div class="education-details">
+          <div class="detail-item">
+            <label>Degree</label>
+            <span>{{ userData.bachelorDegree || 'Not specified' }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Institution</label>
+            <span>{{ userData.bachelorInstitution || 'Not specified' }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Date</label>
+            <span>{{ formatDate(userData.bachelorDate) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Master -->
+      <div class="education-item" *ngIf="userData.masterDegree || userData.masterInstitution">
+        <h3>Master's Degree</h3>
+        <div class="education-details">
+          <div class="detail-item">
+            <label>Degree</label>
+            <span>{{ userData.masterDegree || 'Not specified' }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Institution</label>
+            <span>{{ userData.masterInstitution || 'Not specified' }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Date</label>
+            <span>{{ formatDate(userData.masterDate) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Engineering -->
+      <div class="education-item" *ngIf="userData.engDegree || userData.engInstitution">
+        <h3>Engineering Degree</h3>
+        <div class="education-details">
+          <div class="detail-item">
+            <label>Degree</label>
+            <span>{{ userData.engDegree || 'Not specified' }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Institution</label>
+            <span>{{ userData.engInstitution || 'Not specified' }}</span>
+          </div>
+          <div class="detail-item">
+            <label>Date</label>
+            <span>{{ formatDate(userData.engDate) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- No Education Data -->
+      <div *ngIf="!userData.baccalaureatDegree && !userData.bachelorDegree && !userData.masterDegree && !userData.engDegree" class="no-education">
+        <p>No education information provided</p>
+      </div>
+    </div>
+
+    <!-- Work Experience Section -->
+    <div class="profile-section" *ngIf="userData.workExperience">
+      <h2 class="section-title">
+        Work Experience
+      </h2>
+      <div class="work-experience">
+        <p>{{ userData.workExperience }}</p>
+      </div>
+    </div>
+
+    <!-- Documents Section -->
+    <div class="profile-section" *ngIf="userData.documents && userData.documents.length > 0">
+      <h2 class="section-title">
+        Documents
+      </h2>
+      <div class="documents-grid">
+        <div *ngFor="let document of userData.documents" class="document-card">
+          <div class="document-icon" [style.color]="getDocumentTypeColor(document.documentType)">
+            <i [class]="getDocumentTypeIcon(document.documentType)"></i>
+          </div>
+          <div class="document-info">
+            <h4>{{ document.name }}</h4>
+            <p class="document-type">{{ document.documentType }}</p>
+            <p class="document-date">Uploaded: {{ formatDate(document.uploadDate) }}</p>
+          </div>
+          <button class="btn-download" (click)="downloadDocument(document.id, document.name)">
+            <i class="fas fa-download"></i>
+            Download
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Documents -->
+    <div class="profile-section" *ngIf="!userData.documents || userData.documents.length === 0">
+      <h2 class="section-title">
+        Documents
+      </h2>
+      <div class="no-documents">
+        <p>No documents uploaded yet</p>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="profile-actions">
+      <button class="btn-secondary" routerLink="/acceuil">
+        Back to Home
+      </button>
+      <button class="btn-primary" (click)="loadUserData()">
+        <i class="fas fa-sync-alt"></i>
+        Refresh Data
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,20 +1,29 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { UniProgram } from '../models/UniProgram';
 import { UniProgramService } from '../services/uni-program.service';
 import { ProgramCardComponent } from '../programs/program-card/program-card.component';
 import { UserDataServiceService } from '../services/user-data-service.service';
 import { catchError, map, Observable, of, shareReplay, take } from 'rxjs';
+
 @Component({
   selector: 'app-acceuil',
   standalone: true,
-  imports: [CommonModule, ProgramCardComponent],
+  imports: [CommonModule, RouterModule, ProgramCardComponent],
   templateUrl: './acceuil.component.html',
   styleUrl: './acceuil.component.css'
 })
 export class AcceuilComponent implements OnInit {
   hasData: boolean = true; // store actual boolean, not Observable
-  constructor(private uniProgramService: UniProgramService, private userDataService: UserDataServiceService) { }
+  programs: UniProgram[] = [];
+  loading = false;
+  error: string | null = null;
+
+  constructor(
+    private uniProgramService: UniProgramService, 
+    private userDataService: UserDataServiceService
+  ) { }
 
   ngOnInit(): void {
     this.loadPrograms();
@@ -24,9 +33,16 @@ export class AcceuilComponent implements OnInit {
     });
   }
 
-  programs: UniProgram[] = [];
-  loading = false;
-  error: string | null = null;
+  completeProfile(): void {
+    console.log('Complete profile clicked');
+    // Navigation is handled by routerLink in template
+  }
+
+  viewProfile(): void {
+    console.log('View profile clicked');
+    // TODO: Navigate to profile view page
+    // This could navigate to a profile details page
+  }
 
   loadPrograms(): void {
     this.loading = true;
@@ -62,17 +78,6 @@ export class AcceuilComponent implements OnInit {
     // This could open a detailed view, navigate to program details page, etc.
   }
 
-  completeProfile(): void {
-    console.log('Complete profile clicked');
-    // TODO: Navigate to profile completion page
-    // This could navigate to a profile form or modal
-  }
-
-  viewProfile(): void {
-    console.log('View profile clicked');
-    // TODO: Navigate to profile view page
-    // This could navigate to a profile details page
-  }
   getProgramById(id: number): void {
     this.uniProgramService.getProgramById(id).subscribe({
       next: (program) => {
