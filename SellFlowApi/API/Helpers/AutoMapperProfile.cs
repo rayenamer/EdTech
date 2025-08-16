@@ -21,6 +21,11 @@ public class AutoMapperProfiles : Profile
 
         // For inserting/updating → mapping DTO to entity
         CreateMap<UniProgramDto, UniProgram>();
+        CreateMap<PersonalInformationDto, UserData>()
+            .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
+            .ForMember(dest => dest.Number, opt => opt.MapFrom(src => src.Number))
+            .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.DateOfBirth))
+            .ForMember(dest => dest.LinkedinLink, opt => opt.MapFrom(src => src.LinkedinLink));
 
         CreateMap<UserDataDto, UserData>()
             .ForMember(dest => dest.Documents, opt => opt.MapFrom(src => src.Documents));

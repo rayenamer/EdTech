@@ -43,10 +43,20 @@
 
     <!-- Personal Information Section -->
     <div class="profile-section">
-      <h2 class="section-title">
-        Personal Information
-      </h2>
-      <div class="info-grid">
+      <div class="section-header">
+        <h2 class="section-title">
+          Personal Information
+        </h2>
+        <button 
+          *ngIf="!isEditingPersonalInfo" 
+          class="edit-btn" 
+          (click)="startEditingPersonalInfo()">
+          ✏️ Edit
+        </button>
+      </div>
+
+      <!-- Display Mode -->
+      <div *ngIf="!isEditingPersonalInfo" class="info-grid">
         <div class="info-item">
           <label>Full Name</label>
           <span>{{ userData.fullName || 'Not provided' }}</span>
@@ -67,6 +77,62 @@
             </a>
           </span>
           <ng-template #noLinkedin>Not provided</ng-template>
+        </div>
+      </div>
+
+      <!-- Edit Mode -->
+      <div *ngIf="isEditingPersonalInfo" class="edit-form">
+        <div class="form-group">
+          <label for="fullName">Full Name *</label>
+          <input 
+            type="text" 
+            id="fullName" 
+            name="fullName" 
+            [(ngModel)]="personalInfoForm.fullName" 
+            placeholder="Enter your full name"
+            required>
+        </div>
+        
+        <div class="form-group">
+          <label for="number">Phone Number</label>
+          <input 
+            type="tel" 
+            id="number" 
+            name="number" 
+            [(ngModel)]="personalInfoForm.number" 
+            placeholder="Enter your phone number">
+        </div>
+        
+        <div class="form-group">
+          <label for="dateOfBirth">Date of Birth</label>
+          <input 
+            type="date" 
+            id="dateOfBirth" 
+            name="dateOfBirth" 
+            [(ngModel)]="personalInfoForm.dateOfBirth">
+        </div>
+        
+        <div class="form-group">
+          <label for="linkedinLink">LinkedIn Profile</label>
+          <input 
+            type="url" 
+            id="linkedinLink" 
+            name="linkedinLink" 
+            [(ngModel)]="personalInfoForm.linkedinLink" 
+            placeholder="https://linkedin.com/in/yourprofile">
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="cancelEditingPersonalInfo()">
+            Cancel
+          </button>
+          <button type="button" class="btn btn-primary" (click)="savePersonalInfo()">
+            Save Changes
+          </button>
+        </div>
+
+        <div *ngIf="errorMessage" class="error-message">
+          {{ errorMessage }}
         </div>
       </div>
     </div>

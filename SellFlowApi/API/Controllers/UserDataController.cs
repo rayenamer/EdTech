@@ -306,6 +306,70 @@ public class UserDataController : ControllerBase
 
     }
 
+    [HttpPost("add/update-personal-information")]
+    public async Task<IActionResult> AddOrUpdatePersonalInformation(PersonalInformationDto personalInfoDto)
+    {
+        try
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim))
+                return Unauthorized("User identifier claim not found.");
+
+            if (!int.TryParse(userIdClaim, out int userId))
+                return BadRequest("User identifier claim is not a valid integer.");
+
+            Console.WriteLine($"Processing request for UserId: {userId}");
+            Console.WriteLine($"PersonalInfoDto: FullName={personalInfoDto.FullName}, Number={personalInfoDto.Number}, DateOfBirth={personalInfoDto.DateOfBirth}");
+
+            var userDatas = await _UserDataRepository.GetByUserIdAsync(userId);
+            var existingUserData = userDatas.FirstOrDefault();
+
+            Console.WriteLine($"Found {userDatas.Count()} existing UserData records for UserId: {userId}");
+            if (existingUserData != null)
+            {
+                Console.WriteLine($"Existing UserData ID: {existingUserData.Id}, FullName: {existingUserData.FullName}");
+            }
+
+            if (existingUserData != null)
+            {
+                // Update existing record
+                Console.WriteLine("Updating existing UserData record...");
+                existingUserData.FullName = personalInfoDto.FullName;
+                existingUserData.Number = personalInfoDto.Number;
+                existingUserData.DateOfBirth = personalInfoDto.DateOfBirth ?? DateTime.MinValue;
+                existingUserData.LinkedinLink = personalInfoDto.LinkedinLink;
+                
+                var updateResult = await _UserDataRepository.UpdateAsync(existingUserData);
+                Console.WriteLine($"Update result: {updateResult}");
+            }
+            else
+            {
+                // Create new record if none exists
+                Console.WriteLine("Creating new UserData record...");
+                var newUserData = _mapper.Map<UserData>(personalInfoDto);
+                newUserData.UserId = userId;
+                newUserData.DateOfBirth = personalInfoDto.DateOfBirth ?? DateTime.MinValue;
+                await _UserDataRepository.AddAsync(newUserData);
+            }
+
+            return Ok(new { success = true });
+        }
+        catch (Exception ex)
+        {
+            // Log the exception details
+            Console.WriteLine($"Error in AddOrUpdatePersonalInformation: {ex.Message}");
+            Console.WriteLine($"StackTrace: {ex.StackTrace}");
+            
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+            }
+            
+            return BadRequest($"Error updating personal information: {ex.Message}");
+        }
+    }
+
+
 
 
 }

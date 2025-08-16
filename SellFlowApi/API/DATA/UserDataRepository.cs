@@ -35,6 +35,43 @@ public class UserDataRepository : IUserDataRepository
         return userData;
     }
 
+    public async Task<bool> UpdateAsync(UserData userData)
+    {
+        try
+        {
+            var existingUserData = await _context.UserDatas.FindAsync(userData.Id);
+            if (existingUserData == null)
+            {
+                Console.WriteLine($"UserData with ID {userData.Id} not found for update");
+                return false;
+            }
+
+            Console.WriteLine($"Updating UserData ID: {userData.Id}");
+            Console.WriteLine($"Old values: FullName={existingUserData.FullName}, Number={existingUserData.Number}");
+            Console.WriteLine($"New values: FullName={userData.FullName}, Number={userData.Number}");
+
+            // Update the properties
+            existingUserData.FullName = userData.FullName;
+            existingUserData.Number = userData.Number;
+            existingUserData.DateOfBirth = userData.DateOfBirth;
+            existingUserData.LinkedinLink = userData.LinkedinLink;
+
+            // Mark as modified
+            _context.UserDatas.Update(existingUserData);
+            
+            var result = await _context.SaveChangesAsync();
+            Console.WriteLine($"SaveChanges result: {result} rows affected");
+            
+            return result > 0;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in UpdateAsync: {ex.Message}");
+            Console.WriteLine($"StackTrace: {ex.StackTrace}");
+            throw;
+        }
+    }
+
     public async Task<bool> DeleteAsync(int id)
     {
         var userData = await _context.UserDatas.FindAsync(id);
@@ -42,6 +79,21 @@ public class UserDataRepository : IUserDataRepository
             return false;
 
         _context.UserDatas.Remove(userData);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+    public async Task<bool> DeletePersonalinfo(int id)
+    {
+        var userData = await _context.UserDatas.FindAsync(id);
+        if (userData == null)
+            return false;
+
+        userData.FullName = string.Empty;
+        userData.Number = string.Empty;
+        userData.DateOfBirth = DateTime.MinValue;
+        userData.LinkedinLink = null;
+
+        _context.UserDatas.Update(userData);
         await _context.SaveChangesAsync();
         return true;
     }
@@ -66,9 +118,27 @@ public class UserDataRepository : IUserDataRepository
 
     public async Task<IEnumerable<UserData>> GetByUserIdAsync(int userId)
     {
-        return await _context.UserDatas
-            .Include(a => a.Documents)
-            .Where(a => a.UserId == userId)
-            .ToListAsync();
+        try
+        {
+            Console.WriteLine($"GetByUserIdAsync called for UserId: {userId}");
+            
+            var userDatas = await _context.UserDatas
+                .Include(a => a.Documents)
+                .Where(a => a.UserId == userId)
+                .ToListAsync();
+            
+            Console.WriteLine($"Found {userDatas.Count} UserData records for UserId: {userId}");
+            foreach (var ud in userDatas)
+            {
+                Console.WriteLine($"UserData ID: {ud.Id}, FullName: {ud.FullName}, UserId: {ud.UserId}");
+            }
+            
+            return userDatas;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in GetByUserIdAsync: {ex.Message}");
+            throw;
+        }
     }
 }

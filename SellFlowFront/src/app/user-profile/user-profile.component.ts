@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { UserDataServiceService } from '../services/user-data-service.service';
 import { catchError, map, of, take } from 'rxjs';
 
@@ -41,7 +42,7 @@ interface UserDataDto {
 @Component({
   selector: 'app-user-profile',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './user-profile.component.html',
   styleUrl: './user-profile.component.css'
 })
@@ -50,6 +51,15 @@ export class UserProfileComponent implements OnInit {
   loading = false;
   errorMessage = '';
   hasData = false;
+  
+  // Personal Information Edit Mode
+  isEditingPersonalInfo = false;
+  personalInfoForm = {
+    fullName: '',
+    number: '',
+    dateOfBirth: '',
+    linkedinLink: ''
+  };
 
   constructor(private userDataService: UserDataServiceService) { }
 
@@ -95,9 +105,6 @@ export class UserProfileComponent implements OnInit {
     link.href = `${this.userDataService.baseUrl}UserData/download-document/${documentId}`;
     link.download = documentName;
     link.target = '_blank';
-    
-    // Add authorization header if needed (you might need to handle this differently)
-    // For now, we'll assume the browser will handle the auth via cookies/session
     
     document.body.appendChild(link);
     link.click();
@@ -148,5 +155,88 @@ export class UserProfileComponent implements OnInit {
       default:
         return '#6b7280';
     }
+  }
+  AddOrUpdatePersonalInformation(data: any): void {
+    this.userDataService.AddOrUpdatePersonalInformation(data).subscribe({
+      next: response => {
+        if (response) {
+          console.log('Personal information updated successfully:', response);
+        } else {
+          console.error('Failed to update personal information.');
+        }
+      },
+      error: error => {
+        console.error('Error updating personal information:', error);
+      }
+    });
+  }
+
+  // Personal Information Edit Methods
+  startEditingPersonalInfo(): void {
+    this.isEditingPersonalInfo = true;
+    this.personalInfoForm = {
+      fullName: this.userData?.fullName || '',
+      number: this.userData?.number || '',
+      dateOfBirth: this.userData?.dateOfBirth ? this.formatDateForInput(this.userData.dateOfBirth) : '',
+      linkedinLink: this.userData?.linkedinLink || ''
+    };
+  }
+
+  cancelEditingPersonalInfo(): void {
+    this.isEditingPersonalInfo = false;
+    this.personalInfoForm = {
+      fullName: '',
+      number: '',
+      dateOfBirth: '',
+      linkedinLink: ''
+    };
+  }
+
+  savePersonalInfo(): void {
+    if (!this.personalInfoForm.fullName.trim()) {
+      this.errorMessage = 'Full name is required';
+      return;
+    }
+
+    const personalInfoData = {
+      fullName: this.personalInfoForm.fullName.trim(),
+      number: this.personalInfoForm.number.trim(),
+      dateOfBirth: this.personalInfoForm.dateOfBirth ? new Date(this.personalInfoForm.dateOfBirth + 'T00:00:00') : null,
+      linkedinLink: this.personalInfoForm.linkedinLink.trim() || null
+    };
+
+    console.log('Sending personal info data:', personalInfoData);
+    console.log('Date of birth type:', typeof personalInfoData.dateOfBirth);
+    if (personalInfoData.dateOfBirth) {
+      console.log('Date of birth value:', personalInfoData.dateOfBirth.toISOString());
+    }
+
+    this.userDataService.AddOrUpdatePersonalInformation(personalInfoData).subscribe({
+      next: response => {
+        if (response) {
+          console.log('Personal information updated successfully:', response);
+          this.isEditingPersonalInfo = false;
+          this.loadUserData(); // Reload data to show updated information
+          this.errorMessage = '';
+        } else {
+          console.error('Failed to update personal information.');
+          this.errorMessage = 'Failed to update personal information. Please try again.';
+        }
+      },
+      error: error => {
+        console.error('Error updating personal information:', error);
+        if (error.error && typeof error.error === 'string') {
+          this.errorMessage = error.error;
+        } else {
+          this.errorMessage = 'Error updating personal information. Please try again.';
+        }
+      }
+    });
+  }
+
+  formatDateForInput(dateString: string): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toISOString().split('T')[0]; // Format as YYYY-MM-DD for input
   }
 }
