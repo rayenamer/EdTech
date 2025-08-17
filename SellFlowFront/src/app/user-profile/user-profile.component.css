@@ -269,6 +269,57 @@
   color: #9ca3af;
 }
 
+.form-group textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  background: white;
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+}
+
+.form-group textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-group textarea::placeholder {
+  color: #9ca3af;
+}
+
+/* Education Edit Form Styles */
+.education-edit-section {
+  margin-bottom: 32px;
+  padding: 20px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.education-edit-section h3 {
+  margin: 0 0 16px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 8px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.form-row .form-group {
+  margin-bottom: 0;
+}
+
 .form-actions {
   display: flex;
   gap: 12px;
@@ -449,6 +500,40 @@
   color: #1f2937;
   line-height: 1.6;
   margin: 0;
+}
+
+/* Document Categories */
+.document-category {
+  margin-bottom: 32px;
+}
+
+.category-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 24px 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+/* Section Header */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.upload-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+}
+
+.upload-btn i {
+  font-size: 1rem;
 }
 
 /* Documents Grid */

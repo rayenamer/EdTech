@@ -47,5 +47,34 @@ export class UserDataServiceService {
       })
     );
   }
+  AddOrUpdatePersonalStatements(data: any) {
+    return this.http.post(`${this.baseUrl}UserData/add/update-personal-statements`, data).pipe(
+      tap(response => console.log('Personal statements updated successfully:', response)),
+      catchError(error => {
+        console.error('Error updating personal statements:', error);
+        return of(null);
+      })
+    );
+  }
+  AddOrUpdateEducationBackground(data: any) {
+    return this.http.post(`${this.baseUrl}UserData/add/update-education-background`, data).pipe(
+      tap(response => console.log('Education background updated successfully:', response)),
+      catchError(error => {
+        console.error('Error updating education background:', error);
+        return of(null);
+      })
+    );
+  }
+
+  AddOrUpdateWorkExperience(data: any) {
+    return this.http.post(`${this.baseUrl}UserData/add/update-work-experience`, data).pipe(
+      tap(response => console.log('Work experience updated successfully:', response)),
+      catchError(error => {
+        console.error('Error updating work experience:', error);
+        return of(null);
+      })
+    );
+  }
+  
 
 }

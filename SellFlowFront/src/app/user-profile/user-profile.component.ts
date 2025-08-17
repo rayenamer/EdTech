@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { UserDataServiceService } from '../services/user-data-service.service';
-import { catchError, map, of, take } from 'rxjs';
+import { catchError, finalize, map, of, take } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 interface DocumentDto {
   id: number;
@@ -47,9 +48,62 @@ interface UserDataDto {
   styleUrl: './user-profile.component.css'
 })
 export class UserProfileComponent implements OnInit {
+uploadDocument() {
+    // Create a file input element
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.pdf,.jpg,.jpeg,.png';
+    
+    // Trigger file dialog
+    fileInput.click();
+    
+    // Handle file selection
+    fileInput.addEventListener('change', (event) => {
+      const target = event.target as HTMLInputElement;
+      if (target.files && target.files.length > 0) {
+        const file = target.files[0];
+        
+        // Prompt user to select document type
+        const documentType = prompt('Select document type:', 'CV, Bachelor Degree, Bachelor Grades, Other');
+        if (!documentType) return; // User cancelled
+        
+        // Create form data
+        const formData = new FormData();
+        formData.append('files', file);
+        formData.append('documentType', documentType);
+        
+        // Show loading indicator
+        this.isLoading = true;
+        
+        // Send to API
+        this.http.post(`${this.baseUrl}UserData/add-UserData`, formData)
+          .pipe(
+            finalize(() => this.isLoading = false)
+          )
+          .subscribe({
+            next: () => {
+              alert('Document uploaded successfully!');
+              this.loadUserData(); // Refresh data
+            },
+            error: (error) => {
+              console.error('Error uploading document:', error);
+              alert('Failed to upload document. ' + (error.error || 'Please try again.'));
+            }
+          });
+      }
+    });
+  }
+  
+  
   userData: UserDataDto | null = null;
   loading = false;
   errorMessage = '';
+  isLoading = false;
+  baseUrl = '';
+  
+  constructor(private userDataService: UserDataServiceService, private http: HttpClient) {
+    this.baseUrl = this.userDataService.baseUrl;
+  }
   hasData = false;
   
   // Personal Information Edit Mode
@@ -61,7 +115,37 @@ export class UserProfileComponent implements OnInit {
     linkedinLink: ''
   };
 
-  constructor(private userDataService: UserDataServiceService) { }
+  // Personal Statements Edit Mode
+  isEditingPersonalStatements = false;
+  personalStatementsForm = {
+    motivation: '',
+    lifeOutSide: ''
+  };
+
+  // Education Background Edit Mode
+  isEditingEducation = false;
+  educationForm = {
+    baccalaureatDegree: '',
+    baccalaureatInstitution: '',
+    baccalaureatDate: '',
+    bachelorDegree: '',
+    bachelorInstitution: '',
+    bachelorDate: '',
+    masterDegree: '',
+    masterInstitution: '',
+    masterDate: '',
+    engDegree: '',
+    engInstitution: '',
+    engDate: ''
+  };
+
+  // Work Experience Edit Mode
+  isEditingWorkExperience = false;
+  workExperienceForm = {
+    workExperience: ''
+  };
+
+
 
   ngOnInit(): void {
     this.loadUserData();
@@ -156,6 +240,51 @@ export class UserProfileComponent implements OnInit {
         return '#6b7280';
     }
   }
+
+  // Document category filter methods
+  getBaccalaureatDiploma(): DocumentDto[] {
+    return this.userData?.documents?.filter(doc => 
+      doc.documentType.toLowerCase().includes('baccalaureat') && 
+      doc.documentType.toLowerCase().includes('diploma')
+    ) || [];
+  }
+
+  getBaccalaureatGrades(): DocumentDto[] {
+    return this.userData?.documents?.filter(doc => 
+      doc.documentType.toLowerCase().includes('baccalaureat') && 
+      doc.documentType.toLowerCase().includes('grades')
+    ) || [];
+  }
+
+  getCV(): DocumentDto[] {
+    return this.userData?.documents?.filter(doc => 
+      doc.documentType.toLowerCase().includes('cv') || 
+      doc.documentType.toLowerCase().includes('resume')
+    ) || [];
+  }
+
+  getBachelorDegree(): DocumentDto[] {
+    return this.userData?.documents?.filter(doc => 
+      doc.documentType.toLowerCase().includes('bachelor') && 
+      doc.documentType.toLowerCase().includes('degree')
+    ) || [];
+  }
+
+  getBachelorGrades(): DocumentDto[] {
+    return this.userData?.documents?.filter(doc => 
+      doc.documentType.toLowerCase().includes('bachelor') && 
+      doc.documentType.toLowerCase().includes('grades')
+    ) || [];
+  }
+
+  getOtherFiles(): DocumentDto[] {
+    return this.userData?.documents?.filter(doc => 
+      !doc.documentType.toLowerCase().includes('baccalaureat') && 
+      !doc.documentType.toLowerCase().includes('bachelor') && 
+      !doc.documentType.toLowerCase().includes('cv') && 
+      !doc.documentType.toLowerCase().includes('resume')
+    ) || [];
+  }
   AddOrUpdatePersonalInformation(data: any): void {
     this.userDataService.AddOrUpdatePersonalInformation(data).subscribe({
       next: response => {
@@ -238,5 +367,181 @@ export class UserProfileComponent implements OnInit {
     if (!dateString) return '';
     const date = new Date(dateString);
     return date.toISOString().split('T')[0]; // Format as YYYY-MM-DD for input
+  }
+
+  // Personal Statements Edit Methods
+  startEditingPersonalStatements(): void {
+    this.isEditingPersonalStatements = true;
+    this.personalStatementsForm = {
+      motivation: this.userData?.motivation || '',
+      lifeOutSide: this.userData?.lifeOutSide || ''
+    };
+  }
+
+  cancelEditingPersonalStatements(): void {
+    this.isEditingPersonalStatements = false;
+    this.personalStatementsForm = {
+      motivation: '',
+      lifeOutSide: ''
+    };
+  }
+
+  savePersonalStatements(): void {
+    if (!this.personalStatementsForm.motivation.trim()) {
+      this.errorMessage = 'Motivation statement is required';
+      return;
+    }
+
+    const personalStatementsData = {
+      motivation: this.personalStatementsForm.motivation.trim(),
+      lifeOutSide: this.personalStatementsForm.lifeOutSide.trim() || null
+    };
+
+    console.log('Sending personal statements data:', personalStatementsData);
+
+    this.userDataService.AddOrUpdatePersonalStatements(personalStatementsData).subscribe({
+      next: response => {
+        if (response) {
+          console.log('Personal statements updated successfully:', response);
+          this.isEditingPersonalStatements = false;
+          this.loadUserData(); // Reload data to show updated information
+          this.errorMessage = '';
+        } else {
+          console.error('Failed to update personal statements.');
+          this.errorMessage = 'Failed to update personal statements. Please try again.';
+        }
+      },
+      error: error => {
+        console.error('Error updating personal statements:', error);
+        if (error.error && typeof error.error === 'string') {
+          this.errorMessage = error.error;
+        } else {
+          this.errorMessage = 'Error updating personal statements. Please try again.';
+        }
+      }
+    });
+  }
+
+  // Education Background Edit Methods
+  startEditingEducation(): void {
+    this.isEditingEducation = true;
+    this.educationForm = {
+      baccalaureatDegree: this.userData?.baccalaureatDegree || '',
+      baccalaureatInstitution: this.userData?.baccalaureatInstitution || '',
+      baccalaureatDate: this.userData?.baccalaureatDate ? this.formatDateForInput(this.userData.baccalaureatDate) : '',
+      bachelorDegree: this.userData?.bachelorDegree || '',
+      bachelorInstitution: this.userData?.bachelorInstitution || '',
+      bachelorDate: this.userData?.bachelorDate ? this.formatDateForInput(this.userData.bachelorDate) : '',
+      masterDegree: this.userData?.masterDegree || '',
+      masterInstitution: this.userData?.masterInstitution || '',
+      masterDate: this.userData?.masterDate ? this.formatDateForInput(this.userData.masterDate) : '',
+      engDegree: this.userData?.engDegree || '',
+      engInstitution: this.userData?.engInstitution || '',
+      engDate: this.userData?.engDate ? this.formatDateForInput(this.userData.engDate) : ''
+    };
+  }
+
+  cancelEditingEducation(): void {
+    this.isEditingEducation = false;
+    this.educationForm = {
+      baccalaureatDegree: '',
+      baccalaureatInstitution: '',
+      baccalaureatDate: '',
+      bachelorDegree: '',
+      bachelorInstitution: '',
+      bachelorDate: '',
+      masterDegree: '',
+      masterInstitution: '',
+      masterDate: '',
+      engDegree: '',
+      engInstitution: '',
+      engDate: ''
+    };
+  }
+
+  saveEducation(): void {
+    const educationData = {
+      baccalaureatDegree: this.educationForm.baccalaureatDegree.trim() || null,
+      baccalaureatInstitution: this.educationForm.baccalaureatInstitution.trim() || null,
+      baccalaureatDate: this.educationForm.baccalaureatDate ? new Date(this.educationForm.baccalaureatDate + 'T00:00:00') : null,
+      bachelorDegree: this.educationForm.bachelorDegree.trim() || null,
+      bachelorInstitution: this.educationForm.bachelorInstitution.trim() || null,
+      bachelorDate: this.educationForm.bachelorDate ? new Date(this.educationForm.bachelorDate + 'T00:00:00') : null,
+      masterDegree: this.educationForm.masterDegree.trim() || null,
+      masterInstitution: this.educationForm.masterInstitution.trim() || null,
+      masterDate: this.educationForm.masterDate ? new Date(this.educationForm.masterDate + 'T00:00:00') : null,
+      engDegree: this.educationForm.engDegree.trim() || null,
+      engInstitution: this.educationForm.engInstitution.trim() || null,
+      engDate: this.educationForm.engDate ? new Date(this.educationForm.engDate + 'T00:00:00') : null
+    };
+
+    console.log('Sending education data:', educationData);
+
+    this.userDataService.AddOrUpdateEducationBackground(educationData).subscribe({
+      next: response => {
+        if (response) {
+          console.log('Education background updated successfully:', response);
+          this.isEditingEducation = false;
+          this.loadUserData(); // Reload data to show updated information
+          this.errorMessage = '';
+        } else {
+          console.error('Failed to update education background.');
+          this.errorMessage = 'Failed to update education background. Please try again.';
+        }
+      },
+      error: error => {
+        console.error('Error updating education background:', error);
+        if (error.error && typeof error.error === 'string') {
+          this.errorMessage = error.error;
+        } else {
+          this.errorMessage = 'Error updating education background. Please try again.';
+        }
+      }
+    });
+  }
+
+  // Work Experience Edit Methods
+  startEditingWorkExperience(): void {
+    this.isEditingWorkExperience = true;
+    this.workExperienceForm = {
+      workExperience: this.userData?.workExperience || ''
+    };
+  }
+
+  cancelEditingWorkExperience(): void {
+    this.isEditingWorkExperience = false;
+    this.workExperienceForm = {
+      workExperience: ''
+    };
+  }
+
+  saveWorkExperience(): void {
+    const workExperienceData = {
+      WorkExperience: this.workExperienceForm.workExperience.trim() || null
+    };
+
+    console.log('Sending work experience data:', workExperienceData);
+
+    this.userDataService.AddOrUpdateWorkExperience(workExperienceData).subscribe({
+      next: response => {
+        if (response) {
+          console.log('Work experience updated successfully:', response);
+          this.isEditingWorkExperience = false;
+          this.loadUserData(); // Reload data to show updated information
+          this.errorMessage = '';
+        } else {
+          console.error('Failed to update work experience.');
+          this.errorMessage = 'Failed to update work experience. Please try again.';
+        }
+      },
+      error: error => {
+        console.error('Error updating work experience:', error);
+        if (error.error && typeof error.error === 'string') {
+          this.errorMessage = error.error;
+        } else {
+          this.errorMessage = 'Error updating work experience. Please try again.';
+        }
+      }
+    });
   }
 }

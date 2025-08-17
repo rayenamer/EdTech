@@ -11,6 +11,7 @@ using API.DATA;
 using API.Dtos;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 
 namespace API.Controllers;
 
@@ -338,7 +339,7 @@ public class UserDataController : ControllerBase
                 existingUserData.Number = personalInfoDto.Number;
                 existingUserData.DateOfBirth = personalInfoDto.DateOfBirth ?? DateTime.MinValue;
                 existingUserData.LinkedinLink = personalInfoDto.LinkedinLink;
-                
+
                 var updateResult = await _UserDataRepository.UpdateAsync(existingUserData);
                 Console.WriteLine($"Update result: {updateResult}");
             }
@@ -359,17 +360,200 @@ public class UserDataController : ControllerBase
             // Log the exception details
             Console.WriteLine($"Error in AddOrUpdatePersonalInformation: {ex.Message}");
             Console.WriteLine($"StackTrace: {ex.StackTrace}");
-            
+
             if (ex.InnerException != null)
             {
                 Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
             }
-            
+
             return BadRequest($"Error updating personal information: {ex.Message}");
         }
     }
+    [HttpPost("add/update-personal-statements")]
+    public async Task<IActionResult> AddOrUpdatePersonalStatements(PersonalStatementsDto personalStatementsDto)
+    {
+        try
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim))
+                return Unauthorized("User identifier claim not found.");
 
+            if (!int.TryParse(userIdClaim, out int userId))
+                return BadRequest("User identifier claim is not a valid integer.");
 
+            Console.WriteLine($"Processing request for UserId: {userId}");
+            Console.WriteLine($"PersonalStatementsDto: Motivation={personalStatementsDto.Motivation}, LifeOutside={personalStatementsDto.LifeOutSide}");
 
+            var userDatas = await _UserDataRepository.GetByUserIdAsync(userId);
+            var existingUserData = userDatas.FirstOrDefault();
 
+            Console.WriteLine($"Found {userDatas.Count()} existing UserData records for UserId: {userId}");
+            if (existingUserData != null)
+            {
+                Console.WriteLine($"Existing UserData ID: {existingUserData.Id}, Motivation: {existingUserData.Motivation}, LifeOutside: {existingUserData.LifeOutSide}");
+            }
+
+            if (existingUserData != null)
+            {
+                // Update existing record
+                Console.WriteLine("Updating existing UserData record...");
+                existingUserData.Motivation = personalStatementsDto.Motivation;
+                existingUserData.LifeOutSide = personalStatementsDto.LifeOutSide;
+
+                var updateResult = await _UserDataRepository.UpdateAsync(existingUserData);
+                Console.WriteLine($"Update result: {updateResult}");
+            }
+            else
+            {
+                // Create new record if none exists
+                Console.WriteLine("Creating new UserData record...");
+                var newUserData = _mapper.Map<UserData>(personalStatementsDto);
+                newUserData.UserId = userId;
+                await _UserDataRepository.AddAsync(newUserData);
+            }
+
+            return Ok(new { success = true });
+        }
+        catch (Exception ex)
+        {
+            // Log the exception details
+            Console.WriteLine($"Error in AddOrUpdatePersonalStatements: {ex.Message}");
+            Console.WriteLine($"StackTrace: {ex.StackTrace}");
+
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+            }
+
+            return BadRequest($"Error updating personal statements: {ex.Message}");
+        }
+    }
+    [HttpPost("add/update-education-background")]
+    public async Task<IActionResult> AddOrUpdateEducationBackground(EducationBackgroundDto educationBackgroundDto)
+    {
+        try
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim))
+                return Unauthorized("User identifier claim not found.");
+
+            if (!int.TryParse(userIdClaim, out int userId))
+                return BadRequest("User identifier claim is not a valid integer.");
+
+            Console.WriteLine($"Processing request for UserId: {userId}");
+            Console.WriteLine($"EducationBackgroundDto: {JsonConvert.SerializeObject(educationBackgroundDto)}");
+
+            var userDatas = await _UserDataRepository.GetByUserIdAsync(userId);
+            var existingUserData = userDatas.FirstOrDefault();
+
+            Console.WriteLine($"Found {userDatas.Count()} existing UserData records for UserId: {userId}");
+            if (existingUserData != null)
+            {
+                Console.WriteLine($"Existing UserData ID: {existingUserData.Id}");
+            }
+
+            if (existingUserData != null)
+            {
+                // Update existing record
+                Console.WriteLine("Updating existing UserData record...");
+                existingUserData.BaccalaureatDegree = educationBackgroundDto.BaccalaureatDegree;
+                existingUserData.BaccalaureatInstitution = educationBackgroundDto.BaccalaureatInstitution;
+                existingUserData.BaccalaureatDate = educationBackgroundDto.BaccalaureatDate;
+                existingUserData.BachelorDegree = educationBackgroundDto.BachelorDegree;
+                existingUserData.BachelorInstitution = educationBackgroundDto.BachelorInstitution;
+                existingUserData.BachelorDate = educationBackgroundDto.BachelorDate;
+                existingUserData.MasterDegree = educationBackgroundDto.MasterDegree;
+                existingUserData.MasterInstitution = educationBackgroundDto.MasterInstitution;
+                existingUserData.MasterDate = educationBackgroundDto.MasterDate;
+                existingUserData.EngDegree = educationBackgroundDto.EngDegree;
+                existingUserData.EngInstitution = educationBackgroundDto.EngInstitution;
+                existingUserData.EngDate = educationBackgroundDto.EngDate;
+
+                var updateResult = await _UserDataRepository.UpdateAsync(existingUserData);
+                Console.WriteLine($"Update result: {updateResult}");
+            }
+            else
+            {
+                // Create new record if none exists
+                Console.WriteLine("Creating new UserData record...");
+                var newUserData = _mapper.Map<UserData>(educationBackgroundDto);
+                newUserData.UserId = userId;
+                await _UserDataRepository.AddAsync(newUserData);
+            }
+
+            return Ok(new { success = true });
+        }
+        catch (Exception ex)
+        {
+            // Log the exception details
+            Console.WriteLine($"Error in AddOrUpdateEducationBackground: {ex.Message}");
+            Console.WriteLine($"StackTrace: {ex.StackTrace}");
+
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+            }
+
+            return BadRequest($"Error updating education background: {ex.Message}");
+        }
+    }
+    [HttpPost("add/update-work-experience")]
+    public async Task<IActionResult> AddOrUpdateWorkExperience(WorkExperienceDto workExperienceDto)
+    {
+        try
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim))
+                return Unauthorized("User identifier claim not found.");
+
+            if (!int.TryParse(userIdClaim, out int userId))
+                return BadRequest("User identifier claim is not a valid integer.");
+
+            Console.WriteLine($"Processing request for UserId: {userId}");
+            Console.WriteLine($"WorkExperienceDto: {JsonConvert.SerializeObject(workExperienceDto)}");
+
+            var userDatas = await _UserDataRepository.GetByUserIdAsync(userId);
+            var existingUserData = userDatas.FirstOrDefault();
+
+            Console.WriteLine($"Found {userDatas.Count()} existing UserData records for UserId: {userId}");
+            if (existingUserData != null)
+            {
+                Console.WriteLine($"Existing UserData ID: {existingUserData.Id}");
+            }
+
+            if (existingUserData != null)
+            {
+                // Update existing record
+                Console.WriteLine("Updating existing UserData record...");
+                existingUserData.WorkExperience = workExperienceDto.WorkExperience;
+
+                var updateResult = await _UserDataRepository.UpdateAsync(existingUserData);
+                Console.WriteLine($"Update result: {updateResult}");
+            }
+            else
+            {
+                // Create new record if none exists
+                Console.WriteLine("Creating new UserData record...");
+                var newUserData = _mapper.Map<UserData>(workExperienceDto);
+                newUserData.UserId = userId;
+                await _UserDataRepository.AddAsync(newUserData);
+            }
+
+            return Ok(new { success = true });
+        }
+        catch (Exception ex)
+        {
+            // Log the exception details
+            Console.WriteLine($"Error in AddOrUpdateWorkExperience: {ex.Message}");
+            Console.WriteLine($"StackTrace: {ex.StackTrace}");
+
+            if (ex.InnerException != null)
+            {
+                Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+            }
+
+            return BadRequest($"Error updating work experience: {ex.Message}");
+        }
+    }
+    
 }
