@@ -5,15 +5,9 @@ import { FormsModule } from '@angular/forms';
 import { UserDataServiceService } from '../services/user-data-service.service';
 import { catchError, finalize, map, of, take } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { DocumentService, DocumentDto } from '../services/document.service';
 
-interface DocumentDto {
-  id: number;
-  name: string;
-  uploadDate: string;
-  documentType: string;
-  content: string;
-  userDataId: number;
-}
+// Remove duplicate DocumentDto interface since we're importing it from document.service
 
 interface UserDataDto {
   id: number;
@@ -48,64 +42,22 @@ interface UserDataDto {
   styleUrl: './user-profile.component.css'
 })
 export class UserProfileComponent implements OnInit {
-uploadDocument() {
-    // Create a file input element
-    const fileInput = document.createElement('input');
-    fileInput.type = 'file';
-    fileInput.accept = '.pdf,.jpg,.jpeg,.png';
-    
-    // Trigger file dialog
-    fileInput.click();
-    
-    // Handle file selection
-    fileInput.addEventListener('change', (event) => {
-      const target = event.target as HTMLInputElement;
-      if (target.files && target.files.length > 0) {
-        const file = target.files[0];
-        
-        // Prompt user to select document type
-        const documentType = prompt('Select document type:', 'CV, Bachelor Degree, Bachelor Grades, Other');
-        if (!documentType) return; // User cancelled
-        
-        // Create form data
-        const formData = new FormData();
-        formData.append('files', file);
-        formData.append('documentType', documentType);
-        
-        // Show loading indicator
-        this.isLoading = true;
-        
-        // Send to API
-        this.http.post(`${this.baseUrl}UserData/add-UserData`, formData)
-          .pipe(
-            finalize(() => this.isLoading = false)
-          )
-          .subscribe({
-            next: () => {
-              alert('Document uploaded successfully!');
-              this.loadUserData(); // Refresh data
-            },
-            error: (error) => {
-              console.error('Error uploading document:', error);
-              alert('Failed to upload document. ' + (error.error || 'Please try again.'));
-            }
-          });
-      }
-    });
-  }
-  
-  
   userData: UserDataDto | null = null;
   loading = false;
   errorMessage = '';
   isLoading = false;
   baseUrl = '';
-  
-  constructor(private userDataService: UserDataServiceService, private http: HttpClient) {
+  hasData = false;
+
+  // Remove duplicate constructor and merge the properties
+  constructor(
+    private userDataService: UserDataServiceService,
+    private http: HttpClient,
+    private documentService: DocumentService
+  ) {
     this.baseUrl = this.userDataService.baseUrl;
   }
-  hasData = false;
-  
+
   // Personal Information Edit Mode
   isEditingPersonalInfo = false;
   personalInfoForm = {
@@ -144,12 +96,22 @@ uploadDocument() {
   workExperienceForm = {
     workExperience: ''
   };
-
-
-
+  cvExists = false;
   ngOnInit(): void {
     this.loadUserData();
+    this.documentService.CheckIfDocExist('CV').subscribe({
+      next: result => {
+        this.cvExists = result;
+      },
+      error: error => {
+        console.error('Error checking document existence:', error);
+        this.cvExists = false; // This return false equivalent makes sense here
+      }
+    });
   }
+
+
+
 
   loadUserData(): void {
     this.loading = true;
@@ -159,7 +121,7 @@ uploadDocument() {
       take(1),
       map(response => {
         this.loading = false;
-        
+
         if (response && Array.isArray(response) && response.length > 0) {
           // API returns an array, so we take the first item
           this.userData = response[0] as UserDataDto;
@@ -183,18 +145,6 @@ uploadDocument() {
     ).subscribe();
   }
 
-  downloadDocument(documentId: number, documentName: string): void {
-    // Create a temporary link element to trigger download
-    const link = document.createElement('a');
-    link.href = `${this.userDataService.baseUrl}UserData/download-document/${documentId}`;
-    link.download = documentName;
-    link.target = '_blank';
-    
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-
   formatDate(dateString: string): string {
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
@@ -206,6 +156,8 @@ uploadDocument() {
   }
 
   getDocumentTypeIcon(documentType: string): string {
+    if (!documentType) return 'fas fa-file';
+
     switch (documentType.toLowerCase()) {
       case 'pdf':
         return 'fas fa-file-pdf';
@@ -224,6 +176,8 @@ uploadDocument() {
   }
 
   getDocumentTypeColor(documentType: string): string {
+    if (!documentType) return '#6b7280';
+
     switch (documentType.toLowerCase()) {
       case 'pdf':
         return '#dc2626';
@@ -241,50 +195,6 @@ uploadDocument() {
     }
   }
 
-  // Document category filter methods
-  getBaccalaureatDiploma(): DocumentDto[] {
-    return this.userData?.documents?.filter(doc => 
-      doc.documentType.toLowerCase().includes('baccalaureat') && 
-      doc.documentType.toLowerCase().includes('diploma')
-    ) || [];
-  }
-
-  getBaccalaureatGrades(): DocumentDto[] {
-    return this.userData?.documents?.filter(doc => 
-      doc.documentType.toLowerCase().includes('baccalaureat') && 
-      doc.documentType.toLowerCase().includes('grades')
-    ) || [];
-  }
-
-  getCV(): DocumentDto[] {
-    return this.userData?.documents?.filter(doc => 
-      doc.documentType.toLowerCase().includes('cv') || 
-      doc.documentType.toLowerCase().includes('resume')
-    ) || [];
-  }
-
-  getBachelorDegree(): DocumentDto[] {
-    return this.userData?.documents?.filter(doc => 
-      doc.documentType.toLowerCase().includes('bachelor') && 
-      doc.documentType.toLowerCase().includes('degree')
-    ) || [];
-  }
-
-  getBachelorGrades(): DocumentDto[] {
-    return this.userData?.documents?.filter(doc => 
-      doc.documentType.toLowerCase().includes('bachelor') && 
-      doc.documentType.toLowerCase().includes('grades')
-    ) || [];
-  }
-
-  getOtherFiles(): DocumentDto[] {
-    return this.userData?.documents?.filter(doc => 
-      !doc.documentType.toLowerCase().includes('baccalaureat') && 
-      !doc.documentType.toLowerCase().includes('bachelor') && 
-      !doc.documentType.toLowerCase().includes('cv') && 
-      !doc.documentType.toLowerCase().includes('resume')
-    ) || [];
-  }
   AddOrUpdatePersonalInformation(data: any): void {
     this.userDataService.AddOrUpdatePersonalInformation(data).subscribe({
       next: response => {
@@ -544,4 +454,72 @@ uploadDocument() {
       }
     });
   }
+  checkIfDocExist(documentName: string): boolean {
+    let exists = false;
+    this.documentService.CheckIfDocExist(documentName).subscribe({
+      next: result => {
+        exists = result; // This happens AFTER the return statement
+      }
+    });
+    return exists; // This ALWAYS returns false
+  }
+  DeleteDocByName(documentName: string): void {
+    this.documentService.DeleteDocByName(documentName).subscribe({
+      next: result => {
+        if (result) {
+          console.log('Document deleted successfully:', documentName);
+          this.loadUserData(); // Reload data to show updated information
+        } else {
+          console.error('Failed to delete document.');
+        }
+      },
+      error: error => {
+        console.error('Error deleting document:', error);
+      }
+    });
+  }
+
+
+
+
+  //*add
+  selectedFile: File | null = null;
+  documentName: string = '';
+   onFileSelected(event: any) {
+    this.selectedFile = event.target.files[0];
+  }
+
+  uploadDocument(name: string) {
+    if (this.selectedFile) {
+      this.documentService.AddDocument(this.selectedFile, name).subscribe({
+        next: (response) => {
+          console.log('Success:', response);
+          // Reset form
+          this.selectedFile = null;
+          this.documentName = '';
+          // Maybe refresh document list
+        },
+        error: (error) => {
+          // Handle error appropriately
+          this.handleUploadError(error);
+        }
+      });
+    }
+  }
+
+  private handleUploadError(error: any) {
+    let errorMessage = 'Upload failed. Please try again.';
+    
+    if (error.status === 400) {
+      errorMessage = error.error || 'Invalid file or missing information.';
+    } else if (error.status === 401) {
+      errorMessage = 'Please login to upload documents.';
+    } else if (error.status === 500) {
+      errorMessage = 'Server error. Please try again later.';
+    }
+    
+    // Show error message to user (using a toast service, alert, etc.)
+    console.error(errorMessage);
+  }
 }
+

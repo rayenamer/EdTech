@@ -151,19 +151,11 @@ namespace API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<byte[]>("Content")
-                        .IsRequired()
+                    b.Property<byte[]>("Bytes")
                         .HasColumnType("BLOB");
 
-                    b.Property<string>("DocumentType")
+                    b.Property<string>("DocumentName")
                         .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("UploadDate")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("UserDataId")
@@ -396,13 +388,11 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.entities.Document", b =>
                 {
-                    b.HasOne("API.entities.UserData", "UserData")
+                    b.HasOne("API.entities.UserData", null)
                         .WithMany("Documents")
                         .HasForeignKey("UserDataId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("UserData");
                 });
 
             modelBuilder.Entity("API.entities.UserData", b =>
@@ -459,8 +449,7 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Entities.AppUser", b =>
                 {
-                    b.Navigation("UserData")
-                        .IsRequired();
+                    b.Navigation("UserData");
 
                     b.Navigation("UserRoles");
                 });

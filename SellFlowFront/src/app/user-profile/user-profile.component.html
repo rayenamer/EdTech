@@ -47,10 +47,7 @@
         <h2 class="section-title">
           Personal Information
         </h2>
-        <button 
-          *ngIf="!isEditingPersonalInfo" 
-          class="edit-btn" 
-          (click)="startEditingPersonalInfo()">
+        <button *ngIf="!isEditingPersonalInfo" class="edit-btn" (click)="startEditingPersonalInfo()">
           ✏️ Edit
         </button>
       </div>
@@ -84,41 +81,24 @@
       <div *ngIf="isEditingPersonalInfo" class="edit-form">
         <div class="form-group">
           <label for="fullName">Full Name *</label>
-          <input 
-            type="text" 
-            id="fullName" 
-            name="fullName" 
-            [(ngModel)]="personalInfoForm.fullName" 
-            placeholder="Enter your full name"
-            required>
+          <input type="text" id="fullName" name="fullName" [(ngModel)]="personalInfoForm.fullName"
+            placeholder="Enter your full name" required>
         </div>
-        
+
         <div class="form-group">
           <label for="number">Phone Number</label>
-          <input 
-            type="tel" 
-            id="number" 
-            name="number" 
-            [(ngModel)]="personalInfoForm.number" 
+          <input type="tel" id="number" name="number" [(ngModel)]="personalInfoForm.number"
             placeholder="Enter your phone number">
         </div>
-        
+
         <div class="form-group">
           <label for="dateOfBirth">Date of Birth</label>
-          <input 
-            type="date" 
-            id="dateOfBirth" 
-            name="dateOfBirth" 
-            [(ngModel)]="personalInfoForm.dateOfBirth">
+          <input type="date" id="dateOfBirth" name="dateOfBirth" [(ngModel)]="personalInfoForm.dateOfBirth">
         </div>
-        
+
         <div class="form-group">
           <label for="linkedinLink">LinkedIn Profile</label>
-          <input 
-            type="url" 
-            id="linkedinLink" 
-            name="linkedinLink" 
-            [(ngModel)]="personalInfoForm.linkedinLink" 
+          <input type="url" id="linkedinLink" name="linkedinLink" [(ngModel)]="personalInfoForm.linkedinLink"
             placeholder="https://linkedin.com/in/yourprofile">
         </div>
 
@@ -143,10 +123,7 @@
         <h2 class="section-title">
           Personal Statements
         </h2>
-        <button 
-          *ngIf="!isEditingPersonalStatements" 
-          class="edit-btn" 
-          (click)="startEditingPersonalStatements()">
+        <button *ngIf="!isEditingPersonalStatements" class="edit-btn" (click)="startEditingPersonalStatements()">
           ✏️ Edit
         </button>
       </div>
@@ -167,21 +144,13 @@
       <div *ngIf="isEditingPersonalStatements" class="edit-form">
         <div class="form-group">
           <label for="motivation">Motivation Statement *</label>
-          <textarea 
-            id="motivation" 
-            name="motivation" 
-            [(ngModel)]="personalStatementsForm.motivation" 
-            placeholder="Describe your motivation for pursuing this program..."
-            rows="4"
-            required></textarea>
+          <textarea id="motivation" name="motivation" [(ngModel)]="personalStatementsForm.motivation"
+            placeholder="Describe your motivation for pursuing this program..." rows="4" required></textarea>
         </div>
-        
+
         <div class="form-group">
           <label for="lifeOutSide">Life Outside Academics</label>
-          <textarea 
-            id="lifeOutSide" 
-            name="lifeOutSide" 
-            [(ngModel)]="personalStatementsForm.lifeOutSide" 
+          <textarea id="lifeOutSide" name="lifeOutSide" [(ngModel)]="personalStatementsForm.lifeOutSide"
             placeholder="Tell us about your interests, hobbies, and activities outside of academics..."
             rows="4"></textarea>
         </div>
@@ -207,14 +176,11 @@
         <h2 class="section-title">
           Education Background
         </h2>
-        <button 
-          *ngIf="!isEditingEducation" 
-          class="edit-btn" 
-          (click)="startEditingEducation()">
+        <button *ngIf="!isEditingEducation" class="edit-btn" (click)="startEditingEducation()">
           ✏️ Edit
         </button>
       </div>
-      
+
       <!-- Display Mode -->
       <div *ngIf="!isEditingEducation">
         <!-- Baccalaureat -->
@@ -294,7 +260,9 @@
         </div>
 
         <!-- No Education Data -->
-        <div *ngIf="!userData?.baccalaureatDegree && !userData?.bachelorDegree && !userData?.masterDegree && !userData?.engDegree" class="no-education">
+        <div
+          *ngIf="!userData?.baccalaureatDegree && !userData?.bachelorDegree && !userData?.masterDegree && !userData?.engDegree"
+          class="no-education">
           <p>No education information provided</p>
         </div>
       </div>
@@ -307,28 +275,17 @@
           <div class="form-row">
             <div class="form-group">
               <label for="baccalaureatDegree">Degree</label>
-              <input 
-                type="text" 
-                id="baccalaureatDegree" 
-                name="baccalaureatDegree" 
-                [(ngModel)]="educationForm.baccalaureatDegree" 
-                placeholder="e.g., High School Diploma">
+              <input type="text" id="baccalaureatDegree" name="baccalaureatDegree"
+                [(ngModel)]="educationForm.baccalaureatDegree" placeholder="e.g., High School Diploma">
             </div>
             <div class="form-group">
               <label for="baccalaureatInstitution">Institution</label>
-              <input 
-                type="text" 
-                id="baccalaureatInstitution" 
-                name="baccalaureatInstitution" 
-                [(ngModel)]="educationForm.baccalaureatInstitution" 
-                placeholder="e.g., High School Name">
+              <input type="text" id="baccalaureatInstitution" name="baccalaureatInstitution"
+                [(ngModel)]="educationForm.baccalaureatInstitution" placeholder="e.g., High School Name">
             </div>
             <div class="form-group">
               <label for="baccalaureatDate">Date</label>
-              <input 
-                type="date" 
-                id="baccalaureatDate" 
-                name="baccalaureatDate" 
+              <input type="date" id="baccalaureatDate" name="baccalaureatDate"
                 [(ngModel)]="educationForm.baccalaureatDate">
             </div>
           </div>
@@ -340,29 +297,17 @@
           <div class="form-row">
             <div class="form-group">
               <label for="bachelorDegree">Degree</label>
-              <input 
-                type="text" 
-                id="bachelorDegree" 
-                name="bachelorDegree" 
-                [(ngModel)]="educationForm.bachelorDegree" 
+              <input type="text" id="bachelorDegree" name="bachelorDegree" [(ngModel)]="educationForm.bachelorDegree"
                 placeholder="e.g., Bachelor of Science">
             </div>
             <div class="form-group">
               <label for="bachelorInstitution">Institution</label>
-              <input 
-                type="text" 
-                id="bachelorInstitution" 
-                name="bachelorInstitution" 
-                [(ngModel)]="educationForm.bachelorInstitution" 
-                placeholder="e.g., University Name">
+              <input type="text" id="bachelorInstitution" name="bachelorInstitution"
+                [(ngModel)]="educationForm.bachelorInstitution" placeholder="e.g., University Name">
             </div>
             <div class="form-group">
               <label for="bachelorDate">Date</label>
-              <input 
-                type="date" 
-                id="bachelorDate" 
-                name="bachelorDate" 
-                [(ngModel)]="educationForm.bachelorDate">
+              <input type="date" id="bachelorDate" name="bachelorDate" [(ngModel)]="educationForm.bachelorDate">
             </div>
           </div>
         </div>
@@ -373,29 +318,17 @@
           <div class="form-row">
             <div class="form-group">
               <label for="masterDegree">Degree</label>
-              <input 
-                type="text" 
-                id="masterDegree" 
-                name="masterDegree" 
-                [(ngModel)]="educationForm.masterDegree" 
+              <input type="text" id="masterDegree" name="masterDegree" [(ngModel)]="educationForm.masterDegree"
                 placeholder="e.g., Master of Science">
             </div>
             <div class="form-group">
               <label for="masterInstitution">Institution</label>
-              <input 
-                type="text" 
-                id="masterInstitution" 
-                name="masterInstitution" 
-                [(ngModel)]="educationForm.masterInstitution" 
-                placeholder="e.g., University Name">
+              <input type="text" id="masterInstitution" name="masterInstitution"
+                [(ngModel)]="educationForm.masterInstitution" placeholder="e.g., University Name">
             </div>
             <div class="form-group">
               <label for="masterDate">Date</label>
-              <input 
-                type="date" 
-                id="masterDate" 
-                name="masterDate" 
-                [(ngModel)]="educationForm.masterDate">
+              <input type="date" id="masterDate" name="masterDate" [(ngModel)]="educationForm.masterDate">
             </div>
           </div>
         </div>
@@ -406,29 +339,17 @@
           <div class="form-row">
             <div class="form-group">
               <label for="engDegree">Degree</label>
-              <input 
-                type="text" 
-                id="engDegree" 
-                name="engDegree" 
-                [(ngModel)]="educationForm.engDegree" 
+              <input type="text" id="engDegree" name="engDegree" [(ngModel)]="educationForm.engDegree"
                 placeholder="e.g., Engineering Degree">
             </div>
             <div class="form-group">
               <label for="engInstitution">Institution</label>
-              <input 
-                type="text" 
-                id="engInstitution" 
-                name="engInstitution" 
-                [(ngModel)]="educationForm.engInstitution" 
+              <input type="text" id="engInstitution" name="engInstitution" [(ngModel)]="educationForm.engInstitution"
                 placeholder="e.g., Engineering School Name">
             </div>
             <div class="form-group">
               <label for="engDate">Date</label>
-              <input 
-                type="date" 
-                id="engDate" 
-                name="engDate" 
-                [(ngModel)]="educationForm.engDate">
+              <input type="date" id="engDate" name="engDate" [(ngModel)]="educationForm.engDate">
             </div>
           </div>
         </div>
@@ -454,10 +375,7 @@
         <h2 class="section-title">
           Work Experience
         </h2>
-        <button 
-          *ngIf="!isEditingWorkExperience" 
-          class="edit-btn" 
-          (click)="startEditingWorkExperience()">
+        <button *ngIf="!isEditingWorkExperience" class="edit-btn" (click)="startEditingWorkExperience()">
           ✏️ Edit
         </button>
       </div>
@@ -478,13 +396,8 @@
       <div *ngIf="isEditingWorkExperience" class="edit-form">
         <div class="form-group">
           <label for="workExperience">Work Experience *</label>
-          <textarea 
-            id="workExperience" 
-            name="workExperience" 
-            [(ngModel)]="workExperienceForm.workExperience" 
-            placeholder="Describe your work experience"
-            rows="6"
-            required></textarea>
+          <textarea id="workExperience" name="workExperience" [(ngModel)]="workExperienceForm.workExperience"
+            placeholder="Describe your work experience" rows="6" required></textarea>
         </div>
 
         <div class="form-actions">
@@ -503,177 +416,22 @@
     </div>
 
     <!-- Documents Section -->
-<div class="profile-section">
-  <div class="section-header">
-    <h2 class="section-title">
-      Documents
-    </h2>
-  </div>
+    <div class="profile-section">
+      <div class="section-header">
+        <h2 class="section-title">Documents</h2>
+        <div *ngIf="cvExists">
+          <p>CV Document Card</p>
+          <button (click)="DeleteDocByName('CV')">Delete</button>
+        </div>
+        <div *ngIf="!cvExists">
+          <p>No CV document Provided</p>
+        </div>
 
-  <!-- Baccalaureat Diploma Section -->
-  <div class="document-category">
-    <div class="section-header">
-      <h3 class="category-title">Baccalaureat Diploma</h3>
-      <button class="upload-btn" >
-        <i class="fas fa-file-upload"></i>
-        Upload Diploma
-      </button>
-    </div>
-    <div class="documents-grid" *ngIf="getBaccalaureatDiploma().length > 0; else noBacDiploma">
-      <div *ngFor="let document of getBaccalaureatDiploma()" class="document-card">
-        <div class="document-icon" [style.color]="getDocumentTypeColor(document.documentType)">
-          <i [class]="getDocumentTypeIcon(document.documentType)"></i>
+        <div class="upload-section">
+          <input type="file" #fileInput (change)="onFileSelected($event)" accept=".pdf,.doc,.docx">
+          <button (click)="uploadDocument('CV')" [disabled]="!selectedFile">
+            Upload Document
+          </button>
         </div>
-        <div class="document-info">
-          <h4>{{ document.name }}</h4>
-          <p class="document-type">{{ document.documentType }}</p>
-          <p class="document-date">Uploaded: {{ formatDate(document.uploadDate) }}</p>
-        </div>
-        <button class="btn-download" (click)="downloadDocument(document.id, document.name)">
-          <i class="fas fa-download"></i>
-          Download
-        </button>
       </div>
     </div>
-    <ng-template #noBacDiploma>
-      <p>(No document)</p>
-    </ng-template>
-  </div>
-
-  <!-- Baccalaureat Grades Section -->
-  <div class="document-category">
-    <h3 class="category-title">Baccalaureat Grades</h3>
-    <div class="documents-grid" *ngIf="getBaccalaureatGrades().length > 0; else noBacGrades">
-      <div *ngFor="let document of getBaccalaureatGrades()" class="document-card">
-        <div class="document-icon" [style.color]="getDocumentTypeColor(document.documentType)">
-          <i [class]="getDocumentTypeIcon(document.documentType)"></i>
-        </div>
-        <div class="document-info">
-          <h4>{{ document.name }}</h4>
-          <p class="document-type">{{ document.documentType }}</p>
-          <p class="document-date">Uploaded: {{ formatDate(document.uploadDate) }}</p>
-        </div>
-        <button class="btn-download" (click)="downloadDocument(document.id, document.name)">
-          <i class="fas fa-download"></i>
-          Download
-        </button>
-      </div>
-    </div>
-    <ng-template #noBacGrades>
-      <p>(No document)</p>
-    </ng-template>
-  </div>
-
-  <!-- CV Section -->
-
-  <!-- Bachelor Degree Section -->
-  <div class="document-category">
-    <h3 class="category-title">Bachelor Degree</h3>
-    <div class="documents-grid" *ngIf="getBachelorDegree().length > 0; else noBachelorDegree">
-      <div *ngFor="let document of getBachelorDegree()" class="document-card">
-        <div class="document-icon" [style.color]="getDocumentTypeColor(document.documentType)">
-          <i [class]="getDocumentTypeIcon(document.documentType)"></i>
-        </div>
-        <div class="document-info">
-          <h4>{{ document.name }}</h4>
-          <p class="document-type">{{ document.documentType }}</p>
-          <p class="document-date">Uploaded: {{ formatDate(document.uploadDate) }}</p>
-        </div>
-        <button class="btn-download" (click)="downloadDocument(document.id, document.name)">
-          <i class="fas fa-download"></i>
-          Download
-        </button>
-      </div>
-    </div>
-    <ng-template #noBachelorDegree>
-      <p>(No document)</p>
-    </ng-template>
-  </div>
-
-  <!-- Bachelor Grades Section -->
-  <div class="document-category">
-    <h3 class="category-title">Bachelor Grades</h3>
-    <div class="documents-grid" *ngIf="getBachelorGrades().length > 0; else noBachelorGrades">
-      <div *ngFor="let document of getBachelorGrades()" class="document-card">
-        <div class="document-icon" [style.color]="getDocumentTypeColor(document.documentType)">
-          <i [class]="getDocumentTypeIcon(document.documentType)"></i>
-        </div>
-        <div class="document-info">
-          <h4>{{ document.name }}</h4>
-          <p class="document-type">{{ document.documentType }}</p>
-          <p class="document-date">Uploaded: {{ formatDate(document.uploadDate) }}</p>
-        </div>
-        <button class="btn-download" (click)="downloadDocument(document.id, document.name)">
-          <i class="fas fa-download"></i>
-          Download
-        </button>
-      </div>
-    </div>
-    <ng-template #noBachelorGrades>
-      <p>(No document)</p>
-    </ng-template>
-  </div>
-  <!--CV SECTION-->
-  <div class="document-category">
-    <h3 class="category-title">CV</h3>
-    <div class="documents-grid" *ngIf="getCV().length > 0; else noCV">
-      <div *ngFor="let document of getCV()" class="document-card">
-        <div class="document-icon" [style.color]="getDocumentTypeColor(document.documentType)">
-          <i [class]="getDocumentTypeIcon(document.documentType)"></i>
-        </div>
-        <div class="document-info">
-          <h4>{{ document.name }}</h4>
-          <p class="document-type">{{ document.documentType }}</p>
-          <p class="document-date">Uploaded: {{ formatDate(document.uploadDate) }}</p>
-        </div>
-        <button class="btn-download" (click)="downloadDocument(document.id, document.name)">
-          <i class="fas fa-download"></i>
-          Download
-        </button>
-      </div>
-    </div>
-    <ng-template #noCV>
-      <p>(No document)</p>
-    </ng-template>
-  </div>
-
-  <!-- Other Files Section -->
-  <div class="document-category">
-    <h3 class="category-title">Other Files</h3>
-    <div class="documents-grid" *ngIf="getOtherFiles().length > 0; else noOtherFiles">
-      <div *ngFor="let document of getOtherFiles()" class="document-card">
-        <div class="document-icon" [style.color]="getDocumentTypeColor(document.documentType)">
-          <i [class]="getDocumentTypeIcon(document.documentType)"></i>
-        </div>
-        <div class="document-info">
-          <h4>{{ document.name }}</h4>
-          <p class="document-type">{{ document.documentType }}</p>
-          <p class="document-date">Uploaded: {{ formatDate(document.uploadDate) }}</p>
-        </div>
-        <button class="btn-download" (click)="downloadDocument(document.id, document.name)">
-          <i class="fas fa-download"></i>
-          Download
-        </button>
-      </div>
-    </div>
-    <ng-template #noOtherFiles>
-      <p>(No document)</p>
-    </ng-template>
-  </div>
-  
-  
-</div>
-
-
-    <!-- Action Buttons -->
-    <div class="profile-actions">
-      <button class="btn-secondary" routerLink="/Acceuil">
-        Back to Home
-      </button>
-      <button class="btn-primary" (click)="loadUserData()">
-        <i class="fas fa-sync-alt"></i>
-        Refresh Data
-      </button>
-    </div>
-  </div>
-</div>

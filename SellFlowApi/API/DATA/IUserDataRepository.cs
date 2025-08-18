@@ -10,7 +10,6 @@ public interface IUserDataRepository
     Task<bool> UpdateAsync(UserData userData);
     Task<bool> DeleteAsync(int id);
     Task<bool> DeletePersonalinfo(int id);
-    Task<Document> AddDocumentAsync(int userDataId, Document document);
-    Task<Document?> GetDocumentByIdAsync(int documentId);
+    Task<bool> AddDocumentAsync(int userDataId, int documentId);
     Task<IEnumerable<UserData>> GetByUserIdAsync(int userId);
 }

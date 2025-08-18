@@ -5,5 +5,5 @@ namespace API.Dtos;
 
 public class BaccalaureatDiplomaDto
 {
-    public Document Document { get; set; } = new Document();
+    public Document BaccalaureatDiploma { get; set; } = new Document();
 }

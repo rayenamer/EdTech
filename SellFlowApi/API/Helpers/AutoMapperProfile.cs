@@ -26,7 +26,7 @@ public class AutoMapperProfiles : Profile
             .ForMember(dest => dest.Number, opt => opt.MapFrom(src => src.Number))
             .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.DateOfBirth))
             .ForMember(dest => dest.LinkedinLink, opt => opt.MapFrom(src => src.LinkedinLink));
-        CreateMap<PersonalStatementsDto,UserData>()
+        CreateMap<PersonalStatementsDto, UserData>()
             .ForMember(dest => dest.Motivation, opt => opt.MapFrom(src => src.Motivation))
             .ForMember(dest => dest.LifeOutSide, opt => opt.MapFrom(src => src.LifeOutSide));
         CreateMap<EducationBackgroundDto, UserData>()
@@ -42,21 +42,14 @@ public class AutoMapperProfiles : Profile
             .ForMember(dest => dest.EngDegree, opt => opt.MapFrom(src => src.EngDegree))
             .ForMember(dest => dest.EngInstitution, opt => opt.MapFrom(src => src.EngInstitution))
             .ForMember(dest => dest.EngDate, opt => opt.MapFrom(src => src.EngDate));
-        
+
         CreateMap<WorkExperienceDto, UserData>()
             .ForMember(dest => dest.WorkExperience, opt => opt.MapFrom(src => src.WorkExperience));
-            
-        CreateMap<BaccalaureatDiplomaDto, UserData>()
-            .ForMember(dest => dest.Documents, opt => opt.MapFrom(src => new List<Document> { src.Document }));
 
-        CreateMap<UserDataDto, UserData>()
-            .ForMember(dest => dest.Documents, opt => opt.MapFrom(src => src.Documents));
-            
+
+        CreateMap<UserDataDto, UserData>();
         CreateMap<Document, DocumentDto>();
-        CreateMap<DocumentDto, Document>()
-            .ForMember(dest => dest.UserDataId, opt => opt.Ignore()); // Ignore UserDataId as it will be set by EF
 
-        CreateMap<UserData, UserDataDto>()
-            .ForMember(dest => dest.Documents, opt => opt.MapFrom(src => src.Documents));
+        CreateMap<UserData, UserDataDto>();
     }
 }

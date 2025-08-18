@@ -1,6 +1,7 @@
 using System;
 using API.Data;
 using API.entities;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.DATA;
@@ -50,18 +51,33 @@ public class UserDataRepository : IUserDataRepository
             Console.WriteLine($"Old values: FullName={existingUserData.FullName}, Number={existingUserData.Number}");
             Console.WriteLine($"New values: FullName={userData.FullName}, Number={userData.Number}");
 
-            // Update the properties
+            // Update all the properties
             existingUserData.FullName = userData.FullName;
             existingUserData.Number = userData.Number;
             existingUserData.DateOfBirth = userData.DateOfBirth;
+            existingUserData.Motivation = userData.Motivation;
+            existingUserData.LifeOutSide = userData.LifeOutSide;
+            existingUserData.BaccalaureatDegree = userData.BaccalaureatDegree;
+            existingUserData.BaccalaureatInstitution = userData.BaccalaureatInstitution;
+            existingUserData.BaccalaureatDate = userData.BaccalaureatDate;
+            existingUserData.BachelorDegree = userData.BachelorDegree;
+            existingUserData.BachelorInstitution = userData.BachelorInstitution;
+            existingUserData.BachelorDate = userData.BachelorDate;
+            existingUserData.MasterDegree = userData.MasterDegree;
+            existingUserData.MasterInstitution = userData.MasterInstitution;
+            existingUserData.MasterDate = userData.MasterDate;
+            existingUserData.EngDegree = userData.EngDegree;
+            existingUserData.EngInstitution = userData.EngInstitution;
+            existingUserData.EngDate = userData.EngDate;
+            existingUserData.WorkExperience = userData.WorkExperience;
             existingUserData.LinkedinLink = userData.LinkedinLink;
 
             // Mark as modified
             _context.UserDatas.Update(existingUserData);
-            
+
             var result = await _context.SaveChangesAsync();
             Console.WriteLine($"SaveChanges result: {result} rows affected");
-            
+
             return result > 0;
         }
         catch (Exception ex)
@@ -82,6 +98,7 @@ public class UserDataRepository : IUserDataRepository
         await _context.SaveChangesAsync();
         return true;
     }
+
     public async Task<bool> DeletePersonalinfo(int id)
     {
         var userData = await _context.UserDatas.FindAsync(id);
@@ -98,41 +115,25 @@ public class UserDataRepository : IUserDataRepository
         return true;
     }
 
-    public async Task<Document> AddDocumentAsync(int userDataId, Document document)
-    {
-        var userData = await _context.UserDatas.FindAsync(userDataId);
-        if (userData == null)
-            throw new ArgumentException("UserData not found", nameof(userDataId));
 
-        document.UserDataId = userDataId;
-        userData.Documents.Add(document);
-        await _context.SaveChangesAsync();
-        return document;
-    }
-
-    public async Task<Document?> GetDocumentByIdAsync(int documentId)
-    {
-        return await _context.Documents
-            .FirstOrDefaultAsync(d => d.Id == documentId);
-    }
 
     public async Task<IEnumerable<UserData>> GetByUserIdAsync(int userId)
     {
         try
         {
             Console.WriteLine($"GetByUserIdAsync called for UserId: {userId}");
-            
+
             var userDatas = await _context.UserDatas
                 .Include(a => a.Documents)
                 .Where(a => a.UserId == userId)
                 .ToListAsync();
-            
+
             Console.WriteLine($"Found {userDatas.Count} UserData records for UserId: {userId}");
             foreach (var ud in userDatas)
             {
                 Console.WriteLine($"UserData ID: {ud.Id}, FullName: {ud.FullName}, UserId: {ud.UserId}");
             }
-            
+
             return userDatas;
         }
         catch (Exception ex)
@@ -141,4 +142,16 @@ public class UserDataRepository : IUserDataRepository
             throw;
         }
     }
+     public async Task<bool> AddDocumentAsync(int userDataId, int documentId)
+    {
+        var document = await _context.Documents.FindAsync(documentId);
+        if (document == null) return false;
+
+        document.UserDataId = userDataId;
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    
+   
 }

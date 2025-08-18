@@ -44,13 +44,23 @@ public class DataContext(DbContextOptions options)
                     .HasOne(u => u.UserData)
                     .WithOne(ud => ud.User)
                     .HasForeignKey<UserData>(ud => ud.UserId); // FK in UserData
-
-                // UserData ↔ Documents (1:many)
                 builder.Entity<UserData>()
                     .HasMany(ud => ud.Documents)
+                    .WithOne()  // Empty WithOne() since Document has no navigation property back to UserData
+                    .HasForeignKey(d => d.UserDataId);
+
+                /*builder.Entity<UserData>()
+                    .HasMany(ud => ud.Documents)
                     .WithOne(d => d.UserData)
-                    .HasForeignKey(d => d.UserDataId)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    .HasForeignKey(d => d.UserDataId); // FK in Document*/
+
+
+                /*HasMany(ud => ud.Documents) - UserData has many Documents
+                WithOne(d => d.UserData) - Each Document has one UserData (navigation property)
+                HasForeignKey(d => d.UserDataId) - The foreign key in Document table*/
+
+
+
 
 
         }

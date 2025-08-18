@@ -16,7 +16,7 @@ public class UserData
     public string Motivation { get; set; } = string.Empty;
     public string LifeOutSide { get; set; } = string.Empty;
     public string? BaccalaureatDegree { get; set; }
-    public string? BaccalaureatInstitution { get; set; } 
+    public string? BaccalaureatInstitution { get; set; }
     public DateTime? BaccalaureatDate { get; set; }
     public string? BachelorDegree { get; set; }
     public string? BachelorInstitution { get; set; }
@@ -31,6 +31,6 @@ public class UserData
     public string? LinkedinLink { get; set; }
     public int UserId { get; set; } // Foreign key for AppUser
     public AppUser? User { get; set; } // Navigation property to AppUser
-    public List<Document> Documents { get; set; } = new List<Document>();
+    public List<Document>? Documents { get; set; } = new List<Document>();
 
 }

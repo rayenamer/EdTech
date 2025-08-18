@@ -12,6 +12,9 @@ using API.Dtos;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using API.Helpers;
 
 namespace API.Controllers;
 
@@ -21,60 +24,64 @@ public class UserDataController : ControllerBase
 {
     private readonly IUserDataRepository _UserDataRepository;
     private readonly IMapper _mapper;
+    private readonly ILogger<UserDataController> _logger;
 
-    public UserDataController(IUserDataRepository UserDataRepository, IMapper mapper)
+    public UserDataController(IUserDataRepository UserDataRepository, IMapper mapper, ILogger<UserDataController> logger)
     {
         _UserDataRepository = UserDataRepository;
         _mapper = mapper;
+        _logger = logger;
     }
 
     // all apps for admin working good
     [HttpGet("get-all-UserDatas")]
     public async Task<ActionResult<IEnumerable<UserDataDto>>> GetAll()
     {
-        var UserDatas = await _UserDataRepository.GetAllAsync();
-
-        // Map UserDatas to DTOs with documents included (without content for efficiency)
-        var UserDataDtos = UserDatas.Select(app => new UserDataDto
+        try
         {
-            Id = app.Id,
-            FullName = app.FullName,
-            Number = app.Number,
-            DateOfBirth = app.DateOfBirth,
-            Motivation = app.Motivation,
-            LifeOutSide = app.LifeOutSide,
-            BaccalaureatDegree = app.BaccalaureatDegree,
-            BaccalaureatInstitution = app.BaccalaureatInstitution,
-            BaccalaureatDate = app.BaccalaureatDate,
-            BachelorDegree = app.BachelorDegree,
-            BachelorInstitution = app.BachelorInstitution,
-            BachelorDate = app.BachelorDate,
-            MasterDegree = app.MasterDegree,
-            MasterInstitution = app.MasterInstitution,
-            MasterDate = app.MasterDate,
-            EngDegree = app.EngDegree,
-            EngInstitution = app.EngInstitution,
-            EngDate = app.EngDate,
-            WorkExperience = app.WorkExperience,
-            LinkedinLink = app.LinkedinLink,
-            UserId = app.UserId,
-            Documents = app.Documents.Select(doc => new DocumentDto
-            {
-                Id = doc.Id,
-                Name = doc.Name,
-                UploadDate = doc.UploadDate,
-                DocumentType = doc.DocumentType,
-                Content = Array.Empty<byte>(), // Don't include content in list view for performance
-                UserDataId = doc.UserDataId
-            }).ToList()
-        });
+            var UserDatas = await _UserDataRepository.GetAllAsync();
 
-        return Ok(UserDataDtos);
+            // Map UserDatas to DTOs with documents included (without content for efficiency)
+            var UserDataDtos = UserDatas.Select(app => new UserDataDto
+            {
+                Id = app.Id,
+                FullName = app.FullName,
+                Number = app.Number,
+                DateOfBirth = app.DateOfBirth,
+                Motivation = app.Motivation,
+                LifeOutSide = app.LifeOutSide,
+                BaccalaureatDegree = app.BaccalaureatDegree,
+                BaccalaureatInstitution = app.BaccalaureatInstitution,
+                BaccalaureatDate = app.BaccalaureatDate,
+                BachelorDegree = app.BachelorDegree,
+                BachelorInstitution = app.BachelorInstitution,
+                BachelorDate = app.BachelorDate,
+                MasterDegree = app.MasterDegree,
+                MasterInstitution = app.MasterInstitution,
+                MasterDate = app.MasterDate,
+                EngDegree = app.EngDegree,
+                EngInstitution = app.EngInstitution,
+                EngDate = app.EngDate,
+                WorkExperience = app.WorkExperience,
+                LinkedinLink = app.LinkedinLink,
+                UserId = app.UserId,
+            });
+
+            return Ok(UserDataDtos);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest($"Error getting all UserDatas: {ex.Message}");
+        }
     }
 
+    /// <summary>
+    /// Gets all UserData records for the current user with document download links
+    /// </summary>
+    /// <returns>A collection of UserDataDto objects with document download links</returns>
     // GET: api/UserData/get-user-UserDatas
     [HttpGet("get-user-UserDatas")]
-    public async Task<ActionResult<UserDataDto>> GetUserUserDatas()
+    public async Task<ActionResult<IEnumerable<UserDataDto>>> GetUserUserDatas()
     {
         try
         {
@@ -113,21 +120,21 @@ public class UserDataController : ControllerBase
                 WorkExperience = app.WorkExperience,
                 LinkedinLink = app.LinkedinLink,
                 UserId = app.UserId,
-                Documents = app.Documents.Select(doc => new DocumentDto
+                // Include documents with download links
+                Documents = app.Documents?.Select(doc => new DocumentDto
                 {
                     Id = doc.Id,
-                    Name = doc.Name,
-                    UploadDate = doc.UploadDate,
-                    DocumentType = doc.DocumentType,
-                    Content = Array.Empty<byte>(), // Don't include content in list view for performance
-                    UserDataId = doc.UserDataId
-                }).ToList()
-            });
+                    UserDataId = doc.UserDataId,
+                    // Add download link property
+                    DownloadUrl = Url.Action("DownloadDocument", "Document", new { id = doc.Id }, Request.Scheme)
+                }).ToList() ?? new List<DocumentDto>()
+            }).ToList();
 
             return Ok(UserDataDtos);
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error getting user UserDatas");
             return BadRequest($"Error getting user UserDatas: {ex.Message}");
         }
     }
@@ -164,95 +171,12 @@ public class UserDataController : ControllerBase
             WorkExperience = UserData.WorkExperience,
             LinkedinLink = UserData.LinkedinLink,
             UserId = UserData.UserId,
-            Documents = UserData.Documents.Select(doc => new DocumentDto
-            {
-                Id = doc.Id,
-                Name = doc.Name,
-                UploadDate = doc.UploadDate,
-                DocumentType = doc.DocumentType,
-                Content = doc.Content, // This will be the byte array for download
-                UserDataId = doc.UserDataId
-            }).ToList()
         };
 
         return Ok(UserDataDto);
     }
 
-    // POST: api/UserData/add-UserData (with file upload)
-    [HttpPost("add-UserData")]
-    public async Task<ActionResult<UserData>> Add([FromForm] UserDataDto UserDataDto, [FromForm] List<IFormFile>? files = null)
-    {
-        try
-        {
-            // Set UserId from authenticated user
-            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim))
-                return Unauthorized("User identifier claim not found.");
 
-            if (!int.TryParse(userIdClaim, out int userId))
-                return BadRequest("User identifier claim is not a valid integer.");
-
-            UserDataDto.UserId = userId;
-
-            // Validate and process files
-            if (files != null && files.Count > 0)
-            {
-                var allowedExtensions = new[] { ".pdf", ".jpg", ".jpeg", ".png" };
-                foreach (var file in files)
-                {
-                    // Validate file
-                    if (file.Length == 0)
-                        return BadRequest($"File {file.FileName} is empty.");
-
-                    var extension = Path.GetExtension(file.FileName).ToLower();
-                    if (!allowedExtensions.Contains(extension))
-                        return BadRequest($"Invalid file type for {file.FileName}. Only PDF, JPG, JPEG, and PNG are allowed.");
-
-                    if (file.Length > 10 * 1024 * 1024) // 10MB limit
-                        return BadRequest($"File {file.FileName} exceeds 10MB.");
-
-                    // Get document type from form data or use file extension as fallback
-                    var documentType = Request.Form["documentType"].ToString();
-                    if (string.IsNullOrEmpty(documentType))
-                    {
-                        documentType = extension switch
-                        {
-                            ".pdf" => "PDF Document",
-                            ".jpg" or ".jpeg" => "Image",
-                            ".png" => "Image",
-                            _ => "Unknown"
-                        };
-                    }
-
-                    // Convert file to byte[]
-                    using var memoryStream = new MemoryStream();
-                    await file.CopyToAsync(memoryStream);
-                    var fileBytes = memoryStream.ToArray();
-
-                    // Create document DTO
-                    var documentDto = new DocumentDto
-                    {
-                        Name = file.FileName,
-                        Content = fileBytes,
-                        DocumentType = documentType
-                    };
-
-                    UserDataDto.Documents.Add(documentDto);
-                }
-            }
-
-            // Map DTO to entity
-            var UserData = _mapper.Map<UserData>(UserDataDto);
-
-            // Save UserData with documents
-            var createdUserData = await _UserDataRepository.AddAsync(UserData);
-            return CreatedAtAction(nameof(GetById), new { id = createdUserData.Id }, createdUserData);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest($"Error creating UserData: {ex.Message}");
-        }
-    }
 
     // DELETE: api/UserData/delete-UserData/5
     [HttpDelete("delete-UserData/{id}")]
@@ -263,34 +187,7 @@ public class UserDataController : ControllerBase
             return NotFound("UserData not found.");
         return NoContent();
     }
-    [HttpGet("download-document/{documentId}")]
-    public async Task<IActionResult> DownloadDocument(int documentId)
-    {
-        try
-        {
-            // Get the document from the database
-            var document = await _UserDataRepository.GetDocumentByIdAsync(documentId);
-            if (document == null)
-                return NotFound("Document not found.");
 
-            // Determine content type based on file extension
-            var extension = Path.GetExtension(document.Name).ToLower();
-            var contentType = extension switch
-            {
-                ".pdf" => "UserData/pdf",
-                ".jpg" or ".jpeg" => "image/jpeg",
-                ".png" => "image/png",
-                _ => "UserData/octet-stream"
-            };
-
-            // Return the file as a downloadable response
-            return File(document.Content, contentType, document.Name);
-        }
-        catch (Exception ex)
-        {
-            return BadRequest($"Error downloading document: {ex.Message}");
-        }
-    }
     [HttpGet("check-user-has-data")]
     public async Task<IActionResult> CheckUserHasData()
     {
@@ -555,5 +452,4 @@ public class UserDataController : ControllerBase
             return BadRequest($"Error updating work experience: {ex.Message}");
         }
     }
-    
 }

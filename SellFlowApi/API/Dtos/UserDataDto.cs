@@ -40,6 +40,7 @@ public class UserDataDto
     
     public int UserId { get; set; } 
 
-    
-    public List<DocumentDto> Documents { get; set; } = new List<DocumentDto>();
+
+
+    public List<DocumentDto>? Documents { get; set; } = new List<DocumentDto>();
 }
