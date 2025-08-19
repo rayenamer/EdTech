@@ -9,6 +9,6 @@ public interface IDocumentRepository
     Task<Document?> GetByIdAsync(int id);
     Task<List<Document>> GetAllAsync();
     Task<bool> DeleteAsync(int id);
-    Task<bool> GetDocByName(string documentName);
+    Task<bool> GetDocByNameAndUserDataId(string documentName, int userDataId);
     Task<bool> DeleteDocByName(string documentName);
 }

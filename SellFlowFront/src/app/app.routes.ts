@@ -20,6 +20,7 @@ import { AddProgramComponent } from './add-program/add-program.component';
 import { adminGuard } from './guards/admin.guard';
 import {ProgramdetailscardComponent} from './programdetailscard/programdetailscard.component';
 import { UserProfileComponent } from './user-profile/user-profile.component';
+import { UsersDataComponent } from './users-data/users-data.component';
 export const routes: Routes = [
     {path: '', component: HomeComponent },
     {path:'programs', component: ProgramsComponent, canActivate: [adminGuard]},
@@ -39,5 +40,6 @@ export const routes: Routes = [
     {path : 'Acceuil', component: AcceuilComponent},
     {path : 'programdetails/:id', component: ProgramdetailscardComponent},
     {path: 'user-profile', component: UserProfileComponent},
+    {path: 'UsersData', component: UsersDataComponent},
     {path: '**', component: HomeComponent, pathMatch: 'full' },
 ];

@@ -1,0 +1,163 @@
+<div class="users-data-container">
+  <div class="section-header">
+    <h1>Gestion des Utilisateurs</h1>
+    <p>Consultez et gérez les informations des utilisateurs et leurs documents associés</p>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="isLoading">
+    <div class="loading-spinner"></div>
+    <p>Chargement des données utilisateurs...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-container" *ngIf="error">
+    <div class="error-icon">⚠️</div>
+    <h3>Erreur de chargement</h3>
+    <p>{{ error }}</p>
+    <button class="btn-retry" (click)="loadUsersData()">Réessayer</button>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-container" *ngIf="!isLoading && !error && (!usersData || usersData.length === 0)">
+    <div class="empty-icon">📋</div>
+    <h3>Aucun utilisateur trouvé</h3>
+    <p>Il n'y a actuellement aucun utilisateur enregistré dans le système.</p>
+  </div>
+
+  <!-- Users List -->
+  <div class="users-grid" *ngIf="!isLoading && !error && usersData && usersData.length > 0">
+    <div class="user-card" *ngFor="let user of usersData">
+      <!-- User Card Header -->
+      <div class="user-card-header" (click)="toggleUserDetails(user.id)">
+        <div class="user-info">
+          <h3>{{ user.fullName }}</h3>
+          <p>{{ user.number }}</p>
+        </div>
+        <div class="expand-icon">
+          {{ expandedUsers.includes(user.id) ? '▲' : '▼' }}
+        </div>
+      </div>
+
+      <!-- User Card Details -->
+      <div class="user-card-details" *ngIf="expandedUsers.includes(user.id)">
+        <!-- Personal Information -->
+        <div class="details-section">
+          <h4>Informations Personnelles</h4>
+          <div class="details-grid">
+            <div class="detail-item">
+              <span class="detail-label">Nom Complet</span>
+              <span class="detail-value">{{ user.fullName }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Numéro de Téléphone</span>
+              <span class="detail-value">{{ user.number }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Date de Naissance</span>
+              <span class="detail-value">{{ formatDate(user.dateOfBirth) }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Motivation</span>
+              <span class="detail-value">{{ user.motivation || 'Non spécifié' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Vie en Dehors</span>
+              <span class="detail-value">{{ user.lifeOutSide || 'Non spécifié' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Profil LinkedIn</span>
+              <span class="detail-value">{{ user.linkedinLink || 'Non spécifié' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Education -->
+        <div class="details-section">
+          <h4>Éducation</h4>
+          <div class="details-grid">
+            <!-- Baccalauréat -->
+            <div class="detail-item">
+              <span class="detail-label">Diplôme Baccalauréat</span>
+              <span class="detail-value">{{ user.baccalaureatDegree || 'Non spécifié' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Institution Baccalauréat</span>
+              <span class="detail-value">{{ user.baccalaureatInstitution || 'Non spécifié' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Date Baccalauréat</span>
+              <span class="detail-value">{{ formatDate(user.baccalaureatDate) }}</span>
+            </div>
+
+            <!-- Licence -->
+            <div class="detail-item">
+              <span class="detail-label">Diplôme Licence</span>
+              <span class="detail-value">{{ user.bachelorDegree || 'Non spécifié' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Institution Licence</span>
+              <span class="detail-value">{{ user.bachelorInstitution || 'Non spécifié' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Date Licence</span>
+              <span class="detail-value">{{ formatDate(user.bachelorDate) }}</span>
+            </div>
+
+            <!-- Master -->
+            <div class="detail-item">
+              <span class="detail-label">Diplôme Master</span>
+              <span class="detail-value">{{ user.masterDegree || 'Non spécifié' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Institution Master</span>
+              <span class="detail-value">{{ user.masterInstitution || 'Non spécifié' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Date Master</span>
+              <span class="detail-value">{{ formatDate(user.masterDate) }}</span>
+            </div>
+
+            <!-- Ingénieur -->
+            <div class="detail-item">
+              <span class="detail-label">Diplôme Ingénieur</span>
+              <span class="detail-value">{{ user.engDegree || 'Non spécifié' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Institution Ingénieur</span>
+              <span class="detail-value">{{ user.engInstitution || 'Non spécifié' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Date Ingénieur</span>
+              <span class="detail-value">{{ formatDate(user.engDate) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Work Experience -->
+        <div class="details-section">
+          <h4>Expérience Professionnelle</h4>
+          <p class="experience-text" *ngIf="user.workExperience">{{ user.workExperience }}</p>
+          <p class="no-documents" *ngIf="!user.workExperience">Aucune expérience professionnelle spécifiée</p>
+        </div>
+
+        <!-- Documents -->
+        <div class="details-section">
+          <h4>Documents</h4>
+          <div class="documents-list" *ngIf="user.documents && user.documents.length > 0">
+            <div class="document-item" *ngFor="let doc of user.documents">
+              <div class="document-info">
+                <span class="document-icon">📄</span>
+                <span class="document-name">{{ doc.documentName }}</span>
+              </div>
+              <button class="btn-download" (click)="downloadDocument(doc.downloadUrl)">Télécharger</button>
+            </div>
+          </div>
+          <p class="no-documents" *ngIf="!user.documents || user.documents.length === 0">
+            Aucun document disponible
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

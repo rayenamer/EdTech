@@ -65,6 +65,14 @@ public class UserDataController : ControllerBase
                 WorkExperience = app.WorkExperience,
                 LinkedinLink = app.LinkedinLink,
                 UserId = app.UserId,
+                // Include documents with their names and download URLs
+                Documents = app.Documents?.Select(doc => new DocumentDto
+                {
+                    Id = doc.Id,
+                    UserDataId = doc.UserDataId,
+                    DocumentName = doc.DocumentName,
+                    DownloadUrl = Url.Action("DownloadDocument", "Document", new { id = doc.Id }, Request.Scheme)
+                }).ToList() ?? new List<DocumentDto>()
             });
 
             return Ok(UserDataDtos);

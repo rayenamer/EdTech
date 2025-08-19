@@ -78,4 +78,16 @@ export class UserDataServiceService {
 
  
 
+
+
+  GetAllData() {
+    return this.http.get(`${this.baseUrl}UserData/get-all-UserDatas`).pipe(
+      tap(response => console.log('All user data retrieved successfully:', response)),
+      catchError(error => {
+        console.error('Error retrieving all user data:', error);
+        return of(null);
+      })
+    );
+  }
+
 }

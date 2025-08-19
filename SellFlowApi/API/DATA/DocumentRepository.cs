@@ -40,9 +40,9 @@ public class DocumentRepository : IDocumentRepository
         await _context.SaveChangesAsync();
         return true;
     }
-    public async Task<bool> GetDocByName(string documentName)
+    public async Task<bool> GetDocByNameAndUserDataId(string documentName, int userDataId)
     {
-        var document = await _context.Documents.FirstOrDefaultAsync(d => d.DocumentName == documentName);
+        var document = await _context.Documents.FirstOrDefaultAsync(d => d.DocumentName == documentName && d.UserDataId == userDataId);
         return document != null;
     }
 

@@ -13,4 +13,5 @@ public class DocumentDto
 
     public int UserDataId { get; set; } // Foreign key for UserData
     public string DownloadUrl { get; set; } = string.Empty;
+     public string DocumentName { get; set; } = string.Empty;
 }

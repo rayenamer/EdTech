@@ -99,15 +99,14 @@ try
     await context.Database.MigrateAsync();
 
 
-    // Seed roles if they don't exist
-    //var roles = new[] { "Admin", "Moderator" };
-    //foreach (var role in roles)
-    //{
-    //    if (!await roleManager.RoleExistsAsync(role))
-    //    {
-    //        await roleManager.CreateAsync(new AppRole { Name = role });
-    //    }
-    //}
+     var roles = new[] { "ADMIN", "MODERATOR" };
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+        {
+            await roleManager.CreateAsync(new AppRole { Name = role });
+        }
+    }
 }
 catch (Exception ex)
 {
