@@ -198,11 +198,29 @@ public class UserDataController : ControllerBase
         if (!int.TryParse(userIdClaim, out int userId))
             return BadRequest("User identifier claim is not a valid integer.");
 
-        var userDatas = await _UserDataRepository.GetByUserIdAsync(userId);
-        
-        bool hasData = userDatas.Any(); // true if any UserData exists
-        return Ok(new { hasData });
+        var userData = await _UserDataRepository.GetByUserIdAsync(userId);
 
+        if (userData == null || !userData.Any())
+        {
+            return Ok(new { hasData = false, message = "No user data found." });
+        }
+
+        var userDataRecord = userData.First(); // Assuming one record per user
+
+        // Check if required profile fields are completed
+        bool hasRequiredInfo = !string.IsNullOrWhiteSpace(userDataRecord.FullName) &&
+                              !string.IsNullOrWhiteSpace(userDataRecord.Number) &&
+                              userDataRecord.DateOfBirth != default(DateTime) &&
+                              !string.IsNullOrWhiteSpace(userDataRecord.Motivation) &&
+                              !string.IsNullOrWhiteSpace(userDataRecord.LifeOutSide);
+
+        // Check if user has at least 2 documents
+        bool hasMinimumDocuments = userDataRecord.Documents != null &&
+                                  userDataRecord.Documents.Count >= 2;
+
+        bool profileCompleted = hasRequiredInfo && hasMinimumDocuments;
+
+        return Ok(new { hasData = profileCompleted });
     }
 
     // Helper method to get user ID from claims (works with both JWT and OAuth)
@@ -218,34 +236,34 @@ public class UserDataController : ControllerBase
             _logger.LogInformation($"Found numeric user ID: {userId}");
             return (true, userId, null);
         }
-        
+
         // For Google OAuth users, find the user by email
         _logger.LogInformation($"Non-integer user ID found: {userIdClaim}. This might be a Google OAuth user.");
-        
+
         var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
         if (string.IsNullOrEmpty(email))
         {
             _logger.LogWarning("No email claim found for OAuth user");
             return (false, 0, BadRequest("Could not identify user from claims."));
         }
-        
+
         // Look up the user in the database by email
-        var userManager = HttpContext.RequestServices.GetService(typeof(Microsoft.AspNetCore.Identity.UserManager<API.Entities.AppUser>)) 
+        var userManager = HttpContext.RequestServices.GetService(typeof(Microsoft.AspNetCore.Identity.UserManager<API.Entities.AppUser>))
             as Microsoft.AspNetCore.Identity.UserManager<API.Entities.AppUser>;
-        
+
         if (userManager == null)
         {
             _logger.LogError("Failed to get UserManager service");
             return (false, 0, StatusCode(500, "Internal server error"));
         }
-        
+
         var appUser = await userManager.FindByEmailAsync(email);
         if (appUser == null)
         {
             _logger.LogWarning($"No user found with email: {email}");
             return (false, 0, BadRequest("User not found."));
         }
-        
+
         userId = appUser.Id;
         _logger.LogInformation($"Found user ID {userId} for email {email}");
         return (true, userId, null);
@@ -259,7 +277,7 @@ public class UserDataController : ControllerBase
             var userIdResult = await GetUserIdFromClaims();
             if (!userIdResult.success)
                 return userIdResult.error;
-                
+
             int userId = userIdResult.userId;
             _logger.LogInformation($"Processing request for UserId: {userId}");
             _logger.LogInformation($"PersonalInfoDto: FullName={personalInfoDto.FullName}, Number={personalInfoDto.Number}, DateOfBirth={personalInfoDto.DateOfBirth}");
@@ -279,13 +297,13 @@ public class UserDataController : ControllerBase
                 _logger.LogInformation("Updating existing UserData record...");
                 existingUserData.FullName = personalInfoDto.FullName;
                 existingUserData.Number = personalInfoDto.Number;
-                
+
                 // Si DateOfBirth est null, conservez la valeur existante au lieu d'utiliser DateTime.MinValue
                 if (personalInfoDto.DateOfBirth.HasValue)
                 {
                     existingUserData.DateOfBirth = personalInfoDto.DateOfBirth.Value;
                 }
-                
+
                 existingUserData.LinkedinLink = personalInfoDto.LinkedinLink;
 
                 var updateResult = await _UserDataRepository.UpdateAsync(existingUserData);
@@ -297,7 +315,7 @@ public class UserDataController : ControllerBase
                 _logger.LogInformation("Creating new UserData record...");
                 var newUserData = _mapper.Map<UserData>(personalInfoDto);
                 newUserData.UserId = userId;
-                
+
                 // Utiliser une date par défaut seulement si DateOfBirth est null
                 if (personalInfoDto.DateOfBirth.HasValue)
                 {
@@ -308,7 +326,7 @@ public class UserDataController : ControllerBase
                     // Utiliser une date par défaut raisonnable (aujourd'hui) au lieu de DateTime.MinValue
                     newUserData.DateOfBirth = DateTime.Today;
                 }
-                
+
                 await _UserDataRepository.AddAsync(newUserData);
             }
 
@@ -336,7 +354,7 @@ public class UserDataController : ControllerBase
             var userIdResult = await GetUserIdFromClaims();
             if (!userIdResult.success)
                 return userIdResult.error;
-                
+
             int userId = userIdResult.userId;
             _logger.LogInformation($"Processing request for UserId: {userId}");
             _logger.LogInformation($"PersonalStatementsDto: Motivation={personalStatementsDto.Motivation}, LifeOutside={personalStatementsDto.LifeOutSide}");
@@ -512,5 +530,5 @@ public class UserDataController : ControllerBase
             return BadRequest($"Error updating work experience: {ex.Message}");
         }
     }
-    
+
 }
