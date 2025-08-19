@@ -275,6 +275,10 @@ namespace API.Migrations
                     b.Property<string>("WorkExperience")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("exists")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Id");
 
                     b.HasIndex("UserId")

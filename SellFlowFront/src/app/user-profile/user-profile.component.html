@@ -18,18 +18,10 @@
     </button>
   </div>
 
-  <!-- No Data State -->
-  <div *ngIf="!hasData && !loading && !errorMessage" class="no-data-container">
-    <div class="no-data-icon">
-      <i class="fas fa-user-plus"></i>
-    </div>
-    <h2>No Profile Data Found</h2>
-    <p>It looks like you haven't created your profile yet. Please complete your profile to get started.</p>
-    <button class="btn-primary" routerLink="/acceuil">
-      <i class="fas fa-arrow-left"></i>
-      Go Back
-    </button>
-  </div>
+  <!-- No Data State with Blank Editable Cards -->
+<div *ngIf="!hasData && !loading && !errorMessage" class="profile-data-container">
+  
+</div>
 
   <!-- User Profile Data -->
   <div *ngIf="userData && !loading" class="profile-data-container">
@@ -275,18 +267,19 @@
           <div class="form-row">
             <div class="form-group">
               <label for="baccalaureatDegree">Degree</label>
-              <input type="text" id="baccalaureatDegree" name="baccalaureatDegree"
-                [(ngModel)]="educationForm.baccalaureatDegree" placeholder="e.g., High School Diploma">
+              <input type="text" id="baccalaureatDegree" name="baccalaureatDegree" [(ngModel)]="educationForm.baccalaureatDegree"
+                placeholder="Enter your baccalaureat degree">
             </div>
+
             <div class="form-group">
               <label for="baccalaureatInstitution">Institution</label>
-              <input type="text" id="baccalaureatInstitution" name="baccalaureatInstitution"
-                [(ngModel)]="educationForm.baccalaureatInstitution" placeholder="e.g., High School Name">
+              <input type="text" id="baccalaureatInstitution" name="baccalaureatInstitution" [(ngModel)]="educationForm.baccalaureatInstitution"
+                placeholder="Enter your baccalaureat institution">
             </div>
+
             <div class="form-group">
               <label for="baccalaureatDate">Date</label>
-              <input type="date" id="baccalaureatDate" name="baccalaureatDate"
-                [(ngModel)]="educationForm.baccalaureatDate">
+              <input type="date" id="baccalaureatDate" name="baccalaureatDate" [(ngModel)]="educationForm.baccalaureatDate">
             </div>
           </div>
         </div>
@@ -298,13 +291,15 @@
             <div class="form-group">
               <label for="bachelorDegree">Degree</label>
               <input type="text" id="bachelorDegree" name="bachelorDegree" [(ngModel)]="educationForm.bachelorDegree"
-                placeholder="e.g., Bachelor of Science">
+                placeholder="Enter your bachelor degree">
             </div>
+
             <div class="form-group">
               <label for="bachelorInstitution">Institution</label>
-              <input type="text" id="bachelorInstitution" name="bachelorInstitution"
-                [(ngModel)]="educationForm.bachelorInstitution" placeholder="e.g., University Name">
+              <input type="text" id="bachelorInstitution" name="bachelorInstitution" [(ngModel)]="educationForm.bachelorInstitution"
+                placeholder="Enter your bachelor institution">
             </div>
+
             <div class="form-group">
               <label for="bachelorDate">Date</label>
               <input type="date" id="bachelorDate" name="bachelorDate" [(ngModel)]="educationForm.bachelorDate">
@@ -319,13 +314,15 @@
             <div class="form-group">
               <label for="masterDegree">Degree</label>
               <input type="text" id="masterDegree" name="masterDegree" [(ngModel)]="educationForm.masterDegree"
-                placeholder="e.g., Master of Science">
+                placeholder="Enter your master degree">
             </div>
+
             <div class="form-group">
               <label for="masterInstitution">Institution</label>
               <input type="text" id="masterInstitution" name="masterInstitution"
                 [(ngModel)]="educationForm.masterInstitution" placeholder="e.g., University Name">
             </div>
+
             <div class="form-group">
               <label for="masterDate">Date</label>
               <input type="date" id="masterDate" name="masterDate" [(ngModel)]="educationForm.masterDate">
@@ -340,13 +337,15 @@
             <div class="form-group">
               <label for="engDegree">Degree</label>
               <input type="text" id="engDegree" name="engDegree" [(ngModel)]="educationForm.engDegree"
-                placeholder="e.g., Engineering Degree">
+                placeholder="Enter your engineering degree">
             </div>
+
             <div class="form-group">
               <label for="engInstitution">Institution</label>
               <input type="text" id="engInstitution" name="engInstitution" [(ngModel)]="educationForm.engInstitution"
-                placeholder="e.g., Engineering School Name">
+                placeholder="e.g., University Name">
             </div>
+
             <div class="form-group">
               <label for="engDate">Date</label>
               <input type="date" id="engDate" name="engDate" [(ngModel)]="educationForm.engDate">
@@ -419,19 +418,159 @@
     <div class="profile-section">
       <div class="section-header">
         <h2 class="section-title">Documents</h2>
-        <div *ngIf="cvExists">
-          <p>CV Document Card</p>
-          <button (click)="DeleteDocByName('CV')">Delete</button>
+      </div>
+      
+      <div class="documents-container">
+        <!--                 CV                   -->
+        <div *ngIf="cvExists" class="document-card">
+          <p><i class="fas fa-file-alt"></i> CV Document</p>
+          <div class="upload-actions">
+            <button (click)="DeleteDocByName('CV')">
+              <i class="fas fa-trash-alt"></i> Delete
+            </button>
+          </div>
         </div>
-        <div *ngIf="!cvExists">
-          <p>No CV document Provided</p>
+        <div *ngIf="!cvExists" class="document-card">
+          <p><i class="fas fa-file-upload"></i> No CV document provided</p>
+          <div class="upload-section">
+            <div class="file-input-container">
+              <label for="cv-document-upload">Select document:</label>
+              <input type="file" id="cv-document-upload" #fileInput (change)="onFileSelected($event)"
+                accept=".pdf,.doc,.docx">
+            </div>
+            <div class="upload-actions">
+              <button (click)="uploadDocument('CV')" [disabled]="!selectedFile || isUploading" class="upload-btn">
+                <span *ngIf="!isUploading"><i class="fas fa-upload"></i> Upload Document</span>
+                <span *ngIf="isUploading"><i class="fas fa-spinner fa-spin"></i> Uploading...</span>
+              </button>
+            </div>
+            <div *ngIf="uploadMessage" class="upload-message"
+              [ngClass]="{'success': uploadSuccess, 'error': !uploadSuccess && uploadMessage}">
+              {{ uploadMessage }}
+            </div>
+          </div>
         </div>
 
-        <div class="upload-section">
-          <input type="file" #fileInput (change)="onFileSelected($event)" accept=".pdf,.doc,.docx">
-          <button (click)="uploadDocument('CV')" [disabled]="!selectedFile">
-            Upload Document
-          </button>
+
+        <div *ngIf="baccalaureatExists" class="document-card">
+          <p><i class="fas fa-file-alt"></i> Baccalaureat Document</p>
+          <div class="upload-actions">
+            <button (click)="DeleteDocByName('Baccalaureat')">
+              <i class="fas fa-trash-alt"></i> Delete
+            </button>
+          </div>
+        </div>
+        <div *ngIf="!baccalaureatExists" class="document-card">
+          <p><i class="fas fa-file-upload"></i> No baccalaureat Degree document provided</p>
+          <div class="upload-section">
+            <div class="file-input-container">
+              <label for="baccalaureat-document-upload">Select document:</label>
+              <input type="file" id="baccalaureat-document-upload" #fileInput (change)="onFileSelected($event)"
+                accept=".pdf,.doc,.docx">
+            </div>
+            <div class="upload-actions">
+              <button (click)="uploadDocument('Baccalaureat')" [disabled]="!selectedFile || isUploading" class="upload-btn">
+                <span *ngIf="!isUploading"><i class="fas fa-upload"></i> Upload Document</span>
+                <span *ngIf="isUploading"><i class="fas fa-spinner fa-spin"></i> Uploading...</span>
+              </button>
+            </div>
+            <div *ngIf="uploadMessage" class="upload-message"
+              [ngClass]="{'success': uploadSuccess, 'error': !uploadSuccess && uploadMessage}">
+              {{ uploadMessage }}
+            </div>
+          </div>
+        </div>
+
+
+
+        <div *ngIf="BaccalaureatGradesExists" class="document-card">
+          <p><i class="fas fa-file-alt"></i> BaccalaureatGrades Document</p>
+          <div class="upload-actions">
+            <button (click)="DeleteDocByName('BaccalaureatGrades')">
+              <i class="fas fa-trash-alt"></i> Delete
+            </button>
+          </div>
+        </div>
+        <div *ngIf="!BaccalaureatGradesExists" class="document-card">
+          <p><i class="fas fa-file-upload"></i> No BaccalaureatGrades Degree document provided</p>
+          <div class="upload-section">
+            <div class="file-input-container">
+              <label for="baccalaureat-grades-document-upload">Select document:</label>
+              <input type="file" id="baccalaureat-grades-document-upload" #fileInput (change)="onFileSelected($event)"
+                accept=".pdf,.doc,.docx">
+            </div>
+            <div class="upload-actions">
+              <button (click)="uploadDocument('BaccalaureatGrades')" [disabled]="!selectedFile || isUploading" class="upload-btn">
+                <span *ngIf="!isUploading"><i class="fas fa-upload"></i> Upload Document</span>
+                <span *ngIf="isUploading"><i class="fas fa-spinner fa-spin"></i> Uploading...</span>
+              </button>
+            </div>
+            <div *ngIf="uploadMessage" class="upload-message"
+              [ngClass]="{'success': uploadSuccess, 'error': !uploadSuccess && uploadMessage}">
+              {{ uploadMessage }}
+            </div>
+          </div>
+        </div>
+
+
+
+
+        <div *ngIf="BachelorExists" class="document-card">
+          <p><i class="fas fa-file-alt"></i> Bachelor Document</p>
+          <div class="upload-actions">
+            <button (click)="DeleteDocByName('Bachelor')">
+              <i class="fas fa-trash-alt"></i> Delete
+            </button>
+          </div>
+        </div>
+        <div *ngIf="!BachelorExists" class="document-card">
+          <p><i class="fas fa-file-upload"></i> No Bachelor Degree document provided</p>
+          <div class="upload-section">
+            <div class="file-input-container">
+              <label for="bachelor-document-upload">Select document:</label>
+              <input type="file" id="bachelor-document-upload" #fileInput (change)="onFileSelected($event)"
+                accept=".pdf,.doc,.docx">
+            </div>
+            <div class="upload-actions">
+              <button (click)="uploadDocument('Bachelor')" [disabled]="!selectedFile || isUploading" class="upload-btn">
+                <span *ngIf="!isUploading"><i class="fas fa-upload"></i> Upload Document</span>
+                <span *ngIf="isUploading"><i class="fas fa-spinner fa-spin"></i> Uploading...</span>
+              </button>
+            </div>
+            <div *ngIf="uploadMessage" class="upload-message"
+              [ngClass]="{'success': uploadSuccess, 'error': !uploadSuccess && uploadMessage}">
+              {{ uploadMessage }}
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="BachelorGradesExists" class="document-card">
+          <p><i class="fas fa-file-alt"></i> BachelorGrades Document</p>
+          <div class="upload-actions">
+            <button (click)="DeleteDocByName('BachelorGrades')">
+              <i class="fas fa-trash-alt"></i> Delete
+            </button>
+          </div>
+        </div>
+        <div *ngIf="!BachelorGradesExists" class="document-card">
+          <p><i class="fas fa-file-upload"></i> No BachelorGrades Degree document provided</p>
+          <div class="upload-section">
+            <div class="file-input-container">
+              <label for="bachelor-grades-document-upload">Select document:</label>
+              <input type="file" id="bachelor-grades-document-upload" #fileInput (change)="onFileSelected($event)"
+                accept=".pdf,.doc,.docx">
+            </div>
+            <div class="upload-actions">
+              <button (click)="uploadDocument('BachelorGrades')" [disabled]="!selectedFile || isUploading" class="upload-btn">
+                <span *ngIf="!isUploading"><i class="fas fa-upload"></i> Upload Document</span>
+                <span *ngIf="isUploading"><i class="fas fa-spinner fa-spin"></i> Uploading...</span>
+              </button>
+            </div>
+            <div *ngIf="uploadMessage" class="upload-message"
+              [ngClass]="{'success': uploadSuccess, 'error': !uploadSuccess && uploadMessage}">
+              {{ uploadMessage }}
+            </div>
+          </div>
         </div>
       </div>
     </div>

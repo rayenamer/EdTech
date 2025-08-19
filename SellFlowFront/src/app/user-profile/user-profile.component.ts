@@ -3,9 +3,9 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { UserDataServiceService } from '../services/user-data-service.service';
-import { catchError, finalize, map, of, take } from 'rxjs';
+import { catchError, finalize, map, of, take, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { DocumentService, DocumentDto } from '../services/document.service';
+import { DocumentService} from '../services/document.service';
 
 // Remove duplicate DocumentDto interface since we're importing it from document.service
 
@@ -31,7 +31,7 @@ interface UserDataDto {
   workExperience: string;
   linkedinLink: string;
   userId: number;
-  documents: DocumentDto[];
+  //documents: DocumentDto[];
 }
 
 @Component({
@@ -97,8 +97,14 @@ export class UserProfileComponent implements OnInit {
     workExperience: ''
   };
   cvExists = false;
+  baccalaureatExists = false;
+  BaccalaureatGradesExists = false;
+  BachelorExists = false;
+  BachelorGradesExists = false;
+
   ngOnInit(): void {
     this.loadUserData();
+    //CV
     this.documentService.CheckIfDocExist('CV').subscribe({
       next: result => {
         this.cvExists = result;
@@ -106,6 +112,48 @@ export class UserProfileComponent implements OnInit {
       error: error => {
         console.error('Error checking document existence:', error);
         this.cvExists = false; // This return false equivalent makes sense here
+      }
+    });
+    //Baccalaureat Degree
+    this.documentService.CheckIfDocExist('Baccalaureat').subscribe({
+      next: result => {
+        this.baccalaureatExists = result;
+      },
+      error: error => {
+        console.error('Error checking document existence:', error);
+        this.baccalaureatExists = false; // This return false equivalent makes sense here
+      }
+    });
+
+    //Baccalaureat Grades
+    this.documentService.CheckIfDocExist('BaccalaureatGrades').subscribe({
+      next: result => {
+        this.BaccalaureatGradesExists = result;
+      },
+      error: error => {
+        console.error('Error checking document existence:', error);
+        this.BaccalaureatGradesExists = false; // This return false equivalent makes sense here
+      }
+    });
+    //Bachelor
+    this.documentService.CheckIfDocExist('Bachelor').subscribe({
+      next: result => {
+        this.BachelorExists = result;
+      },
+      error: error => {
+        console.error('Error checking document existence:', error);
+        this.BachelorExists = false; // This return false equivalent makes sense here
+      }
+    });
+
+    //Bachelor Grades
+    this.documentService.CheckIfDocExist('BachelorGrades').subscribe({
+      next: result => {
+        this.BachelorGradesExists = result;
+      },
+      error: error => {
+        console.error('Error checking document existence:', error);
+        this.BachelorGradesExists = false; // This return false equivalent makes sense here
       }
     });
   }
@@ -454,21 +502,36 @@ export class UserProfileComponent implements OnInit {
       }
     });
   }
-  checkIfDocExist(documentName: string): boolean {
-    let exists = false;
-    this.documentService.CheckIfDocExist(documentName).subscribe({
-      next: result => {
-        exists = result; // This happens AFTER the return statement
-      }
-    });
-    return exists; // This ALWAYS returns false
-  }
+  //checkIfDocExist(documentName: string): boolean {
+  //  let exists = false;
+  //  this.documentService.CheckIfDocExist(documentName).subscribe({
+  //    next: result => {
+  //      exists = result; // This happens AFTER the return statement
+  //    }
+  //  });
+  //  return exists; // This ALWAYS returns false
+  //}
   DeleteDocByName(documentName: string): void {
     this.documentService.DeleteDocByName(documentName).subscribe({
       next: result => {
         if (result) {
           console.log('Document deleted successfully:', documentName);
           this.loadUserData(); // Reload data to show updated information
+          if (documentName === 'CV') {
+            this.cvExists = false;
+        }
+        else if (documentName === 'Baccalaureat') {
+          this.baccalaureatExists = false;
+        }
+        else if (documentName === 'BaccalaureatGrades') {
+          this.BaccalaureatGradesExists = false;
+        }
+         else if (documentName === 'Bachelor') {
+          this.BachelorExists = false;
+        }
+        else if (documentName === 'BachelorGrades') {
+          this.BachelorGradesExists = false;
+        }
         } else {
           console.error('Failed to delete document.');
         }
@@ -485,41 +548,81 @@ export class UserProfileComponent implements OnInit {
   //*add
   selectedFile: File | null = null;
   documentName: string = '';
-   onFileSelected(event: any) {
+  isUploading: boolean = false;
+  uploadSuccess: boolean = false;
+  uploadMessage: string = '';
+
+  onFileSelected(event: any) {
     this.selectedFile = event.target.files[0];
+    // Reset messages when a new file is selected
+    this.uploadSuccess = false;
+    this.uploadMessage = '';
   }
 
   uploadDocument(name: string) {
-    if (this.selectedFile) {
-      this.documentService.AddDocument(this.selectedFile, name).subscribe({
-        next: (response) => {
-          console.log('Success:', response);
-          // Reset form
-          this.selectedFile = null;
-          this.documentName = '';
-          // Maybe refresh document list
-        },
-        error: (error) => {
-          // Handle error appropriately
-          this.handleUploadError(error);
-        }
-      });
+    if (!this.selectedFile) {
+      this.uploadMessage = 'Please select a file first';
+      return;
     }
+
+    // Set uploading state
+    this.isUploading = true;
+    this.uploadMessage = 'Uploading document...';
+
+    this.documentService.AddDocument(this.selectedFile, name).subscribe({
+      next: (response) => {
+        console.log('Success:', response);
+        // Reset form and show success message
+        this.selectedFile = null;
+        this.documentName = '';
+        this.isUploading = false;
+        this.uploadSuccess = true;
+        this.uploadMessage = 'Document uploaded successfully!';
+        
+        // If this is a CV upload, update the CV exists flag
+        if (name === 'CV') {
+          this.cvExists = true;
+        }
+        else if (name === 'Baccalaureat') {
+          this.baccalaureatExists = true;
+        }
+        else if (name === 'BaccalaureatGrades') {
+          this.BaccalaureatGradesExists = true;
+        }
+         else if (name === 'Bachelor') {
+          this.BachelorExists = true;
+        }
+        else if (name === 'BachelorGrades') {
+          this.BachelorGradesExists = true;
+        }
+      },
+      error: (error) => {
+        // Handle error appropriately
+        this.isUploading = false;
+        this.uploadSuccess = false;
+        this.handleUploadError(error);
+      }
+    });
   }
 
   private handleUploadError(error: any) {
     let errorMessage = 'Upload failed. Please try again.';
     
     if (error.status === 400) {
-      errorMessage = error.error || 'Invalid file or missing information.';
+      // Handle specific error messages from the backend
+      errorMessage = typeof error.error === 'string' ? error.error : 'Invalid file or missing information.';
     } else if (error.status === 401) {
       errorMessage = 'Please login to upload documents.';
+      // Redirect to login page or show login modal if needed
     } else if (error.status === 500) {
       errorMessage = 'Server error. Please try again later.';
     }
     
-    // Show error message to user (using a toast service, alert, etc.)
+    // Update the upload message to show the error
+    this.uploadMessage = errorMessage;
     console.error(errorMessage);
   }
+
+  
 }
 

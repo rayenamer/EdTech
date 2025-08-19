@@ -7,7 +7,7 @@ public class UploadHandler
     public byte[] Upload(IFormFile file)
     {
         // Extension validation
-        List<string> validExtensions = new List<string>() { ".jpg", ".png", ".gif" };
+        List<string> validExtensions = new List<string>() { ".pdf",".jpg", ".png", ".gif" };
         string extension = Path.GetExtension(file.FileName);
         if (!validExtensions.Contains(extension))
         {

@@ -452,4 +452,5 @@ public class UserDataController : ControllerBase
             return BadRequest($"Error updating work experience: {ex.Message}");
         }
     }
+    
 }

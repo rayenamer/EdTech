@@ -28,7 +28,7 @@ namespace API.Controllers
         /// </summary>
         /// <param name="file">The file to upload</param>
         /// <returns>Information about the uploaded document</returns>
-        [HttpPost("add-document")]
+        [HttpPost("add-document/{documentName}")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> AddDocument(IFormFile file, string documentName)
         {

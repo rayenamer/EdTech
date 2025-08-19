@@ -12,24 +12,26 @@ public class DevTools
 ) : BaseApiController
 {
     [HttpGet("GetAllUsers")]
-    public async Task<IActionResult> GetAllUsers()
+    public async Task<IActionResult> GetAllUsersForAdmin()
     {
-        try
-        {
-            // Fetch all users from UserManager
-            var users = userManager.Users.ToList();  // This fetches all users
 
-           
 
-            // Return a simplified response with only UserName and EmailConfirmed
-            var result = users.Select(u => new { u.UserName, u.EmailConfirmed }).ToList();
+        var users = await userManager.Users
+     .OrderBy(x => x.UserName)
+     .Select(x => new
+     {
+         x.Id,
+         Username = x.UserName,
+         Gender = x.Gender,
+         DateOfBirth = x.DateOfBirth,
+         Roles = x.UserRoles.Select(r => r.Role.Name).ToList(),
+         Email = x.Email,
+         City = x.city,
+         LastActive = x.LastActive.ToString("f"),
+     })
+     .ToListAsync();
+        return Ok(users);
 
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, "Internal server error");
-        }
     }
 
     [HttpGet("DeleletAllUser")]

@@ -32,5 +32,6 @@ public class UserData
     public int UserId { get; set; } // Foreign key for AppUser
     public AppUser? User { get; set; } // Navigation property to AppUser
     public List<Document>? Documents { get; set; } = new List<Document>();
+   
 
 }
