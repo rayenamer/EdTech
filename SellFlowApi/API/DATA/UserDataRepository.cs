@@ -151,7 +151,30 @@ public class UserDataRepository : IUserDataRepository
         await _context.SaveChangesAsync();
         return true;
     }
-
     
-   
+    public async Task FindByEmailAsync(string emailClaim)
+    {
+        try
+        {
+            // Recherche des utilisateurs par email
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == emailClaim);
+            if (user == null)
+            {
+                Console.WriteLine($"No user found with email: {emailClaim}");
+                return;
+            }
+
+            // Récupération des données utilisateur associées
+            var userDatas = await _context.UserDatas
+                .Where(ud => ud.UserId == user.Id)
+                .ToListAsync();
+
+            Console.WriteLine($"Found {userDatas.Count} UserData records for user with email: {emailClaim}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in FindByEmailAsync: {ex.Message}");
+            throw;
+        }
+    }
 }

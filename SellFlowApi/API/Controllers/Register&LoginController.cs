@@ -18,12 +18,15 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Drawing;
 using Microsoft.Extensions.Configuration;
+using API.DATA;
+using API.entities;
 
 namespace API.Controllers;
 
 public class Register_LoginController
 (
     UserManager<AppUser> userManager,
+    IUserDataRepository _UserDataRepository,
     ITokenService tokenService,
     IMapper mapper,
     IEmailSender _emailSender,
@@ -43,6 +46,13 @@ public class Register_LoginController
         var result = await userManager.CreateAsync(user, registerDto.Password);
         if (!result.Succeeded) return BadRequest(result.Errors);
 
+        // INIT UserData
+        await _UserDataRepository.AddAsync(new UserData
+        {
+            UserId = user.Id, // Connect to the created user
+            exists = "true",
+            // Add other required properties based on your UserData model
+        });
 
         //
         var emailToken = await userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -112,12 +122,12 @@ public class Register_LoginController
         }
 
         // ⚠️⚠️⚠️ we will comment this so everyone can test on their machines⚠️⚠️⚠️
-        
-       //if (!user.EmailConfirmed)
-       //{
-       //    // If the email is not confirmed, reject login attempt
-       //    return Unauthorized("Email is not confirmed.");
-       //}
+
+        //if (!user.EmailConfirmed)
+        //{
+        //    // If the email is not confirmed, reject login attempt
+        //    return Unauthorized("Email is not confirmed.");
+        //}
 
 
 
@@ -207,7 +217,7 @@ public class Register_LoginController
     }
 
     [HttpGet("google-response")]
-    public async Task<IActionResult> GoogleResponse([FromQuery] string state = null)
+    public async Task<IActionResult> GoogleResponse([FromQuery] string state = "")
     {
         // Get configuration for URLs
         var config = HttpContext.RequestServices.GetService(typeof(IConfiguration)) as IConfiguration;
@@ -251,6 +261,22 @@ public class Register_LoginController
             {
                 _logger.LogError("Failed to create user for Google login: {Errors}", resultCreate.Errors);
                 return Redirect($"{loginFailedUrl}?error=user_creation_failed");
+            }
+            try
+            {
+                await _UserDataRepository.AddAsync(new UserData
+                {
+                    UserId = user.Id, // Connect to the created user
+                    exists = "true",
+                    // Add other required properties based on your UserData model
+                });
+                _logger.LogInformation("UserData created successfully for Google user {Email}", email);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to create UserData for Google user {Email}", email);
+                // You might want to decide whether to continue or fail here
+                // For now, we'll continue but log the error
             }
         }
 

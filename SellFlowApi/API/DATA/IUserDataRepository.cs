@@ -12,4 +12,6 @@ public interface IUserDataRepository
     Task<bool> DeletePersonalinfo(int id);
     Task<bool> AddDocumentAsync(int userDataId, int documentId);
     Task<IEnumerable<UserData>> GetByUserIdAsync(int userId);
+    Task FindByEmailAsync(string emailClaim);
+
 }
