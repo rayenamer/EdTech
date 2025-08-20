@@ -21,6 +21,8 @@ import { adminGuard } from './guards/admin.guard';
 import {ProgramdetailscardComponent} from './programdetailscard/programdetailscard.component';
 import { UserProfileComponent } from './user-profile/user-profile.component';
 import { UsersDataComponent } from './users-data/users-data.component';
+import { ApplicationsComponent } from './applications/applications.component';
+import { MyApplicationsComponent } from './my-applications/my-applications.component';
 export const routes: Routes = [
     {path: '', component: HomeComponent },
     {path:'programs', component: ProgramsComponent, canActivate: [adminGuard]},
@@ -41,5 +43,7 @@ export const routes: Routes = [
     {path : 'programdetails/:id', component: ProgramdetailscardComponent},
     {path: 'user-profile', component: UserProfileComponent},
     {path: 'UsersData', component: UsersDataComponent},
+    {path:'applications',component: ApplicationsComponent},
+    {path:'MyApplications',component: MyApplicationsComponent},
     {path: '**', component: HomeComponent, pathMatch: 'full' },
 ];

@@ -328,4 +328,5 @@ public class ApplicationController : ControllerBase
             return BadRequest("Error updating application status");
         }
     }
+
 }
