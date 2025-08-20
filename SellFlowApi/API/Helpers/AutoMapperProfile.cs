@@ -51,5 +51,6 @@ public class AutoMapperProfiles : Profile
         CreateMap<Document, DocumentDto>();
 
         CreateMap<UserData, UserDataDto>();
+        CreateMap<Application, ApplicationDto>();
     }
 }

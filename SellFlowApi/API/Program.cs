@@ -23,6 +23,7 @@ builder.Services.AddIdentityServices(builder.Configuration);
 builder.Services.AddScoped<IUniProgramRepository, UniProgramRepository>();
 builder.Services.AddScoped<IUserDataRepository, UserDataRepository>();
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
+builder.Services.AddScoped<IApplicationRepository, ApplicationRepository>();
 // ======== MAILERSEND SMTP CONFIGURATION ========
 // 1. Bind SMTP settings from configuration
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));

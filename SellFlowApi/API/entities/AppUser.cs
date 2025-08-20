@@ -19,10 +19,6 @@ public class AppUser : IdentityUser<int>
     public ICollection<AppUserRole> UserRoles { get; set; } = [];
 
     public UserData? UserData { get; set; }
+    public ICollection<Application> Applications { get; set; } = new List<Application>();
 
-
-    //public static implicit operator AppUser(AppUserDto v)
-    //{
-    //    throw new NotImplementedException();
-    //}
 }

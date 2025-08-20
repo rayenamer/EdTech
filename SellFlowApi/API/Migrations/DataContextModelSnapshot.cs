@@ -145,6 +145,58 @@ namespace API.Migrations
                     b.ToTable("AspNetUserRoles", (string)null);
                 });
 
+            modelBuilder.Entity("API.entities.Application", b =>
+                {
+                    b.Property<int>("ApplicationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ApplicationStatus")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ProgramDescription")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ProgramId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("ProgramName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("StudentContactNumber")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("StudentEmail")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("StudentName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("SubmissionDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("WhyDidYouApply")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ApplicationId");
+
+                    b.HasIndex("ProgramId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Applications");
+                });
+
             modelBuilder.Entity("API.entities.Document", b =>
                 {
                     b.Property<int>("Id")
@@ -390,6 +442,25 @@ namespace API.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("API.entities.Application", b =>
+                {
+                    b.HasOne("API.entities.UniProgram", "Program")
+                        .WithMany("Applications")
+                        .HasForeignKey("ProgramId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API.Entities.AppUser", "User")
+                        .WithMany("Applications")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Program");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("API.entities.Document", b =>
                 {
                     b.HasOne("API.entities.UserData", null)
@@ -453,9 +524,16 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Entities.AppUser", b =>
                 {
+                    b.Navigation("Applications");
+
                     b.Navigation("UserData");
 
                     b.Navigation("UserRoles");
+                });
+
+            modelBuilder.Entity("API.entities.UniProgram", b =>
+                {
+                    b.Navigation("Applications");
                 });
 
             modelBuilder.Entity("API.entities.UserData", b =>
