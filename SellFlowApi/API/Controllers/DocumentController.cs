@@ -212,7 +212,7 @@ namespace API.Controllers
                 return false;
             var userData = await _userDataRepository.GetByUserIdAsync(userId);
             if (userData == null) return false;
-        
+
             var documentExists = await _documentRepository.GetDocByNameAndUserDataId(documentName, userId);
             return documentExists;
 
@@ -229,6 +229,10 @@ namespace API.Controllers
 
             return await _documentRepository.DeleteDocByName(documentName);
         }
+
+        //helper
+
+        
 
 
     }
