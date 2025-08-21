@@ -64,16 +64,6 @@ public class DataContext(DbContextOptions options)
                     .HasForeignKey(a => a.ProgramId)
                     .IsRequired();
 
-                /*builder.Entity<UserData>()
-                    .HasMany(ud => ud.Documents)
-                    .WithOne(d => d.UserData)
-                    .HasForeignKey(d => d.UserDataId); // FK in Document*/
-
-
-                /*HasMany(ud => ud.Documents) - UserData has many Documents
-                WithOne(d => d.UserData) - Each Document has one UserData (navigation property)
-                HasForeignKey(d => d.UserDataId) - The foreign key in Document table*/
-
 
 
 

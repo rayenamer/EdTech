@@ -100,7 +100,7 @@ try
     await context.Database.MigrateAsync();
 
 
-     var roles = new[] { "ADMIN", "MODERATOR" };
+    var roles = new[] { "ADMIN", "MODERATOR" };
     foreach (var role in roles)
     {
         if (!await roleManager.RoleExistsAsync(role))
