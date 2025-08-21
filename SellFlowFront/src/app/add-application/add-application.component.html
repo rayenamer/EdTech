@@ -1,1 +1,32 @@
-<p>add-application works!</p>
+<div class="add-application-container">
+  <div class="application-form-card">
+    <h2>Complete Your Application</h2>
+    <p class="form-description">Please tell us why you are interested in this program.</p>
+    
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="whyApplying">Why are you applying for this program?</label>
+        <textarea 
+          id="whyApplying" 
+          name="whyApplying" 
+          rows="6" 
+          [(ngModel)]="application.WhyDidYouApply" 
+          placeholder="Explain why you are interested in this program and how it aligns with your goals..."
+          required></textarea>
+      </div>
+      
+      <div class="error-message" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+      
+      <div class="form-actions">
+        <button 
+          type="submit" 
+          class="btn-submit" 
+          [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Submitting...' : 'Submit Application' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

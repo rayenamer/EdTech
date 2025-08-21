@@ -101,6 +101,11 @@ public class ApplicationController : ControllerBase
                 ApplicationId = createdApplication.ApplicationId
             });
         }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("already applied"))
+        {
+            _logger.LogWarning("Duplicate application attempt for user {UserId}, program {ProgramId}", userIdResult.userId, programId);
+            return BadRequest(ex.Message); // This will return "You already applied for this program"
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating application for user {UserId}, program {ProgramId}", userIdResult.userId, programId);
@@ -297,7 +302,9 @@ public class ApplicationController : ControllerBase
             .Select(app => new
             {
                 ProgramName = app.ProgramName,
-                ProgramDescription = app.ProgramDescription
+                ProgramDescription = app.ProgramDescription,
+                ApplicationStatus = app.ApplicationStatus,
+                SubmissionDate = app.SubmissionDate
             })
             .ToListAsync();
 

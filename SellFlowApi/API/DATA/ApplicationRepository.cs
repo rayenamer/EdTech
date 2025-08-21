@@ -17,7 +17,10 @@ public class ApplicationRepository : IApplicationRepository
     private readonly ILogger<ApplicationRepository> _logger;
     public async Task<Application> CreateApplicationAsync(Application application, int userId, int programId)
     {
-        
+        if(await FindByUserIdAndProgramId(userId, programId))
+        {
+             throw new InvalidOperationException("You already applied for this program");
+        }
         application.UserId = userId;
         application.ProgramId = programId;
         application.SubmissionDate = DateTime.UtcNow; // Set submission date
@@ -63,5 +66,9 @@ public class ApplicationRepository : IApplicationRepository
         return await applications;
     }
     //helper function to get connected user id
+    public async Task<bool> FindByUserIdAndProgramId(int userId, int programId)
+    {
+        return await _context.Applications.AnyAsync(a => a.UserId == userId && a.ProgramId == programId);
+    }
 
 }

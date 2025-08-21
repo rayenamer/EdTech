@@ -70,6 +70,7 @@ export class ProgramCardComponent implements OnInit {
 
   onApplyClick(): void {
     this.applyClicked.emit(this.program);
+    this.router.navigate(['/add-application', this.program.id]);
   }
 
   onLearnMoreClick(): void {

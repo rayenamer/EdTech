@@ -1,1 +1,46 @@
-<p>my-applications works!</p>
+<!-- my-applications.component.html -->
+<div class="my-applications-container">
+  <h1>My Applications</h1>
+  
+  <div class="loading-spinner" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading your applications...</p>
+  </div>
+  
+  <div class="error-message" *ngIf="error">
+    {{ error }}
+  </div>
+  
+  <div class="no-applications" *ngIf="!loading && applications.length === 0 && !error">
+    <p>You haven't submitted any applications yet.</p>
+  </div>
+  
+  <div class="applications-grid" *ngIf="!loading && applications.length > 0">
+    <div class="application-card" *ngFor="let app of applications">
+      <div class="card-header">
+        <h3>{{ app.programName }}</h3>
+        <div class="status-badge" [ngClass]="getStatusClass(app.applicationStatus)">
+          {{ app.applicationStatus }}
+        </div>
+      </div>
+      
+      <div class="card-body">
+        <div class="university-info">
+          <p class="university-name">{{ app.programName }}</p>
+        </div>
+        
+        <div class="application-details">
+          <div class="detail-item">
+            <span class="detail-label">Applied on:</span>
+            <span class="detail-value">{{ formatDate(app.submissionDate) }}</span>
+          </div>
+        </div>
+        
+        <div class="application-reason">
+          <h4>Program Description:</h4>
+          <p>{{ app.programDescription }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

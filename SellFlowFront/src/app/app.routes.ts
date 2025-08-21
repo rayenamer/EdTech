@@ -23,10 +23,12 @@ import { UserProfileComponent } from './user-profile/user-profile.component';
 import { UsersDataComponent } from './users-data/users-data.component';
 import { ApplicationsComponent } from './applications/applications.component';
 import { MyApplicationsComponent } from './my-applications/my-applications.component';
+import { AddApplicationComponent } from './add-application/add-application.component';
 export const routes: Routes = [
     {path: '', component: HomeComponent },
     {path:'programs', component: ProgramsComponent, canActivate: [adminGuard]},
     {path:'add-program', component: AddProgramComponent, canActivate: [adminGuard]},
+    {path:'add-application/:id', component: AddApplicationComponent, canActivate: [authGuard]},
     {path:'community',component:CommunityComponent},
     {path: 'careers', component: CareersComponent },
     {path: 'aboutus', component: AboutusComponent },
@@ -44,6 +46,6 @@ export const routes: Routes = [
     {path: 'user-profile', component: UserProfileComponent},
     {path: 'UsersData', component: UsersDataComponent},
     {path:'applications',component: ApplicationsComponent},
-    {path:'MyApplications',component: MyApplicationsComponent},
+    {path:'my-applications',component: MyApplicationsComponent, canActivate: [authGuard]},
     {path: '**', component: HomeComponent, pathMatch: 'full' },
 ];
