@@ -3,6 +3,7 @@ using API.Entities;
 using API.DATA;
 using API.Helpers;
 using API.entities;
+using Microsoft.AspNetCore.Identity;
 
 namespace API.Controllers
 {
@@ -14,11 +15,15 @@ namespace API.Controllers
         private readonly IUserDataRepository _userDataRepository;
         private readonly UploadHandler _uploadHandler;
         private readonly FileDeployer _fileDeployer;
+        private readonly ILogger<DocumentController> _logger;
+         private readonly UserManager<AppUser> _userManager;
 
-        public DocumentController(IDocumentRepository documentRepository, IUserDataRepository userDataRepository)
+        public DocumentController(IDocumentRepository documentRepository, IUserDataRepository userDataRepository, ILogger<DocumentController> logger, UserManager<AppUser> userManager)
         {
             _documentRepository = documentRepository;
             _userDataRepository = userDataRepository;
+            _logger = logger;
+            _userManager = userManager;
             _uploadHandler = new UploadHandler();
             _fileDeployer = new FileDeployer();
         }
@@ -201,22 +206,26 @@ namespace API.Controllers
                 return StatusCode(500, $"Error: {ex.Message}");
             }
         }
+
         [HttpGet("check-document-name-AND-user-id/{documentName}")]
         public async Task<bool> CheckDocumentNameAndUserId(string documentName)
         {
-            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim))
-                return false;
+            var result = await GetUserIdFromClaims();
+            _logger.LogInformation("User ID from claims: {UserId}", result.userId);
+            var userId = result.userId;
 
-            if (!int.TryParse(userIdClaim, out int userId))
-                return false;
-            var userData = await _userDataRepository.GetByUserIdAsync(userId);
-            if (userData == null) return false;
+            var userDataCollection = await _userDataRepository.GetByUserIdAsync(userId);
+           
 
-            var documentExists = await _documentRepository.GetDocByNameAndUserDataId(documentName, userId);
+            var userData = userDataCollection.First(); // Get the first UserData
+            var Id = userData.Id;
+            _logger.LogInformation("UserData ID: {UserDataId} for User ID: {UserId}", Id, userId);
+
+            var documentExists = await _documentRepository.GetDocByNameAndUserDataId(documentName, Id);
+            _logger.LogInformation("Document exists: {DocumentExists} for User ID: {UserId}", documentExists, userId);
             return documentExists;
-
         }
+
         [HttpDelete("DeleteDocByName/{documentName}")]
         public async Task<bool> DeleteDocByName(string documentName)
         {
@@ -226,16 +235,49 @@ namespace API.Controllers
 
             if (!int.TryParse(userIdClaim, out int userId))
                 return false;
+            var userDataCollection = _userDataRepository.GetByUserIdAsync(userId);
+            var Id = userDataCollection.Result.First().Id; // Get the first UserData ID
 
-            return await _documentRepository.DeleteDocByName(documentName);
+            return await _documentRepository.DeleteDocByNameAndUserDataId(documentName, Id);
         }
 
         //helper
 
-        
+        private async Task<(int userId, IActionResult error)> GetUserIdFromClaims()
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim))
+                return (0, Unauthorized("User identifier claim not found."));
 
+            // Try to parse the claim as an integer (works for classic JWT auth)
+            if (int.TryParse(userIdClaim, out int userId))
+            {
+                _logger.LogInformation("Found numeric user ID: {UserId}", userId);
+                return (userId, null);
+            }
 
+            // For Google OAuth users, find the user by email
+            _logger.LogInformation("Non-integer user ID found: {UserIdClaim}. This might be a Google OAuth user.", userIdClaim);
+
+            var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+            if (string.IsNullOrEmpty(email))
+            {
+                _logger.LogWarning("No email claim found for OAuth user");
+                return (0, Unauthorized("User email claim not found."));
+            }
+
+            // Use the injected UserManager instead of getting it from HttpContext
+            var appUser = await _userManager.FindByEmailAsync(email);
+            if (appUser == null)
+            {
+                _logger.LogWarning("No user found with email: {Email}", email);
+                return (0, NotFound($"User with email {email} not found."));
+            }
+
+            userId = appUser.Id;
+            _logger.LogInformation("Found user ID {UserId} for email {Email}", userId, email);
+            return (userId, null);
+        }
     }
 }
-                
             

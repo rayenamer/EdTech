@@ -46,9 +46,9 @@ public class DocumentRepository : IDocumentRepository
         return document != null;
     }
 
-    public async Task<bool> DeleteDocByName(string documentName)
+    public async Task<bool> DeleteDocByNameAndUserDataId(string documentName,int userDataId)
     {
-        var document = await _context.Documents.FirstOrDefaultAsync(d => d.DocumentName == documentName);
+        var document = await _context.Documents.FirstOrDefaultAsync(d => d.DocumentName == documentName && d.UserDataId == userDataId);
         if (document == null) return false;
 
         _context.Documents.Remove(document);
