@@ -315,17 +315,17 @@ public class ApplicationController : ControllerBase
             var application = await _context.Applications.FindAsync(ApplicationId);
             if (application == null)
             {
-                return NotFound("Application not found");
+                return NotFound(new { message = "Application not found" });
             }
 
             application.ApplicationStatus = NewState;
             await _context.SaveChangesAsync();
 
-            return Ok("Application status updated successfully");
+            return Ok(new { message = "Application status updated successfully" });
         }
         catch
         {
-            return BadRequest("Error updating application status");
+            return BadRequest(new { message = "Error updating application status" });
         }
     }
 

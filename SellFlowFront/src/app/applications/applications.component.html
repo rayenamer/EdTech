@@ -1,1 +1,61 @@
-<p>applications works!</p>
+<div class="applications-container">
+  <h2>Applications Management</h2>
+  
+  <!-- Messages -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="alert alert-error">
+    {{ errorMessage }}
+  </div>
+  
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading applications...</p>
+  </div>
+  
+  <!-- Applications Table -->
+  <div *ngIf="!loading && applications.length > 0" class="applications-table-container">
+    <table class="applications-table">
+      <thead>
+        <tr>
+          <th>Student Name</th>
+          <th>Email</th>
+          <th>Program</th>
+          <th>Status</th>
+          <th>Submission Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let app of applications">
+          <td>{{ app.studentName }}</td>
+          <td>{{ app.studentEmail }}</td>
+          <td>{{ app.programName }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="'status-' + app.applicationStatus.toLowerCase().replace(' ', '-')">
+              {{ app.applicationStatus }}
+            </span>
+          </td>
+          <td>{{ app.submissionDate | date:'medium' }}</td>
+          <td class="actions-cell">
+            <select #stateSelect (change)="changeState(app.applicationId, stateSelect.value)" class="state-select">
+              <option [value]="''" disabled selected>Change status</option>
+              <option *ngFor="let state of applicationStates" [value]="state">{{ state }}</option>
+            </select>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- No Applications State -->
+  <div *ngIf="!loading && applications.length === 0" class="no-applications">
+    <div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <h3>No Applications Found</h3>
+      <p>There are currently no applications in the system.</p>
+    </div>
+  </div>
+</div>

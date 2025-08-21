@@ -15,7 +15,7 @@ export class ApplicationServieService {
     return this.http.get(`${this.baseUrl}Application/get-all-application-with-all-data`);
   }
   changeApplicationState(ApplicationId: number, state: string) {
-    return this.http.post(`${this.baseUrl}Application/change-application-state/${ApplicationId}`, { state });
+    return this.http.put(`${this.baseUrl}Application/change-application-state/${ApplicationId}?NewState=${state}`, {});
   }
 
   //for users
