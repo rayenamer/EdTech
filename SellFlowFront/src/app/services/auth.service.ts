@@ -17,12 +17,12 @@ export class AuthService {
   errorMessage: any;
 
   setCurrentUser(user: User){
-    localStorage.setItem('user', JSON.stringify(user));
+    // No longer storing in localStorage - using HTTP-only cookies
     this.currentUser.set(user);
   }
 
   login(model: any) {
-    return this.http.post<User>(this.baseUrl + 'Register_Login/login', model).pipe(
+    return this.http.post<User>(this.baseUrl + 'Register_Login/login', model, { withCredentials: true }).pipe(
       map(user => {
         if (user) {
           this.setCurrentUser(user);
@@ -32,15 +32,15 @@ export class AuthService {
   }
 
   loginWithGoogle() {
-    return this.http.get<User>(this.baseUrl + 'Register_Login/google-login').pipe(
+    return this.http.get<User>(this.baseUrl + 'Register_Login/google-login', { withCredentials: true }).pipe(
       map(user => {       
-          this.setCurrentUser(user);
+          this.currentUser.set(user);
       })
     )
   }
 
   register(model: any){
-    return this.http.post<User>(this.baseUrl + 'Register_Login/register', model).pipe(
+    return this.http.post<User>(this.baseUrl + 'Register_Login/register', model, { withCredentials: true }).pipe(
       map((user) => {
         if (user) {
           this.setCurrentUser(user);
@@ -64,8 +64,11 @@ export class AuthService {
   }
 
   logout() {
-    localStorage.removeItem('user');
-    this.currentUser.set(null);
+    return this.http.post(this.baseUrl + 'Register_Login/logout', {}, { withCredentials: true }).pipe(
+      map(() => {
+        this.currentUser.set(null);
+      })
+    );
   }
 
  

@@ -16,13 +16,13 @@ export class AdminService {
   errorMessage: any;
 
   setCurrentUser(user: User){
-    localStorage.setItem('user', JSON.stringify(user));
+    // No longer storing in localStorage - using HTTP-only cookies
     this.currentUser.set(user);
   }
   
 
   login(model: any) {
-    return this.http.post<User>(this.baseUrl + 'AdminAndModerators/login', model).pipe(
+    return this.http.post<User>(this.baseUrl + 'AdminAndModerators/login', model, { withCredentials: true }).pipe(
       map(user => {
         if (user) {
           this.setCurrentUser(user);
@@ -32,7 +32,7 @@ export class AdminService {
   }
 
   register(model: any){
-    return this.http.post<User>(this.baseUrl + 'AdminAndModerators/register-admin', model).pipe(
+    return this.http.post<User>(this.baseUrl + 'AdminAndModerators/register-admin', model, { withCredentials: true }).pipe(
       map((user) => {
         if (user) {
           this.setCurrentUser(user);
@@ -49,7 +49,19 @@ export class AdminService {
 
 
   GetAllUsersForAdmin(){
-    return this.http.get<any[]>(this.baseUrl + 'AdminAndModerators/GetAllUsersForAdmin');
+    return this.http.get<any[]>(this.baseUrl + 'AdminAndModerators/GetAllUsersForAdmin', { withCredentials: true });
+  }
+
+  getCurrentUser() {
+    return this.http.get<User>(this.baseUrl + 'AdminAndModerators/me', { withCredentials: true });
+  }
+
+  logout() {
+    return this.http.post(this.baseUrl + 'AdminAndModerators/logout', {}, { withCredentials: true }).pipe(
+      map(() => {
+        this.currentUser.set(null);
+      })
+    );
   }
 
   

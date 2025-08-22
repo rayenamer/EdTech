@@ -61,16 +61,77 @@ public class AdminAndModeratorsController
         var result = await userManager.CheckPasswordAsync(user, loginDto.Password);
         if (!result) return Unauthorized("wrong password");
 
+        var token = await tokenService.CreateToken(user);
+
+        // Set token as HTTP-only cookie
+        Response.Cookies.Append("jwt_token", token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddDays(7)
+        });
+
+        user.LastActive = DateTime.UtcNow;
+        await userManager.UpdateAsync(user);
+
         return new AppUserDto
         {
             Username = user.UserName ?? "",
-            Token = await tokenService.CreateToken(user),
+            Token = token,
             Gender = user.Gender,
             city = user.city,
             Country = user.Country,
             PhoneNumber = user.PhoneNumber ?? "",
             Email = user.Email ?? "",
         };
+    }
+
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<ActionResult<AppUserDto>> GetCurrentAdmin()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim))
+            return Unauthorized("User identifier claim not found.");
+
+        AppUser user;
+        
+        // Try to parse as integer first (for regular JWT users)
+        if (int.TryParse(userIdClaim, out int userId))
+        {
+            user = await userManager.FindByIdAsync(userId.ToString());
+        }
+        else
+        {
+            // For Google OAuth users, find by email
+            var email = User.FindFirst(ClaimTypes.Email)?.Value;
+            if (string.IsNullOrEmpty(email))
+                return BadRequest("Could not identify user from claims.");
+            
+            user = await userManager.FindByEmailAsync(email);
+        }
+
+        if (user == null)
+            return NotFound("User not found");
+
+        return new AppUserDto
+        {
+            Username = user.UserName ?? "",
+            Token = "", // Don't send token in response for security
+            Gender = user.Gender,
+            city = user.city,
+            Country = user.Country,
+            PhoneNumber = user.PhoneNumber ?? "",
+            Email = user.Email ?? "",
+        };
+    }
+
+    [HttpPost("logout")]
+    public IActionResult Logout()
+    {
+        Response.Cookies.Delete("jwt_token");
+        return Ok(new { message = "Admin logged out successfully" });
     }
     [Authorize(Policy = "RequireAdminRole")]
     [HttpGet("GetAllUsersForAdmin")]
