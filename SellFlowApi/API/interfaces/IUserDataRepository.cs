@@ -1,17 +1,18 @@
 using System;
 using API.entities;
+using API.Entities;
 namespace API.interfaces;
 
 public interface IUserDataRepository
 {
-    Task<IEnumerable<UserData>> GetAllAsync();
-    Task<UserData?> GetByIdAsync(int id);
-    Task<UserData> AddAsync(UserData userData);
-    Task<bool> UpdateAsync(UserData userData);
+    Task<IEnumerable<AppUser>> GetAllAsync();
+    Task<AppUser?> GetByIdAsync(int id);
+    Task<AppUser> AddAsync(AppUser user);
+    Task<bool> UpdateAsync(AppUser user);
     Task<bool> DeleteAsync(int id);
     Task<bool> DeletePersonalinfo(int id);
-    Task<bool> AddDocumentAsync(int userDataId, int documentId);
-    Task<IEnumerable<UserData>> GetByUserIdAsync(int userId);
-    Task FindByEmailAsync(string emailClaim);
+    Task<bool> AddDocumentAsync(int userId, int documentId);
+    Task<AppUser?> GetByUserIdAsync(int userId);
+    Task<AppUser?> FindByEmailAsync(string emailClaim);
 
 }

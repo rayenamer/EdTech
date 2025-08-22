@@ -147,12 +147,11 @@ public class ApplicationController : ControllerBase
     {
         try
         {
-            // Load user with UserData included
+            // Load user
             var currentUser = await _context.Users
-                .Include(u => u.UserData)
                 .FirstOrDefaultAsync(u => u.Id == userId);
 
-            if (currentUser?.UserData == null)
+            if (currentUser == null)
             {
                 return (false, null, "User not found or incomplete profile");
             }
@@ -165,9 +164,9 @@ public class ApplicationController : ControllerBase
 
             var data = new ApplicationData
             {
-                StudentName = currentUser.UserData.FullName ?? "N/A",
+                StudentName = currentUser.FullName ?? "N/A",
                 StudentEmail = currentUser.Email ?? "N/A",
-                StudentContactNumber = currentUser.UserData.Number ?? "N/A",
+                StudentContactNumber = currentUser.Number ?? "N/A",
                 ProgramName = chosenProgram.Name ?? "N/A",
                 ProgramDescription = chosenProgram.Description ?? "N/A"
             };

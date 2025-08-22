@@ -61,31 +61,30 @@ namespace API.Controllers
 
             try
             {
-                // Find the UserData record that belongs to this User
-                var userDataCollection = await _userDataRepository.GetByUserIdAsync(userId);
-                var userData = userDataCollection.FirstOrDefault();
+                // Find the User record
+                var user = await _userDataRepository.GetByUserIdAsync(userId);
 
-                if (userData == null)
+                if (user == null)
                 {
-                    return BadRequest("User profile not found. Please create your profile first.");
+                    return BadRequest("User not found.");
                 }
 
                 // Convert file to bytes using UploadHandler
                 byte[] fileBytes = _uploadHandler.Upload(file);
 
-                // Create document entity with the correct UserData ID
+                // Create document entity with the User ID
                 var document = new Document
                 {
                     Bytes = fileBytes,
-                    UserDataId = userData.Id, // Use the actual UserData.Id instead of userId
+                    UserDataId = user.Id, // Use the User.Id
                     DocumentName = documentName
                 };
 
                 // Save to database
                 var savedDocument = await _documentRepository.AddAsync(document);
 
-                // Associate document with user data
-                await _userDataRepository.AddDocumentAsync(userData.Id, savedDocument.Id);
+                // Associate document with user
+                await _userDataRepository.AddDocumentAsync(user.Id, savedDocument.Id);
 
                 return Ok(new
                 {
@@ -222,12 +221,16 @@ namespace API.Controllers
             _logger.LogInformation("User ID from claims: {UserId}", result.userId);
             var userId = result.userId;
 
-            var userDataCollection = await _userDataRepository.GetByUserIdAsync(userId);
+            var user = await _userDataRepository.GetByUserIdAsync(userId);
            
+            if (user == null)
+            {
+                _logger.LogWarning("User not found for User ID: {UserId}", userId);
+                return false;
+            }
 
-            var userData = userDataCollection.First(); // Get the first UserData
-            var Id = userData.Id;
-            _logger.LogInformation("UserData ID: {UserDataId} for User ID: {UserId}", Id, userId);
+            var Id = user.Id;
+            _logger.LogInformation("User ID: {UserId}", Id);
 
             var documentExists = await _documentRepository.GetDocByNameAndUserDataId(documentName, Id);
             _logger.LogInformation("Document exists: {DocumentExists} for User ID: {UserId}", documentExists, userId);
@@ -243,8 +246,9 @@ namespace API.Controllers
 
             if (!int.TryParse(userIdClaim, out int userId))
                 return false;
-            var userDataCollection = _userDataRepository.GetByUserIdAsync(userId);
-            var Id = userDataCollection.Result.First().Id; // Get the first UserData ID
+            var user = await _userDataRepository.GetByUserIdAsync(userId);
+            if (user == null) return false;
+            var Id = user.Id; // Get the User ID
 
             return await _documentRepository.DeleteDocByNameAndUserDataId(documentName, Id);
         }

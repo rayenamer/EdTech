@@ -45,13 +45,13 @@ public class UserDataController : ControllerBase
         {
             var UserDatas = await _UserDataRepository.GetAllAsync();
 
-            // Map UserDatas to DTOs with documents included (without content for efficiency)
+            // Map Users to UserDataDtos with documents included (without content for efficiency)
             var UserDataDtos = UserDatas.Select(app => new UserDataDto
             {
                 Id = app.Id,
                 FullName = app.FullName,
                 Number = app.Number,
-                DateOfBirth = app.DateOfBirth,
+                DateOfBirth = app.UserDataDateOfBirth,
                 Motivation = app.Motivation,
                 LifeOutSide = app.LifeOutSide,
                 BaccalaureatDegree = app.BaccalaureatDegree,
@@ -68,7 +68,7 @@ public class UserDataController : ControllerBase
                 EngDate = app.EngDate,
                 WorkExperience = app.WorkExperience,
                 LinkedinLink = app.LinkedinLink,
-                UserId = app.UserId,
+                UserId = app.Id,
                 // Include documents with their names and download URLs
                 Documents = app.Documents?.Select(doc => new DocumentDto
                 {
@@ -105,42 +105,49 @@ public class UserDataController : ControllerBase
             if (!int.TryParse(userIdClaim, out int userId))
                 return BadRequest("User identifier claim is not a valid integer.");
 
-            // Get UserDatas for the current user
-            var UserDatas = await _UserDataRepository.GetByUserIdAsync(userId);
+            // Get User data for the current user
+            var userData = await _UserDataRepository.GetByUserIdAsync(userId);
 
-            // Map UserDatas to DTOs
-            var UserDataDtos = UserDatas.Select(app => new UserDataDto
+            if (userData == null)
             {
-                Id = app.Id,
-                FullName = app.FullName,
-                Number = app.Number,
-                DateOfBirth = app.DateOfBirth,
-                Motivation = app.Motivation,
-                LifeOutSide = app.LifeOutSide,
-                BaccalaureatDegree = app.BaccalaureatDegree,
-                BaccalaureatInstitution = app.BaccalaureatInstitution,
-                BaccalaureatDate = app.BaccalaureatDate,
-                BachelorDegree = app.BachelorDegree,
-                BachelorInstitution = app.BachelorInstitution,
-                BachelorDate = app.BachelorDate,
-                MasterDegree = app.MasterDegree,
-                MasterInstitution = app.MasterInstitution,
-                MasterDate = app.MasterDate,
-                EngDegree = app.EngDegree,
-                EngInstitution = app.EngInstitution,
-                EngDate = app.EngDate,
-                WorkExperience = app.WorkExperience,
-                LinkedinLink = app.LinkedinLink,
-                UserId = app.UserId,
+                return Ok(new List<UserDataDto>());
+            }
+
+            // Map User to UserDataDto
+            var userDataDto = new UserDataDto
+            {
+                Id = userData.Id,
+                FullName = userData.FullName,
+                Number = userData.Number,
+                DateOfBirth = userData.UserDataDateOfBirth,
+                Motivation = userData.Motivation,
+                LifeOutSide = userData.LifeOutSide,
+                BaccalaureatDegree = userData.BaccalaureatDegree,
+                BaccalaureatInstitution = userData.BaccalaureatInstitution,
+                BaccalaureatDate = userData.BaccalaureatDate,
+                BachelorDegree = userData.BachelorDegree,
+                BachelorInstitution = userData.BachelorInstitution,
+                BachelorDate = userData.BachelorDate,
+                MasterDegree = userData.MasterDegree,
+                MasterInstitution = userData.MasterInstitution,
+                MasterDate = userData.MasterDate,
+                EngDegree = userData.EngDegree,
+                EngInstitution = userData.EngInstitution,
+                EngDate = userData.EngDate,
+                WorkExperience = userData.WorkExperience,
+                LinkedinLink = userData.LinkedinLink,
+                UserId = userData.Id,
                 // Include documents with download links
-                Documents = app.Documents?.Select(doc => new DocumentDto
+                Documents = userData.Documents?.Select(doc => new DocumentDto
                 {
                     Id = doc.Id,
                     UserDataId = doc.UserDataId,
                     // Add download link property
                     DownloadUrl = Url.Action("DownloadDocument", "Document", new { id = doc.Id }, Request.Scheme)
                 }).ToList() ?? new List<DocumentDto>()
-            }).ToList();
+            };
+
+            var UserDataDtos = new List<UserDataDto> { userDataDto };
 
             return Ok(UserDataDtos);
         }
@@ -159,13 +166,13 @@ public class UserDataController : ControllerBase
         if (UserData == null)
             return NotFound("UserData not found.");
 
-        // Map UserData to DTO with documents included
+        // Map User to UserDataDto with documents included
         var UserDataDto = new UserDataDto
         {
             Id = UserData.Id,
             FullName = UserData.FullName,
             Number = UserData.Number,
-            DateOfBirth = UserData.DateOfBirth,
+            DateOfBirth = UserData.UserDataDateOfBirth,
             Motivation = UserData.Motivation,
             LifeOutSide = UserData.LifeOutSide,
             BaccalaureatDegree = UserData.BaccalaureatDegree,
@@ -182,7 +189,7 @@ public class UserDataController : ControllerBase
             EngDate = UserData.EngDate,
             WorkExperience = UserData.WorkExperience,
             LinkedinLink = UserData.LinkedinLink,
-            UserId = UserData.UserId,
+            UserId = UserData.Id,
         };
 
         return Ok(UserDataDto);
@@ -212,23 +219,21 @@ public class UserDataController : ControllerBase
 
         var userData = await _UserDataRepository.GetByUserIdAsync(userId);
 
-        if (userData == null || !userData.Any())
+        if (userData == null)
         {
             return Ok(new { hasData = false, message = "No user data found." });
         }
 
-        var userDataRecord = userData.First(); // Assuming one record per user
-
         // Check if required profile fields are completed
-        bool hasRequiredInfo = !string.IsNullOrWhiteSpace(userDataRecord.FullName) &&
-                              !string.IsNullOrWhiteSpace(userDataRecord.Number) &&
-                              userDataRecord.DateOfBirth != default(DateTime) &&
-                              !string.IsNullOrWhiteSpace(userDataRecord.Motivation) &&
-                              !string.IsNullOrWhiteSpace(userDataRecord.LifeOutSide);
+        bool hasRequiredInfo = !string.IsNullOrWhiteSpace(userData.FullName) &&
+                              !string.IsNullOrWhiteSpace(userData.Number) &&
+                              userData.UserDataDateOfBirth != default(DateTime) &&
+                              !string.IsNullOrWhiteSpace(userData.Motivation) &&
+                              !string.IsNullOrWhiteSpace(userData.LifeOutSide);
 
         // Check if user has at least 2 documents
-        bool hasMinimumDocuments = userDataRecord.Documents != null &&
-                                  userDataRecord.Documents.Count >= 2;
+        bool hasMinimumDocuments = userData.Documents != null &&
+                                  userData.Documents.Count >= 2;
 
         bool profileCompleted = hasRequiredInfo && hasMinimumDocuments;
 
@@ -249,52 +254,37 @@ public class UserDataController : ControllerBase
             _logger.LogInformation($"Processing request for UserId: {userId}");
             _logger.LogInformation($"PersonalInfoDto: FullName={personalInfoDto.FullName}, Number={personalInfoDto.Number}, DateOfBirth={personalInfoDto.DateOfBirth}");
 
-            var userDatas = await _UserDataRepository.GetByUserIdAsync(userId);
-            var existingUserData = userDatas.FirstOrDefault();
+            var existingUser = await _UserDataRepository.GetByUserIdAsync(userId);
 
-            Console.WriteLine($"Found {userDatas.Count()} existing UserData records for UserId: {userId}");
-            if (existingUserData != null)
+            Console.WriteLine($"Found existing User for UserId: {userId}");
+            if (existingUser != null)
             {
-                Console.WriteLine($"Existing UserData ID: {existingUserData.Id}, FullName: {existingUserData.FullName}");
+                Console.WriteLine($"Existing User ID: {existingUser.Id}, FullName: {existingUser.FullName}");
             }
 
-            if (existingUserData != null)
+            if (existingUser != null)
             {
-                // Update existing record
-                _logger.LogInformation("Updating existing UserData record...");
-                existingUserData.FullName = personalInfoDto.FullName;
-                existingUserData.Number = personalInfoDto.Number;
+                // Update existing user record
+                _logger.LogInformation("Updating existing User record...");
+                existingUser.FullName = personalInfoDto.FullName;
+                existingUser.Number = personalInfoDto.Number;
 
                 // Si DateOfBirth est null, conservez la valeur existante au lieu d'utiliser DateTime.MinValue
                 if (personalInfoDto.DateOfBirth.HasValue)
                 {
-                    existingUserData.DateOfBirth = personalInfoDto.DateOfBirth.Value;
+                    existingUser.UserDataDateOfBirth = personalInfoDto.DateOfBirth.Value;
                 }
 
-                existingUserData.LinkedinLink = personalInfoDto.LinkedinLink;
+                existingUser.LinkedinLink = personalInfoDto.LinkedinLink;
 
-                var updateResult = await _UserDataRepository.UpdateAsync(existingUserData);
+                var updateResult = await _UserDataRepository.UpdateAsync(existingUser);
                 Console.WriteLine($"Update result: {updateResult}");
             }
             else
             {
-                // Create new record if none exists
-                _logger.LogInformation("Creating new UserData record...");
-                var newUserData = _mapper.Map<UserData>(personalInfoDto);
-                newUserData.UserId = userId;
-
-                // Utiliser une date par défaut seulement si DateOfBirth est null
-                if (personalInfoDto.DateOfBirth.HasValue)
-                {
-                    newUserData.DateOfBirth = personalInfoDto.DateOfBirth.Value;
-                }
-                else
-                {
-                    // Utiliser une date par défaut raisonnable (aujourd'hui) au lieu de DateTime.MinValue
-                    newUserData.DateOfBirth = DateTime.Today;
-                }
-
-                await _UserDataRepository.AddAsync(newUserData);
+                // This case shouldn't happen as user should already exist
+                _logger.LogError("User not found for personal information update");
+                return BadRequest("User not found");
             }
 
             return Ok(new { success = true });
@@ -324,32 +314,29 @@ public class UserDataController : ControllerBase
             _logger.LogInformation($"Processing request for UserId: {userId}");
             _logger.LogInformation($"PersonalStatementsDto: Motivation={personalStatementsDto.Motivation}, LifeOutside={personalStatementsDto.LifeOutSide}");
 
-            var userDatas = await _UserDataRepository.GetByUserIdAsync(userId);
-            var existingUserData = userDatas.FirstOrDefault();
+            var existingUser = await _UserDataRepository.GetByUserIdAsync(userId);
 
-            Console.WriteLine($"Found {userDatas.Count()} existing UserData records for UserId: {userId}");
-            if (existingUserData != null)
+            Console.WriteLine($"Found existing User for UserId: {userId}");
+            if (existingUser != null)
             {
-                Console.WriteLine($"Existing UserData ID: {existingUserData.Id}, Motivation: {existingUserData.Motivation}, LifeOutside: {existingUserData.LifeOutSide}");
+                Console.WriteLine($"Existing User ID: {existingUser.Id}, Motivation: {existingUser.Motivation}, LifeOutside: {existingUser.LifeOutSide}");
             }
 
-            if (existingUserData != null)
+            if (existingUser != null)
             {
-                // Update existing record
-                Console.WriteLine("Updating existing UserData record...");
-                existingUserData.Motivation = personalStatementsDto.Motivation;
-                existingUserData.LifeOutSide = personalStatementsDto.LifeOutSide;
+                // Update existing user record
+                Console.WriteLine("Updating existing User record...");
+                existingUser.Motivation = personalStatementsDto.Motivation;
+                existingUser.LifeOutSide = personalStatementsDto.LifeOutSide;
 
-                var updateResult = await _UserDataRepository.UpdateAsync(existingUserData);
+                var updateResult = await _UserDataRepository.UpdateAsync(existingUser);
                 Console.WriteLine($"Update result: {updateResult}");
             }
             else
             {
-                // Create new record if none exists
-                Console.WriteLine("Creating new UserData record...");
-                var newUserData = _mapper.Map<UserData>(personalStatementsDto);
-                newUserData.UserId = userId;
-                await _UserDataRepository.AddAsync(newUserData);
+                // This case shouldn't happen as user should already exist
+                Console.WriteLine("User not found for personal statements update");
+                return BadRequest("User not found");
             }
 
             return Ok(new { success = true });
@@ -383,42 +370,39 @@ public class UserDataController : ControllerBase
             Console.WriteLine($"Processing request for UserId: {userId}");
             Console.WriteLine($"EducationBackgroundDto: {JsonConvert.SerializeObject(educationBackgroundDto)}");
 
-            var userDatas = await _UserDataRepository.GetByUserIdAsync(userId);
-            var existingUserData = userDatas.FirstOrDefault();
+            var existingUser = await _UserDataRepository.GetByUserIdAsync(userId);
 
-            Console.WriteLine($"Found {userDatas.Count()} existing UserData records for UserId: {userId}");
-            if (existingUserData != null)
+            Console.WriteLine($"Found existing User for UserId: {userId}");
+            if (existingUser != null)
             {
-                Console.WriteLine($"Existing UserData ID: {existingUserData.Id}");
+                Console.WriteLine($"Existing User ID: {existingUser.Id}");
             }
 
-            if (existingUserData != null)
+            if (existingUser != null)
             {
-                // Update existing record
-                Console.WriteLine("Updating existing UserData record...");
-                existingUserData.BaccalaureatDegree = educationBackgroundDto.BaccalaureatDegree;
-                existingUserData.BaccalaureatInstitution = educationBackgroundDto.BaccalaureatInstitution;
-                existingUserData.BaccalaureatDate = educationBackgroundDto.BaccalaureatDate;
-                existingUserData.BachelorDegree = educationBackgroundDto.BachelorDegree;
-                existingUserData.BachelorInstitution = educationBackgroundDto.BachelorInstitution;
-                existingUserData.BachelorDate = educationBackgroundDto.BachelorDate;
-                existingUserData.MasterDegree = educationBackgroundDto.MasterDegree;
-                existingUserData.MasterInstitution = educationBackgroundDto.MasterInstitution;
-                existingUserData.MasterDate = educationBackgroundDto.MasterDate;
-                existingUserData.EngDegree = educationBackgroundDto.EngDegree;
-                existingUserData.EngInstitution = educationBackgroundDto.EngInstitution;
-                existingUserData.EngDate = educationBackgroundDto.EngDate;
+                // Update existing user record
+                Console.WriteLine("Updating existing User record...");
+                existingUser.BaccalaureatDegree = educationBackgroundDto.BaccalaureatDegree;
+                existingUser.BaccalaureatInstitution = educationBackgroundDto.BaccalaureatInstitution;
+                existingUser.BaccalaureatDate = educationBackgroundDto.BaccalaureatDate;
+                existingUser.BachelorDegree = educationBackgroundDto.BachelorDegree;
+                existingUser.BachelorInstitution = educationBackgroundDto.BachelorInstitution;
+                existingUser.BachelorDate = educationBackgroundDto.BachelorDate;
+                existingUser.MasterDegree = educationBackgroundDto.MasterDegree;
+                existingUser.MasterInstitution = educationBackgroundDto.MasterInstitution;
+                existingUser.MasterDate = educationBackgroundDto.MasterDate;
+                existingUser.EngDegree = educationBackgroundDto.EngDegree;
+                existingUser.EngInstitution = educationBackgroundDto.EngInstitution;
+                existingUser.EngDate = educationBackgroundDto.EngDate;
 
-                var updateResult = await _UserDataRepository.UpdateAsync(existingUserData);
+                var updateResult = await _UserDataRepository.UpdateAsync(existingUser);
                 Console.WriteLine($"Update result: {updateResult}");
             }
             else
             {
-                // Create new record if none exists
-                Console.WriteLine("Creating new UserData record...");
-                var newUserData = _mapper.Map<UserData>(educationBackgroundDto);
-                newUserData.UserId = userId;
-                await _UserDataRepository.AddAsync(newUserData);
+                // This case shouldn't happen as user should already exist
+                Console.WriteLine("User not found for education background update");
+                return BadRequest("User not found");
             }
 
             return Ok(new { success = true });
@@ -452,31 +436,28 @@ public class UserDataController : ControllerBase
             Console.WriteLine($"Processing request for UserId: {userId}");
             Console.WriteLine($"WorkExperienceDto: {JsonConvert.SerializeObject(workExperienceDto)}");
 
-            var userDatas = await _UserDataRepository.GetByUserIdAsync(userId);
-            var existingUserData = userDatas.FirstOrDefault();
+            var existingUser = await _UserDataRepository.GetByUserIdAsync(userId);
 
-            Console.WriteLine($"Found {userDatas.Count()} existing UserData records for UserId: {userId}");
-            if (existingUserData != null)
+            Console.WriteLine($"Found existing User for UserId: {userId}");
+            if (existingUser != null)
             {
-                Console.WriteLine($"Existing UserData ID: {existingUserData.Id}");
+                Console.WriteLine($"Existing User ID: {existingUser.Id}");
             }
 
-            if (existingUserData != null)
+            if (existingUser != null)
             {
-                // Update existing record
-                Console.WriteLine("Updating existing UserData record...");
-                existingUserData.WorkExperience = workExperienceDto.WorkExperience;
+                // Update existing user record
+                Console.WriteLine("Updating existing User record...");
+                existingUser.WorkExperience = workExperienceDto.WorkExperience;
 
-                var updateResult = await _UserDataRepository.UpdateAsync(existingUserData);
+                var updateResult = await _UserDataRepository.UpdateAsync(existingUser);
                 Console.WriteLine($"Update result: {updateResult}");
             }
             else
             {
-                // Create new record if none exists
-                Console.WriteLine("Creating new UserData record...");
-                var newUserData = _mapper.Map<UserData>(workExperienceDto);
-                newUserData.UserId = userId;
-                await _UserDataRepository.AddAsync(newUserData);
+                // This case shouldn't happen as user should already exist
+                Console.WriteLine("User not found for work experience update");
+                return BadRequest("User not found");
             }
 
             return Ok(new { success = true });

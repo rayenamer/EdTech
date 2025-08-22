@@ -92,12 +92,9 @@ public class Register_LoginController
             }
             try
             {
-                await _UserDataRepository.AddAsync(new UserData
-                {
-                    UserId = user.Id, // Connect to the created user
-                    exists = "true",
-                    // Add other required properties based on your UserData model
-                });
+                // Update user with default UserData values
+                user.UserDataExists = "true";
+                await _UserDataRepository.UpdateAsync(user);
                 _logger.LogInformation("UserData created successfully for Google user {Email}", email);
             }
             catch (Exception ex)
