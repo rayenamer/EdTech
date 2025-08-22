@@ -20,6 +20,7 @@ using System.Drawing;
 using Microsoft.Extensions.Configuration;
 using API.DATA;
 using API.entities;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace API.Controllers;
 
@@ -117,7 +118,8 @@ public class Register_LoginController
         });
 
         _logger.LogInformation("Google login successful for user {Email}", email);
-
+        user.LastActive = DateTime.UtcNow;
+        await userManager.UpdateAsync(user);
         // Create user data to pass to frontend
         var userData = new
         {

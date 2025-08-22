@@ -4,8 +4,6 @@ import { LoginComponent } from './components/auth/login/login.component';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 import { RegisterComponent } from './components/auth/register/register.component';
-import { ResetPasswordComponent } from './reset-password/reset-password.component';
-import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { AcceuilComponent } from './acceuil/acceuil.component';
 import { AdminLoginComponent } from './admin-login/admin-login.component';
 import { AdminRegisterComponent } from './admin-register/admin-register.component';
@@ -39,8 +37,6 @@ export const routes: Routes = [
     {path: 'AdminJdid', component: AdminRegisterComponent},
     {path: 'login', component: LoginComponent },
     {path: 'registerservice', component: RegisterComponent},
-    {path: 'resetpass', component: ResetPasswordComponent },
-    {path: 'ForgotPass', component: ForgotPasswordComponent},
     {path : 'Acceuil', component: AcceuilComponent},
     {path : 'programdetails/:id', component: ProgramdetailscardComponent},
     {path: 'user-profile', component: UserProfileComponent},

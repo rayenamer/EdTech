@@ -6,9 +6,6 @@ import { UserDataServiceService } from '../services/user-data-service.service';
 import { catchError, finalize, map, of, take, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { DocumentService} from '../services/document.service';
-
-// Remove duplicate DocumentDto interface since we're importing it from document.service
-
 interface UserDataDto {
   id: number;
   fullName: string;
