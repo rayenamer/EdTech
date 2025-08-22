@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using API.Entities;
-using API.DATA;
+using API.interfaces;
 using API.Helpers;
 using API.entities;
 using Microsoft.AspNetCore.Identity;
@@ -11,15 +11,23 @@ namespace API.Controllers
     [Route("api/[controller]")]
     public class DocumentController : ControllerBase
     {
+        private readonly GetUserId _getUserIdHelper;
         private readonly IDocumentRepository _documentRepository;
         private readonly IUserDataRepository _userDataRepository;
         private readonly UploadHandler _uploadHandler;
         private readonly FileDeployer _fileDeployer;
         private readonly ILogger<DocumentController> _logger;
-         private readonly UserManager<AppUser> _userManager;
+        private readonly UserManager<AppUser> _userManager;
 
-        public DocumentController(IDocumentRepository documentRepository, IUserDataRepository userDataRepository, ILogger<DocumentController> logger, UserManager<AppUser> userManager)
+        public DocumentController(
+            IDocumentRepository documentRepository,
+            IUserDataRepository userDataRepository,
+            ILogger<DocumentController> logger,
+            UserManager<AppUser> userManager,
+            GetUserId getUserIdHelper
+            )
         {
+            _getUserIdHelper = getUserIdHelper;
             _documentRepository = documentRepository;
             _userDataRepository = userDataRepository;
             _logger = logger;
@@ -210,7 +218,7 @@ namespace API.Controllers
         [HttpGet("check-document-name-AND-user-id/{documentName}")]
         public async Task<bool> CheckDocumentNameAndUserId(string documentName)
         {
-            var result = await GetUserIdFromClaims();
+            var result = await _getUserIdHelper.GetUserIdFromClaims(User);
             _logger.LogInformation("User ID from claims: {UserId}", result.userId);
             var userId = result.userId;
 
@@ -239,44 +247,6 @@ namespace API.Controllers
             var Id = userDataCollection.Result.First().Id; // Get the first UserData ID
 
             return await _documentRepository.DeleteDocByNameAndUserDataId(documentName, Id);
-        }
-
-        //helper
-
-        private async Task<(int userId, IActionResult error)> GetUserIdFromClaims()
-        {
-            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim))
-                return (0, Unauthorized("User identifier claim not found."));
-
-            // Try to parse the claim as an integer (works for classic JWT auth)
-            if (int.TryParse(userIdClaim, out int userId))
-            {
-                _logger.LogInformation("Found numeric user ID: {UserId}", userId);
-                return (userId, null);
-            }
-
-            // For Google OAuth users, find the user by email
-            _logger.LogInformation("Non-integer user ID found: {UserIdClaim}. This might be a Google OAuth user.", userIdClaim);
-
-            var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
-            if (string.IsNullOrEmpty(email))
-            {
-                _logger.LogWarning("No email claim found for OAuth user");
-                return (0, Unauthorized("User email claim not found."));
-            }
-
-            // Use the injected UserManager instead of getting it from HttpContext
-            var appUser = await _userManager.FindByEmailAsync(email);
-            if (appUser == null)
-            {
-                _logger.LogWarning("No user found with email: {Email}", email);
-                return (0, NotFound($"User with email {email} not found."));
-            }
-
-            userId = appUser.Id;
-            _logger.LogInformation("Found user ID {UserId} for email {Email}", userId, email);
-            return (userId, null);
         }
     }
 }

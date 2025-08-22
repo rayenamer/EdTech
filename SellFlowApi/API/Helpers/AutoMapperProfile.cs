@@ -13,7 +13,6 @@ public class AutoMapperProfiles : Profile
     public AutoMapperProfiles()
     {
         CreateMap<AppUser, AppUserDto>();
-        CreateMap<RegisterDto, AppUser>();
         CreateMap<AdminAndModeratorDto, AppUser>();
 
         // For reading from DB → sending to client

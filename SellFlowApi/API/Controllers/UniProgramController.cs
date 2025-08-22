@@ -5,7 +5,7 @@ using API.entities;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
+using API.interfaces;
 namespace API.Controllers;
 
 public class UniProgramController : BaseApiController
