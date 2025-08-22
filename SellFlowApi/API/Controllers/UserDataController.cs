@@ -24,15 +24,17 @@ namespace API.Controllers;
 [ApiController]
 public class UserDataController : ControllerBase
 {
+    private readonly GetUserId _getUserIdHelper;
     private readonly IUserDataRepository _UserDataRepository;
     private readonly IMapper _mapper;
     private readonly ILogger<UserDataController> _logger;
 
-    public UserDataController(IUserDataRepository UserDataRepository, IMapper mapper, ILogger<UserDataController> logger)
+    public UserDataController(IUserDataRepository UserDataRepository, IMapper mapper, ILogger<UserDataController> logger, GetUserId getUserIdHelper)
     {
         _UserDataRepository = UserDataRepository;
         _mapper = mapper;
         _logger = logger;
+        _getUserIdHelper = getUserIdHelper;
     }
 
     // all apps for admin working good
@@ -234,59 +236,14 @@ public class UserDataController : ControllerBase
     }
 
     // Helper method to get user ID from claims (works with both JWT and OAuth)
-    private async Task<(bool success, int userId, IActionResult error)> GetUserIdFromClaims()
-    {
-        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(userIdClaim))
-            return (false, 0, Unauthorized("User identifier claim not found."));
-
-        // Try to parse the claim as an integer (works for classic JWT auth)
-        if (int.TryParse(userIdClaim, out int userId))
-        {
-            _logger.LogInformation($"Found numeric user ID: {userId}");
-            return (true, userId, null);
-        }
-
-        // For Google OAuth users, find the user by email
-        _logger.LogInformation($"Non-integer user ID found: {userIdClaim}. This might be a Google OAuth user.");
-
-        var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
-        if (string.IsNullOrEmpty(email))
-        {
-            _logger.LogWarning("No email claim found for OAuth user");
-            return (false, 0, BadRequest("Could not identify user from claims."));
-        }
-
-        // Look up the user in the database by email
-        var userManager = HttpContext.RequestServices.GetService(typeof(Microsoft.AspNetCore.Identity.UserManager<API.Entities.AppUser>))
-            as Microsoft.AspNetCore.Identity.UserManager<API.Entities.AppUser>;
-
-        if (userManager == null)
-        {
-            _logger.LogError("Failed to get UserManager service");
-            return (false, 0, StatusCode(500, "Internal server error"));
-        }
-
-        var appUser = await userManager.FindByEmailAsync(email);
-        if (appUser == null)
-        {
-            _logger.LogWarning($"No user found with email: {email}");
-            return (false, 0, BadRequest("User not found."));
-        }
-
-        userId = appUser.Id;
-        _logger.LogInformation($"Found user ID {userId} for email {email}");
-        return (true, userId, null);
-    }
+    
 
     [HttpPost("add/update-personal-information")]
     public async Task<IActionResult> AddOrUpdatePersonalInformation(PersonalInformationDto personalInfoDto)
     {
         try
         {
-            var userIdResult = await GetUserIdFromClaims();
-            if (!userIdResult.success)
-                return userIdResult.error;
+            var userIdResult = await _getUserIdHelper.GetUserIdFromClaims(User);
 
             int userId = userIdResult.userId;
             _logger.LogInformation($"Processing request for UserId: {userId}");
@@ -361,9 +318,7 @@ public class UserDataController : ControllerBase
     {
         try
         {
-            var userIdResult = await GetUserIdFromClaims();
-            if (!userIdResult.success)
-                return userIdResult.error;
+            var userIdResult = await _getUserIdHelper.GetUserIdFromClaims(User);
 
             int userId = userIdResult.userId;
             _logger.LogInformation($"Processing request for UserId: {userId}");
