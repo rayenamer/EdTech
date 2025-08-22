@@ -3,7 +3,7 @@ using API.Data;
 using API.entities;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
-
+using API.interfaces;
 namespace API.DATA;
 
 public class UserDataRepository : IUserDataRepository

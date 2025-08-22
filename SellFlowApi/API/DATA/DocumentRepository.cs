@@ -2,7 +2,7 @@ using System;
 using API.Data;
 using API.entities;
 using Microsoft.EntityFrameworkCore;
-
+using API.interfaces;
 namespace API.DATA;
 
 public class DocumentRepository : IDocumentRepository

@@ -1,7 +1,7 @@
 using System;
 using System.Net.Mail;
 using API.Data;
-using API.DATA;
+using API.interfaces;
 using API.Dtos;
 using API.entities;
 using API.Entities;

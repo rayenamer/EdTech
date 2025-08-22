@@ -1,7 +1,7 @@
 using System;
 using API.Data;
 using API.entities;
-using API.Entities;
+using API.interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.DATA
