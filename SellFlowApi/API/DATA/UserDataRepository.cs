@@ -19,8 +19,8 @@ public class UserDataRepository : IUserDataRepository
     public async Task<IEnumerable<AppUser>> GetAllAsync()
     {
         return await _context.Users
-            .Include(a => a.Documents)
-            .ToListAsync();
+            .AsNoTracking()
+            .ToListAsync(); // No documents loaded
     }
 
     public async Task<AppUser?> GetByIdAsync(int id)
@@ -146,7 +146,7 @@ public class UserDataRepository : IUserDataRepository
             throw;
         }
     }
-     public async Task<bool> AddDocumentAsync(int userId, int documentId)
+    public async Task<bool> AddDocumentAsync(int userId, int documentId)
     {
         var document = await _context.Documents.FindAsync(documentId);
         if (document == null) return false;
@@ -155,7 +155,7 @@ public class UserDataRepository : IUserDataRepository
         await _context.SaveChangesAsync();
         return true;
     }
-    
+
     public async Task<AppUser?> FindByEmailAsync(string emailClaim)
     {
         try
@@ -164,7 +164,7 @@ public class UserDataRepository : IUserDataRepository
             var user = await _context.Users
                 .Include(u => u.Documents)
                 .FirstOrDefaultAsync(u => u.Email == emailClaim);
-            
+
             if (user == null)
             {
                 Console.WriteLine($"No user found with email: {emailClaim}");

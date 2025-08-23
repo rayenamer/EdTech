@@ -24,17 +24,19 @@ namespace API.Controllers;
 [ApiController]
 public class UserDataController : ControllerBase
 {
+    private readonly DataContext context;
     private readonly GetUserId _getUserIdHelper;
     private readonly IUserDataRepository _UserDataRepository;
     private readonly IMapper _mapper;
     private readonly ILogger<UserDataController> _logger;
 
-    public UserDataController(IUserDataRepository UserDataRepository, IMapper mapper, ILogger<UserDataController> logger, GetUserId getUserIdHelper)
+    public UserDataController(IUserDataRepository UserDataRepository, IMapper mapper, ILogger<UserDataController> logger, GetUserId getUserIdHelper, DataContext context)
     {
         _UserDataRepository = UserDataRepository;
         _mapper = mapper;
         _logger = logger;
         _getUserIdHelper = getUserIdHelper;
+        this.context = context;
     }
 
     // all apps for admin working good
@@ -43,9 +45,41 @@ public class UserDataController : ControllerBase
     {
         try
         {
-            var UserDatas = await _UserDataRepository.GetAllAsync();
+            // Use projection to get document metadata without BLOB data
+            var UserDatas = await context.Users
+                .Select(u => new
+                {
+                    u.Id,
+                    u.FullName,
+                    u.Number,
+                    u.UserDataDateOfBirth,
+                    u.Motivation,
+                    u.LifeOutSide,
+                    u.BaccalaureatDegree,
+                    u.BaccalaureatInstitution,
+                    u.BaccalaureatDate,
+                    u.BachelorDegree,
+                    u.BachelorInstitution,
+                    u.BachelorDate,
+                    u.MasterDegree,
+                    u.MasterInstitution,
+                    u.MasterDate,
+                    u.EngDegree,
+                    u.EngInstitution,
+                    u.EngDate,
+                    u.WorkExperience,
+                    u.LinkedinLink,
+                    Documents = u.Documents.Select(d => new
+                    {
+                        d.Id,
+                        d.UserDataId,
+                        d.DocumentName
+                        // NO d.Bytes - just metadata!
+                    }).ToList()
+                })
+                .AsNoTracking()
+                .ToListAsync();
 
-            // Map Users to UserDataDtos with documents included (without content for efficiency)
             var UserDataDtos = UserDatas.Select(app => new UserDataDto
             {
                 Id = app.Id,
@@ -69,14 +103,13 @@ public class UserDataController : ControllerBase
                 WorkExperience = app.WorkExperience,
                 LinkedinLink = app.LinkedinLink,
                 UserId = app.Id,
-                // Include documents with their names and download URLs
-                Documents = app.Documents?.Select(doc => new DocumentDto
+                Documents = app.Documents.Select(doc => new DocumentDto
                 {
                     Id = doc.Id,
                     UserDataId = doc.UserDataId,
                     DocumentName = doc.DocumentName,
                     DownloadUrl = Url.Action("DownloadDocument", "Document", new { id = doc.Id }, Request.Scheme)
-                }).ToList() ?? new List<DocumentDto>()
+                }).ToList()
             });
 
             return Ok(UserDataDtos);
@@ -217,31 +250,37 @@ public class UserDataController : ControllerBase
         if (!int.TryParse(userIdClaim, out int userId))
             return BadRequest("User identifier claim is not a valid integer.");
 
-        var userData = await _UserDataRepository.GetByUserIdAsync(userId);
+        // Get user data WITHOUT loading document bytes
+        var userData = await context.Users
+            .Where(u => u.Id == userId)
+            .Select(u => new
+            {
+                u.FullName,
+                u.Number,
+                u.UserDataDateOfBirth,
+                u.Motivation,
+                u.LifeOutSide,
+                DocumentCount = u.Documents.Count() // Count without loading bytes
+            })
+            .FirstOrDefaultAsync();
 
         if (userData == null)
-        {
             return Ok(new { hasData = false, message = "No user data found." });
-        }
 
-        // Check if required profile fields are completed
         bool hasRequiredInfo = !string.IsNullOrWhiteSpace(userData.FullName) &&
                               !string.IsNullOrWhiteSpace(userData.Number) &&
                               userData.UserDataDateOfBirth != default(DateTime) &&
                               !string.IsNullOrWhiteSpace(userData.Motivation) &&
                               !string.IsNullOrWhiteSpace(userData.LifeOutSide);
 
-        // Check if user has at least 2 documents
-        bool hasMinimumDocuments = userData.Documents != null &&
-                                  userData.Documents.Count >= 2;
-
+        bool hasMinimumDocuments = userData.DocumentCount >= 2;
         bool profileCompleted = hasRequiredInfo && hasMinimumDocuments;
 
         return Ok(new { hasData = profileCompleted });
     }
 
     // Helper method to get user ID from claims (works with both JWT and OAuth)
-    
+
 
     [HttpPost("add/update-personal-information")]
     public async Task<IActionResult> AddOrUpdatePersonalInformation(PersonalInformationDto personalInfoDto)

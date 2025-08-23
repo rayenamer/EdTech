@@ -157,6 +157,7 @@ public class Register_LoginController
     [HttpGet("google-login")]
     public IActionResult GoogleLogin()
     {
+        _logger.LogInformation("====================LOGIN-STARTED===================");
         var properties = new AuthenticationProperties
         {
             RedirectUri = "https://localhost:7030/api/Register_Login/google-response"
