@@ -1,4 +1,5 @@
 using System;
+using API.Dtos;
 using API.entities;
 using API.Entities;
 namespace API.interfaces;
@@ -15,5 +16,6 @@ public interface IUserDataRepository
     Task<AppUser?> GetByUserIdAsync(int userId);
     Task<AppUser?> FindByEmailAsync(string emailClaim);
     Task<AppUser?> GetUserWithDocumentsAsync(int userId);
+    Task<bool> UpdatePersonalInformationAsync(int userId, PersonalInformationDto personalInfoDto);
 
 }

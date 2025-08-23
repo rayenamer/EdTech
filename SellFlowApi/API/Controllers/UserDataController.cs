@@ -293,63 +293,33 @@ public class UserDataController : ControllerBase
     [HttpPost("add/update-personal-information")]
     public async Task<IActionResult> AddOrUpdatePersonalInformation(PersonalInformationDto personalInfoDto)
     {
+        _logger.LogInformation("===========================================");
+        _logger.LogInformation("======== UpdateInfoDataCalled =============");
+        _logger.LogInformation("===========================================");
         try
         {
             var userIdResult = await _getUserIdHelper.GetUserIdFromClaims(User);
-
             int userId = userIdResult.userId;
             _logger.LogInformation($"Processing request for UserId: {userId}");
-            _logger.LogInformation($"PersonalInfoDto: FullName={personalInfoDto.FullName}, Number={personalInfoDto.Number}, DateOfBirth={personalInfoDto.DateOfBirth}");
 
-            var existingUser = await _UserDataRepository.GetByUserIdAsync(userId);
+            var updateResult = await _UserDataRepository.UpdatePersonalInformationAsync(userId, personalInfoDto);
 
-            Console.WriteLine($"Found existing User for UserId: {userId}");
-            if (existingUser != null)
+            if (!updateResult)
             {
-                Console.WriteLine($"Existing User ID: {existingUser.Id}, FullName: {existingUser.FullName}");
-            }
-
-            if (existingUser != null)
-            {
-                // Update existing user record
-                _logger.LogInformation("Updating existing User record...");
-                existingUser.FullName = personalInfoDto.FullName;
-                existingUser.Number = personalInfoDto.Number;
-
-                // Si DateOfBirth est null, conservez la valeur existante au lieu d'utiliser DateTime.MinValue
-                if (personalInfoDto.DateOfBirth.HasValue)
-                {
-                    existingUser.UserDataDateOfBirth = personalInfoDto.DateOfBirth.Value;
-                }
-
-                existingUser.LinkedinLink = personalInfoDto.LinkedinLink;
-
-                var updateResult = await _UserDataRepository.UpdateAsync(existingUser);
-                Console.WriteLine($"Update result: {updateResult}");
-            }
-            else
-            {
-                // This case shouldn't happen as user should already exist
                 _logger.LogError("User not found for personal information update");
                 return BadRequest("User not found");
             }
 
+            Console.WriteLine($"Update result: {updateResult}");
             return Ok(new { success = true });
         }
         catch (Exception ex)
         {
-            // Log the exception details
             Console.WriteLine($"Error in AddOrUpdatePersonalInformation: {ex.Message}");
-            Console.WriteLine($"StackTrace: {ex.StackTrace}");
-
-            if (ex.InnerException != null)
-            {
-                Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
-            }
-
             return BadRequest($"Error updating personal information: {ex.Message}");
         }
     }
+
     [HttpPost("add/update-personal-statements")]
     public async Task<IActionResult> AddOrUpdatePersonalStatements(PersonalStatementsDto personalStatementsDto)
     {
@@ -530,7 +500,7 @@ public class UserDataController : ControllerBase
         _logger.LogInformation("===========================================");
         _logger.LogInformation("===== Getting User Profile with Documents =====");
         _logger.LogInformation("===========================================");
-        
+
         try
         {
             // Get current user ID once
@@ -544,7 +514,7 @@ public class UserDataController : ControllerBase
 
             // SINGLE database call to get user with documents
             var userData = await _UserDataRepository.GetUserWithDocumentsAsync(userId);
-            
+
             if (userData == null)
             {
                 _logger.LogInformation("User not found for ID: {UserId}", userId);

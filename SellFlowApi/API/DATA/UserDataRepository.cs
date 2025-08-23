@@ -5,6 +5,7 @@ using API.Entities;
 using API.interfaces;
 using Microsoft.EntityFrameworkCore;
 using API.interfaces;
+using API.Dtos;
 namespace API.DATA;
 
 public class UserDataRepository : IUserDataRepository
@@ -232,6 +233,41 @@ public class UserDataRepository : IUserDataRepository
         catch (Exception ex)
         {
             Console.WriteLine($"Error in GetUserWithDocumentsAsync: {ex.Message}");
+            throw;
+        }
+    }
+    public async Task<bool> UpdatePersonalInformationAsync(int userId, PersonalInformationDto personalInfoDto)
+    {
+        try
+        {
+            var user = await _context.Users
+                .Where(u => u.Id == userId)
+                .FirstOrDefaultAsync();
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            // Update only the specific fields
+            user.FullName = personalInfoDto.FullName;
+            user.Number = personalInfoDto.Number;
+            user.LinkedinLink = personalInfoDto.LinkedinLink;
+
+            if (personalInfoDto.DateOfBirth.HasValue)
+            {
+                user.UserDataDateOfBirth = personalInfoDto.DateOfBirth.Value;
+            }
+
+            // Update timestamp
+            user.LastActive = DateTime.UtcNow;
+
+            var rowsAffected = await _context.SaveChangesAsync();
+            return rowsAffected > 0;
+        }
+        catch (Exception ex)
+        {
+           // _logger.LogError(ex, "Error updating personal information for UserId: {UserId}", userId);
             throw;
         }
     }
