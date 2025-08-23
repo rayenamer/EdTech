@@ -53,23 +53,23 @@ export class LoginComponent implements OnInit{
     window.location.href = 'https://localhost:7030/api/Register_Login/google-login';
   }
 
-  logout() {
-    // Call backend to sign out (Google + cookies)
-    fetch('https://localhost:7030/api/Register_Login/google-signout', {
-      method: 'POST',
-      credentials: 'include'
-    }).then(() => {
-      this.authService.logout().subscribe({
-        next: () => {
-          window.location.href = '/';
-        },
-        error: (error) => {
-          console.error('Logout error:', error);
-          window.location.href = '/';
-        }
-      });
-    });
-  }
+  //logout() {
+  //  // Call backend to sign out (Google + cookies)
+  //  fetch('https://localhost:7030/api/Register_Login/google-signout', {
+  //    method: 'POST',
+  //    credentials: 'include'
+  //  }).then(() => {
+  //    this.authService.logout().subscribe({
+  //      next: () => {
+  //        window.location.href = '/';
+  //      },
+  //      error: (error) => {
+  //        console.error('Logout error:', error);
+  //        window.location.href = '/';
+  //      }
+  //    });
+  //  });
+  //}
 
   
   private handleGoogleRedirect(): void {

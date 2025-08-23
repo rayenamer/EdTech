@@ -3,12 +3,14 @@ import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../environments/environment.development';
 import { User } from '../models/user';
 import { catchError, map, throwError } from 'rxjs';
+//import { UserDataService } from './user-data-service.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdminService {
   private http = inject(HttpClient);
+  //private userDataService = inject(UserDataService);
 
   baseUrl = environment.apiUrl
 
@@ -64,13 +66,14 @@ export class AdminService {
   //  return this.http.get<User>(this.baseUrl + 'AdminAndModerators/me', { withCredentials: true });
   //}
 
-  logout() {
-    return this.http.post(this.baseUrl + 'AdminAndModerators/logout', {}, { withCredentials: true }).pipe(
-      map(() => {
-        this.setAuthenticated(false);
-      })
-    );
-  }
+  //logout() {
+  //  return this.http.post(this.baseUrl + 'AdminAndModerators/logout', {}, { withCredentials: true }).pipe(
+  //    map(() => {
+  //      this.setAuthenticated(false);
+  //      this.userDataService.resetCache();
+  //    })
+  //  );
+  //}
 
   
 

@@ -21,11 +21,13 @@ using Microsoft.Extensions.Configuration;
 using API.DATA;
 using API.entities;
 using Microsoft.AspNetCore.Http.HttpResults;
+using API.Data;
 
 namespace API.Controllers;
 
 public class Register_LoginController
 (
+    DataContext _context,
     UserManager<AppUser> userManager,
     IUserDataRepository _UserDataRepository,
     ITokenService tokenService,
@@ -115,7 +117,7 @@ public class Register_LoginController
             return Unauthorized("User identifier claim not found.");
 
         AppUser user;
-        
+
         // Try to parse as integer first (for regular JWT users)
         if (int.TryParse(userIdClaim, out int userId))
         {
@@ -127,7 +129,7 @@ public class Register_LoginController
             var email = User.FindFirst(ClaimTypes.Email)?.Value;
             if (string.IsNullOrEmpty(email))
                 return BadRequest("Could not identify user from claims.");
-            
+
             user = await userManager.FindByEmailAsync(email);
         }
 
@@ -169,7 +171,6 @@ public class Register_LoginController
     [HttpGet("google-response")]
     public async Task<IActionResult> GoogleResponse([FromQuery] string state = "")
     {
-        // Get configuration for URLs
         var config = HttpContext.RequestServices.GetService(typeof(IConfiguration)) as IConfiguration;
         var loginFailedUrl = config?["Frontend:LoginFailedUrl"] ?? "https://localhost:4200/login-failed";
         var googleSuccessUrl = config?["Frontend:GoogleSuccessUrl"] ?? "https://localhost:4200/login";
@@ -192,7 +193,12 @@ public class Register_LoginController
             return Redirect($"{loginFailedUrl}?error=missing_claims");
         }
 
-        var user = await userManager.FindByEmailAsync(email);
+        // OPTIMIZATION 1: Use context directly with roles loaded
+        var user = await _context.Users
+            .Include(u => u.UserRoles)
+            .ThenInclude(ur => ur.Role)
+            .FirstOrDefaultAsync(u => u.NormalizedEmail == email.ToUpperInvariant());
+
         if (user == null)
         {
             user = new AppUser
@@ -204,6 +210,8 @@ public class Register_LoginController
                 city = "",
                 Country = "",
                 PhoneNumber = "",
+                UserDataExists = "true",
+                LastActive = DateTime.UtcNow // Set here instead of separate update
             };
 
             var resultCreate = await userManager.CreateAsync(user);
@@ -212,24 +220,18 @@ public class Register_LoginController
                 _logger.LogError("Failed to create user for Google login: {Errors}", resultCreate.Errors);
                 return Redirect($"{loginFailedUrl}?error=user_creation_failed");
             }
-            try
-            {
-                // Update user with default UserData values
-                user.UserDataExists = "true";
-                await _UserDataRepository.UpdateAsync(user);
-                _logger.LogInformation("UserData created successfully for Google user {Email}", email);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to create UserData for Google user {Email}", email);
-                // You might want to decide whether to continue or fail here
-                // For now, we'll continue but log the error
-            }
+        }
+        else
+        {
+            // OPTIMIZATION 2: Only update LastActive, not entire entity
+            await _context.Users
+                .Where(u => u.Id == user.Id)
+                .ExecuteUpdateAsync(u => u.SetProperty(p => p.LastActive, DateTime.UtcNow));
         }
 
+        // Keep original token creation (no modification)
         var token = await tokenService.CreateToken(user);
 
-        // Set token as HTTP-only cookie (recommended for security)
         Response.Cookies.Append("jwt_token", token, new CookieOptions
         {
             HttpOnly = true,
@@ -239,9 +241,7 @@ public class Register_LoginController
         });
 
         _logger.LogInformation("Google login successful for user {Email}", email);
-        user.LastActive = DateTime.UtcNow;
-        await userManager.UpdateAsync(user);
-        // Create user data to pass to frontend
+
         var userData = new
         {
             username = user.UserName ?? "",
@@ -254,14 +254,11 @@ public class Register_LoginController
             emailConfirmed = user.EmailConfirmed
         };
 
-        // Encode user data as base64 to pass safely in URL
         var userDataJson = System.Text.Json.JsonSerializer.Serialize(userData);
         var userDataEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(userDataJson));
 
-        // Redirect back to frontend with user data
         var redirectUrl = $"{googleSuccessUrl}?status=success&userData={Uri.EscapeDataString(userDataEncoded)}";
 
-        // Optionally, pass the state parameter back for CSRF protection
         if (!string.IsNullOrEmpty(state))
             redirectUrl += $"&state={Uri.EscapeDataString(state)}";
 

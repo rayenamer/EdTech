@@ -3,6 +3,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../environments/environment.development';
 import { User } from '../models/user';
 import { catchError, map, throwError } from 'rxjs';
+//import { UserDataService } from './user-data-service.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +11,7 @@ import { catchError, map, throwError } from 'rxjs';
 export class AuthService {
 
   private http = inject(HttpClient);
+ // private userDataService = inject(UserDataService);
 
   baseUrl = environment.apiUrl
 
@@ -71,13 +73,14 @@ export class AuthService {
     return this.http.get<User>(this.baseUrl + 'Register_Login/me', { withCredentials: true });
   }
 
-  logout() {
-    return this.http.post(this.baseUrl + 'Register_Login/logout', {}, { withCredentials: true }).pipe(
-      map(() => {
-        this.setAuthenticated(false);
-      })
-    );
-  }
+  //logout() {
+  //  return this.http.post(this.baseUrl + 'Register_Login/logout', {}, { withCredentials: true }).pipe(
+  //    map(() => {
+  //      this.setAuthenticated(false);
+  //      this.userDataService.resetCache();
+  //    })
+  //  );
+  //}
 
  
 }

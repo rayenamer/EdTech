@@ -128,8 +128,16 @@ public class UserDataController : ControllerBase
     [HttpGet("get-user-UserDatas")]
     public async Task<ActionResult<IEnumerable<UserDataDto>>> GetUserUserDatas()
     {
+        _logger.LogInformation("===========================================");
+        _logger.LogInformation("=====Getting My User Profile Starting =====");
+        _logger.LogInformation("===========================================");
+        _logger.LogInformation("===========================================");
+        _logger.LogInformation("===========================================");
+        _logger.LogInformation("===========================================");
+        _logger.LogInformation("===========================================");
         try
         {
+
             // Get current user ID
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim))
