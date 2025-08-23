@@ -33,6 +33,7 @@
         <a routerLink="/UsersData" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
           Users Data
         </a>
+        <a (click)="logout()" class="nav-link logout-btn">Logout</a>
       </ng-container>
 
 
@@ -48,6 +49,7 @@
           <a routerLink="/user-profile" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
             My Profile
           </a>
+          <a (click)="logout()" class="nav-link logout-btn">Logout</a>
         </ng-container>
       </ng-template>
 
@@ -69,18 +71,12 @@
         <a routerLink="/community" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
           Community
         </a>
-        <ng-container *ngIf="!isUserLoggedIn() && !isAdminLoggedIn(); else loggedOut">
-          <a routerLink="/AdminLogin" routerLinkActive="active" class="nav-link admin-btn" (click)="closeMenu()">
-            Admin
-          </a>
-          <a routerLink="/login" routerLinkActive="active" class="nav-link login-btn" (click)="closeMenu()">
-            Login
-          </a>
-        </ng-container>
-
-        <ng-template #loggedOut>
-          <a (click)="logout()" class="nav-link logout-btn">Logout</a>
-        </ng-template>
+        <a routerLink="/AdminLogin" routerLinkActive="active" class="nav-link admin-btn" (click)="closeMenu()">
+          Admin
+        </a>
+        <a routerLink="/login" routerLinkActive="active" class="nav-link login-btn" (click)="closeMenu()">
+          Login
+        </a>
 
       </ng-template>
     </div>

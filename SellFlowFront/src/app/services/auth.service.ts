@@ -14,21 +14,29 @@ export class AuthService {
   baseUrl = environment.apiUrl
 
   currentUser = signal<User | null>(null);
+  isAuthenticated = signal<boolean>(false);
   errorMessage: any;
 
   setCurrentUser(user: User){
     // No longer storing in localStorage - using HTTP-only cookies
     this.currentUser.set(user);
+    this.isAuthenticated.set(true);
+  }
+
+  setAuthenticated(status: boolean) {
+    this.isAuthenticated.set(status);
+    if (!status) {
+      this.currentUser.set(null);
+    }
   }
 
   login(model: any) {
-    return this.http.post<User>(this.baseUrl + 'Register_Login/login', model, { withCredentials: true }).pipe(
-      map(user => {
-        if (user) {
-          this.setCurrentUser(user);
-        }
+    return this.http.post(this.baseUrl + 'Register_Login/login', model, { withCredentials: true }).pipe(
+      map((response) => {
+        this.setAuthenticated(true);
+        return response;
       })
-    )
+    );
   }
 
   loginWithGoogle() {
@@ -66,7 +74,7 @@ export class AuthService {
   logout() {
     return this.http.post(this.baseUrl + 'Register_Login/logout', {}, { withCredentials: true }).pipe(
       map(() => {
-        this.currentUser.set(null);
+        this.setAuthenticated(false);
       })
     );
   }

@@ -28,15 +28,15 @@ export class AppComponent implements OnInit{
       },
       error: () => {
         // If regular user auth fails, try admin auth
-        this.adminService.getCurrentUser().subscribe({
-          next: (admin) => {
-            this.adminService.setCurrentUser(admin);
-          },
-          error: () => {
-            // No valid authentication found, user is not logged in
-            console.log('No valid authentication found');
-          }
-        });
+        // this.adminService.getCurrentUser().subscribe({
+        //   next: (admin) => {
+        //     this.adminService.setCurrentUser(admin);
+        //   },
+        //   error: () => {
+        //     // No valid authentication found, user is not logged in
+        //    console.log('No valid authentication found');
+        //  }
+        //});
       }
     });
   }

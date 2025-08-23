@@ -17,7 +17,9 @@ namespace API.DATA
 
         public async Task<IEnumerable<UniProgram>> GetAllAsync()
         {
-            return await _context.UniPrograms.ToListAsync();
+            return await _context.UniPrograms
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task<UniProgram?> GetByIdAsync(int id)

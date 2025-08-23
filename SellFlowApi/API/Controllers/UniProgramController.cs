@@ -32,7 +32,7 @@ public class UniProgramController : BaseApiController
 
     
     
-    [Authorize]
+    //[Authorize]
     [HttpGet("get-programs")]
     public async Task<ActionResult<IEnumerable<UniProgram>>> GetPrograms()
     {

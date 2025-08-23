@@ -1,5 +1,6 @@
 using System;
 using System.Security.Claims;
+using API.Data;
 using API.Dtos;
 using API.Entities;
 using API.interfaces;
@@ -14,11 +15,12 @@ namespace API.Controllers;
 
 public class AdminAndModeratorsController
 (
+    DataContext context,
     UserManager<AppUser> userManager,
     ITokenService tokenService,
     IMapper mapper
-    //IEmailSender _emailSender,
-    //ILogger<AdminAndModeratorsController> _logger
+//IEmailSender _emailSender,
+//ILogger<AdminAndModeratorsController> _logger
 ) : BaseApiController
 {
     [HttpPost("register-admin")]
@@ -49,18 +51,24 @@ public class AdminAndModeratorsController
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<AppUserDto>> Login(LoginDto loginDto)
+    public async Task<ActionResult> Login(LoginDto loginDto)
     {
-        var user = await userManager.Users
-            .FirstOrDefaultAsync(x => x.NormalizedEmail == loginDto.Email.ToUpper());
-        if (user == null || user.Email == null)
+        var user = await context.Users
+            .Include(u => u.UserRoles)
+            .ThenInclude(ur => ur.Role)
+            .FirstOrDefaultAsync(u => u.NormalizedEmail == loginDto.Email.ToUpperInvariant());
+
+        if (user == null)
         {
-            return Unauthorized("invalid email ");
+            return Unauthorized("Invalid credentials");
         }
 
+        // Validate password
         var result = await userManager.CheckPasswordAsync(user, loginDto.Password);
-        if (!result) return Unauthorized("wrong password");
-
+        if (!result)
+        {
+            return Unauthorized("Invalid credentials");
+        }
         var token = await tokenService.CreateToken(user);
 
         // Set token as HTTP-only cookie
@@ -71,60 +79,7 @@ public class AdminAndModeratorsController
             SameSite = SameSiteMode.Strict,
             Expires = DateTimeOffset.UtcNow.AddDays(7)
         });
-
-        user.LastActive = DateTime.UtcNow;
-        await userManager.UpdateAsync(user);
-
-        return new AppUserDto
-        {
-            Username = user.UserName ?? "",
-            Token = token,
-            Gender = user.Gender,
-            city = user.city,
-            Country = user.Country,
-            PhoneNumber = user.PhoneNumber ?? "",
-            Email = user.Email ?? "",
-        };
-    }
-
-    [Authorize]
-    [HttpGet("me")]
-    public async Task<ActionResult<AppUserDto>> GetCurrentAdmin()
-    {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(userIdClaim))
-            return Unauthorized("User identifier claim not found.");
-
-        AppUser user;
-        
-        // Try to parse as integer first (for regular JWT users)
-        if (int.TryParse(userIdClaim, out int userId))
-        {
-            user = await userManager.FindByIdAsync(userId.ToString());
-        }
-        else
-        {
-            // For Google OAuth users, find by email
-            var email = User.FindFirst(ClaimTypes.Email)?.Value;
-            if (string.IsNullOrEmpty(email))
-                return BadRequest("Could not identify user from claims.");
-            
-            user = await userManager.FindByEmailAsync(email);
-        }
-
-        if (user == null)
-            return NotFound("User not found");
-
-        return new AppUserDto
-        {
-            Username = user.UserName ?? "",
-            Token = "", // Don't send token in response for security
-            Gender = user.Gender,
-            city = user.city,
-            Country = user.Country,
-            PhoneNumber = user.PhoneNumber ?? "",
-            Email = user.Email ?? "",
-        };
+        return Ok(new { message = "Login successful" });
     }
 
     [HttpPost("logout")]
@@ -169,7 +124,7 @@ public class AdminAndModeratorsController
     {
         var isAuthenticated = User.Identity?.IsAuthenticated ?? false;
         var claims = User.Claims.Select(c => new { Type = c.Type, Value = c.Value }).ToList();
-        
+
         return Ok(new { isAuthenticated, claims });
     }
 
