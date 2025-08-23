@@ -180,4 +180,59 @@ public class UserDataRepository : IUserDataRepository
             throw;
         }
     }
+
+    public async Task<AppUser?> GetUserWithDocumentsAsync(int userId)
+    {
+        try
+        {
+            var user = await _context.Users
+                .Where(u => u.Id == userId)
+                .Select(u => new AppUser
+                {
+                    // Only select needed user fields - exclude sensitive data
+                    Id = u.Id,
+                    UserName = u.UserName,
+                    Email = u.Email,
+                    FullName = u.FullName,
+                    Number = u.Number,
+                    DateOfBirth = u.DateOfBirth,
+                    city = u.city, // Required field
+                    Gender = u.Gender, // Required field
+                    Country = u.Country, // Required field
+                    Motivation = u.Motivation,
+                    LifeOutSide = u.LifeOutSide,
+                    BaccalaureatDegree = u.BaccalaureatDegree,
+                    BaccalaureatInstitution = u.BaccalaureatInstitution,
+                    BaccalaureatDate = u.BaccalaureatDate,
+                    BachelorDegree = u.BachelorDegree,
+                    BachelorInstitution = u.BachelorInstitution,
+                    BachelorDate = u.BachelorDate,
+                    MasterDegree = u.MasterDegree,
+                    MasterInstitution = u.MasterInstitution,
+                    MasterDate = u.MasterDate,
+                    EngDegree = u.EngDegree,
+                    EngInstitution = u.EngInstitution,
+                    EngDate = u.EngDate,
+                    WorkExperience = u.WorkExperience,
+                    LinkedinLink = u.LinkedinLink,
+                    // Only select minimal document fields - exclude Bytes
+                    Documents = u.Documents.Select(d => new Document
+                    {
+                        Id = d.Id,
+                        DocumentName = d.DocumentName,
+                        UserDataId = d.UserDataId
+                        // Explicitly exclude Bytes field for performance
+                    }).ToList()
+                })
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+
+            return user;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in GetUserWithDocumentsAsync: {ex.Message}");
+            throw;
+        }
+    }
 }

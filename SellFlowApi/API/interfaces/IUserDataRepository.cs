@@ -14,5 +14,6 @@ public interface IUserDataRepository
     Task<bool> AddDocumentAsync(int userId, int documentId);
     Task<AppUser?> GetByUserIdAsync(int userId);
     Task<AppUser?> FindByEmailAsync(string emailClaim);
+    Task<AppUser?> GetUserWithDocumentsAsync(int userId);
 
 }

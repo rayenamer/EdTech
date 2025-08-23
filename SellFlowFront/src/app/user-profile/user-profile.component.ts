@@ -2,34 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { UserDataServiceService } from '../services/user-data-service.service';
+import { UserDataServiceService, UserDataDto, UserDataWithDocumentsDto, DocumentStatusDto } from '../services/user-data-service.service';
 import { catchError, finalize, map, of, take, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { DocumentService} from '../services/document.service';
-interface UserDataDto {
-  id: number;
-  fullName: string;
-  number: string;
-  dateOfBirth: string;
-  motivation: string;
-  lifeOutSide: string;
-  baccalaureatDegree: string;
-  baccalaureatInstitution: string;
-  baccalaureatDate: string;
-  bachelorDegree: string;
-  bachelorInstitution: string;
-  bachelorDate: string;
-  masterDegree: string;
-  masterInstitution: string;
-  masterDate: string;
-  engDegree: string;
-  engInstitution: string;
-  engDate: string;
-  workExperience: string;
-  linkedinLink: string;
-  userId: number;
-  //documents: DocumentDto[];
-}
 
 @Component({
   selector: 'app-user-profile',
@@ -45,6 +21,7 @@ export class UserProfileComponent implements OnInit {
   isLoading = false;
   baseUrl = '';
   hasData = false;
+  hasError = false;
 
   // Remove duplicate constructor and merge the properties
   constructor(
@@ -100,95 +77,60 @@ export class UserProfileComponent implements OnInit {
   BachelorGradesExists = false;
 
   ngOnInit(): void {
-    this.loadUserData();
-    //CV
-    this.documentService.CheckIfDocExist('CV').subscribe({
-      next: result => {
-        this.cvExists = result;
-      },
-      error: error => {
-        console.error('Error checking document existence:', error);
-        this.cvExists = false; // This return false equivalent makes sense here
-      }
-    });
-    //Baccalaureat Degree
-    this.documentService.CheckIfDocExist('Baccalaureat').subscribe({
-      next: result => {
-        this.baccalaureatExists = result;
-      },
-      error: error => {
-        console.error('Error checking document existence:', error);
-        this.baccalaureatExists = false; // This return false equivalent makes sense here
-      }
-    });
-
-    //Baccalaureat Grades
-    this.documentService.CheckIfDocExist('BaccalaureatGrades').subscribe({
-      next: result => {
-        this.BaccalaureatGradesExists = result;
-      },
-      error: error => {
-        console.error('Error checking document existence:', error);
-        this.BaccalaureatGradesExists = false; // This return false equivalent makes sense here
-      }
-    });
-    //Bachelor
-    this.documentService.CheckIfDocExist('Bachelor').subscribe({
-      next: result => {
-        this.BachelorExists = result;
-      },
-      error: error => {
-        console.error('Error checking document existence:', error);
-        this.BachelorExists = false; // This return false equivalent makes sense here
-      }
-    });
-
-    //Bachelor Grades
-    this.documentService.CheckIfDocExist('BachelorGrades').subscribe({
-      next: result => {
-        this.BachelorGradesExists = result;
-      },
-      error: error => {
-        console.error('Error checking document existence:', error);
-        this.BachelorGradesExists = false; // This return false equivalent makes sense here
-      }
-    });
+    this.loadUserDataWithDocuments();
   }
 
-
-
-
-  loadUserData(): void {
-    this.loading = true;
+  private loadUserDataWithDocuments(): void {
+    this.isLoading = true;
+    this.hasError = false;
     this.errorMessage = '';
-
-    this.userDataService.getMyUserData().pipe(
-      take(1),
-      map(response => {
+     
+    this.userDataService.getMyUserDataWithDocuments().subscribe({
+      next: (result) => {
+        console.log('User data with documents loaded:', result);
+         
+        // Set user data
+        this.userData = result.userData;
+        this.hasData = !!result.userData;
+         
+        // Set all document existence flags from single response
+        this.cvExists = result.documentStatus.cv;
+        this.baccalaureatExists = result.documentStatus.baccalaureat;
+        this.BaccalaureatGradesExists = result.documentStatus.baccalaureatGrades;
+        this.BachelorExists = result.documentStatus.bachelor;
+        this.BachelorGradesExists = result.documentStatus.bachelorGrades;
+         
+        this.isLoading = false;
         this.loading = false;
-
-        if (response && Array.isArray(response) && response.length > 0) {
-          // API returns an array, so we take the first item
-          this.userData = response[0] as UserDataDto;
-          this.hasData = true;
-        } else if (response && !Array.isArray(response)) {
-          // Fallback: if it's a single object
-          this.userData = response as UserDataDto;
-          this.hasData = true;
-        } else {
-          this.hasData = false;
-        }
-        return response;
-      }),
-      catchError(error => {
+      },
+      error: (error) => {
+        console.error('Error loading user data with documents:', error);
+        this.hasError = true;
+        this.errorMessage = 'Failed to load user profile. Please try again.';
+        this.setDefaultDocumentStatus();
+        this.isLoading = false;
         this.loading = false;
-        this.errorMessage = 'Failed to load user data. Please try again.';
-        console.error('Error loading user data:', error);
         this.hasData = false;
-        return of(null);
-      })
-    ).subscribe();
+      }
+    });
   }
+
+  private setDefaultDocumentStatus(): void {
+    this.cvExists = false;
+    this.baccalaureatExists = false;
+    this.BaccalaureatGradesExists = false;
+    this.BachelorExists = false;
+    this.BachelorGradesExists = false;
+  }
+
+  refreshUserData(): void {
+    this.loadUserDataWithDocuments();
+  }
+
+
+
+
+
 
   formatDate(dateString: string): string {
     if (!dateString) return 'N/A';
@@ -300,7 +242,7 @@ export class UserProfileComponent implements OnInit {
         if (response) {
           console.log('Personal information updated successfully:', response);
           this.isEditingPersonalInfo = false;
-          this.loadUserData(); // Reload data to show updated information
+          this.refreshUserData(); // Reload data to show updated information
           this.errorMessage = '';
         } else {
           console.error('Failed to update personal information.');
@@ -359,7 +301,7 @@ export class UserProfileComponent implements OnInit {
         if (response) {
           console.log('Personal statements updated successfully:', response);
           this.isEditingPersonalStatements = false;
-          this.loadUserData(); // Reload data to show updated information
+          this.refreshUserData(); // Reload data to show updated information
           this.errorMessage = '';
         } else {
           console.error('Failed to update personal statements.');
@@ -437,7 +379,7 @@ export class UserProfileComponent implements OnInit {
         if (response) {
           console.log('Education background updated successfully:', response);
           this.isEditingEducation = false;
-          this.loadUserData(); // Reload data to show updated information
+          this.refreshUserData(); // Reload data to show updated information
           this.errorMessage = '';
         } else {
           console.error('Failed to update education background.');
@@ -482,7 +424,7 @@ export class UserProfileComponent implements OnInit {
         if (response) {
           console.log('Work experience updated successfully:', response);
           this.isEditingWorkExperience = false;
-          this.loadUserData(); // Reload data to show updated information
+          this.refreshUserData(); // Reload data to show updated information
           this.errorMessage = '';
         } else {
           console.error('Failed to update work experience.');
@@ -513,7 +455,7 @@ export class UserProfileComponent implements OnInit {
       next: result => {
         if (result) {
           console.log('Document deleted successfully:', documentName);
-          this.loadUserData(); // Reload data to show updated information
+          this.refreshUserData(); // Reload data to show updated information
           if (documentName === 'CV') {
             this.cvExists = false;
         }

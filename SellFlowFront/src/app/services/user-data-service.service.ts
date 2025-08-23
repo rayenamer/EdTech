@@ -1,7 +1,52 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-import { BehaviorSubject, catchError, of, tap, finalize } from 'rxjs';
+import { BehaviorSubject, catchError, of, tap, finalize, Observable } from 'rxjs';
+
+export interface DocumentStatusDto {
+  cv: boolean;
+  baccalaureat: boolean;
+  baccalaureatGrades: boolean;
+  bachelor: boolean;
+  bachelorGrades: boolean;
+}
+
+export interface UserDataDto {
+  id: number;
+  fullName: string;
+  number: string;
+  dateOfBirth: string;
+  motivation: string;
+  lifeOutSide: string;
+  baccalaureatDegree: string;
+  baccalaureatInstitution: string;
+  baccalaureatDate: string;
+  bachelorDegree: string;
+  bachelorInstitution: string;
+  bachelorDate: string;
+  masterDegree: string;
+  masterInstitution: string;
+  masterDate: string;
+  engDegree: string;
+  engInstitution: string;
+  engDate: string;
+  workExperience: string;
+  linkedinLink: string;
+  userId: number;
+  documents: DocumentDto[];
+}
+
+export interface DocumentDto {
+  id: number;
+  userDataId: number;
+  documentName: string;
+  downloadUrl: string;
+}
+
+export interface UserDataWithDocumentsDto {
+  userData: UserDataDto;
+  documentStatus: DocumentStatusDto;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -59,6 +104,7 @@ export class UserDataServiceService {
       })
     );
   }
+  
 
   AddOrUpdatePersonalInformation(data: any) {
     return this.http.post(`${this.baseUrl}UserData/add/update-personal-information`, data).pipe(
@@ -108,6 +154,28 @@ export class UserDataServiceService {
       catchError(error => {
         console.error('Error retrieving all user data:', error);
         return of(null);
+      })
+    );
+  }
+
+  // NEW OPTIMIZED METHOD - Single API call
+  getMyUserDataWithDocuments(): Observable<UserDataWithDocumentsDto> {
+    return this.http.get<UserDataWithDocumentsDto>(`${this.baseUrl}UserData/get-user-data-with-documents`).pipe(
+      tap(response => {
+        console.log('User data with documents retrieved successfully:', response);
+      }),
+      catchError(error => {
+        console.error('Error retrieving user data with documents:', error);
+        return of({
+          userData: null as any,
+          documentStatus: {
+            cv: false,
+            baccalaureat: false,
+            baccalaureatGrades: false,
+            bachelor: false,
+            bachelorGrades: false
+          }
+        } as UserDataWithDocumentsDto);
       })
     );
   }

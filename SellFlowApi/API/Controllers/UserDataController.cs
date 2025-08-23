@@ -524,4 +524,90 @@ public class UserDataController : ControllerBase
         }
     }
 
+    [HttpGet("get-user-data-with-documents")]
+    public async Task<ActionResult<UserDataWithDocumentsDto>> GetUserDataWithDocuments()
+    {
+        _logger.LogInformation("===========================================");
+        _logger.LogInformation("===== Getting User Profile with Documents =====");
+        _logger.LogInformation("===========================================");
+        
+        try
+        {
+            // Get current user ID once
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                return BadRequest("Invalid user identifier.");
+            }
+
+            _logger.LogInformation("Processing request for User ID: {UserId}", userId);
+
+            // SINGLE database call to get user with documents
+            var userData = await _UserDataRepository.GetUserWithDocumentsAsync(userId);
+            
+            if (userData == null)
+            {
+                _logger.LogInformation("User not found for ID: {UserId}", userId);
+                return NotFound("User data not found.");
+            }
+
+            // Create UserDataDto
+            var userDataDto = new UserDataDto
+            {
+                Id = userData.Id,
+                FullName = userData.FullName,
+                Number = userData.Number,
+                DateOfBirth = userData.UserDataDateOfBirth,
+                Motivation = userData.Motivation,
+                LifeOutSide = userData.LifeOutSide,
+                BaccalaureatDegree = userData.BaccalaureatDegree,
+                BaccalaureatInstitution = userData.BaccalaureatInstitution,
+                BaccalaureatDate = userData.BaccalaureatDate,
+                BachelorDegree = userData.BachelorDegree,
+                BachelorInstitution = userData.BachelorInstitution,
+                BachelorDate = userData.BachelorDate,
+                MasterDegree = userData.MasterDegree,
+                MasterInstitution = userData.MasterInstitution,
+                MasterDate = userData.MasterDate,
+                EngDegree = userData.EngDegree,
+                EngInstitution = userData.EngInstitution,
+                EngDate = userData.EngDate,
+                WorkExperience = userData.WorkExperience,
+                LinkedinLink = userData.LinkedinLink,
+                UserId = userData.Id,
+                Documents = userData.Documents?.Select(doc => new DocumentDto
+                {
+                    Id = doc.Id,
+                    UserDataId = doc.UserDataId,
+                    DocumentName = doc.DocumentName,
+                    DownloadUrl = Url.Action("DownloadDocument", "Document", new { id = doc.Id }, Request.Scheme)
+                }).ToList() ?? new List<DocumentDto>()
+            };
+
+            // Create document status based on existing documents
+            var documentStatus = new DocumentStatusDto
+            {
+                Cv = userData.Documents?.Any(d => d.DocumentName.Equals("CV", StringComparison.OrdinalIgnoreCase)) ?? false,
+                Baccalaureat = userData.Documents?.Any(d => d.DocumentName.Equals("Baccalaureat", StringComparison.OrdinalIgnoreCase)) ?? false,
+                BaccalaureatGrades = userData.Documents?.Any(d => d.DocumentName.Equals("BaccalaureatGrades", StringComparison.OrdinalIgnoreCase)) ?? false,
+                Bachelor = userData.Documents?.Any(d => d.DocumentName.Equals("Bachelor", StringComparison.OrdinalIgnoreCase)) ?? false,
+                BachelorGrades = userData.Documents?.Any(d => d.DocumentName.Equals("BachelorGrades", StringComparison.OrdinalIgnoreCase)) ?? false
+            };
+
+            var result = new UserDataWithDocumentsDto
+            {
+                UserData = userDataDto,
+                DocumentStatus = documentStatus
+            };
+
+            _logger.LogInformation("Successfully retrieved user data with documents for User ID: {UserId}", userId);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving user data with documents");
+            return BadRequest($"Error retrieving user data with documents: {ex.Message}");
+        }
+    }
+
 }
