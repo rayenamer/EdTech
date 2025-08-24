@@ -74,37 +74,6 @@ public class DocumentService : IDocumentService
         }
     }
 
-    // LEGACY METHOD - Database storage (backward compatibility)
-    public async Task<Document> UploadDocumentLegacyAsync(IFormFile file, string documentName, int userDataId)
-    {
-        _logger.LogWarning("⚠️ Using LEGACY database upload - Consider migrating to UploadDocumentAsync for 97% better performance");
-        
-        try
-        {
-            // Use legacy upload method
-            byte[] fileBytes = _uploadHandler.Upload(file);
-            
-            var document = new Document
-            {
-                DocumentName = documentName,
-                UserDataId = userDataId,
-                StorageMode = "Database",
-                Bytes = fileBytes,
-                OriginalFileName = file.FileName,
-                FileSize = file.Length,
-                ContentType = file.ContentType,
-                UploadDate = DateTime.UtcNow
-            };
-
-            return await _documentRepository.AddAsync(document);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "❌ Error uploading document {DocumentName} for user {UserDataId} (legacy mode)", documentName, userDataId);
-            throw;
-        }
-    }
-
     public async Task<byte[]?> GetDocumentBytesAsync(int documentId)
     {
         try
@@ -162,7 +131,7 @@ public class DocumentService : IDocumentService
             // Delete physical file if stored in filesystem
             if (document.StorageMode == "FileSystem" && !string.IsNullOrEmpty(document.FilePath))
             {
-                _uploadHandler.DeleteFile(document.FilePath);
+                UploadHandlerExtensions.DeleteFile(document.FilePath);
                 _logger.LogInformation("🗑️ Deleted file from filesystem: {FilePath}", document.FilePath);
             }
 
@@ -201,7 +170,7 @@ public class DocumentService : IDocumentService
                 // Delete physical file if stored in filesystem
                 if (document.StorageMode == "FileSystem" && !string.IsNullOrEmpty(document.FilePath))
                 {
-                    _uploadHandler.DeleteFile(document.FilePath);
+                    UploadHandlerExtensions.DeleteFile(document.FilePath);
                     _logger.LogInformation("🗑️ Deleted file from filesystem: {FilePath}", document.FilePath);
                 }
             }

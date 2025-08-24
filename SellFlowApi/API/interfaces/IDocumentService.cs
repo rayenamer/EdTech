@@ -14,9 +14,6 @@ public interface IDocumentService
     Task<string?> GetDocumentDownloadUrlAsync(int documentId);
     Task<bool> DeleteDocumentAsync(int documentId);
     
-    // LEGACY SUPPORT - Database storage
-    Task<Document> UploadDocumentLegacyAsync(IFormFile file, string documentName, int userDataId);
-    
     // UTILITY METHODS
     Task<bool> DocumentExistsAsync(string documentName, int userDataId);
     Task<bool> DeleteDocumentByNameAsync(string documentName, int userDataId);
