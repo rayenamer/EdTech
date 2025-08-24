@@ -268,9 +268,6 @@ namespace API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<byte[]>("Bytes")
-                        .HasColumnType("BLOB");
-
                     b.Property<string>("ContentType")
                         .HasColumnType("TEXT");
 

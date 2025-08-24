@@ -10,8 +10,7 @@ public class Document
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
     
-    // LEGACY FIELD - Keep for backward compatibility
-    public byte[]? Bytes { get; set; }
+    // REMOVED: Bytes property eliminated to prevent database binary storage
     
     // NEW OPTIMIZED FIELDS - Filesystem storage
     public string? FilePath { get; set; }

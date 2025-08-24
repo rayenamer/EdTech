@@ -56,8 +56,8 @@ public class DocumentService : IDocumentService
                 OriginalFileName = uploadResult.OriginalFileName,
                 FileSize = uploadResult.FileSize,
                 ContentType = uploadResult.ContentType,
-                UploadDate = DateTime.UtcNow,
-                Bytes = null // No database storage for new uploads
+                UploadDate = DateTime.UtcNow
+                // REMOVED: Bytes assignment eliminated - no database binary storage
             };
 
             var savedDocument = await _documentRepository.AddAsync(document);
@@ -95,11 +95,8 @@ public class DocumentService : IDocumentService
                     return null;
                 }
             }
-            else if (document.StorageMode == "Database" && document.Bytes != null)
-            {
-                _logger.LogInformation("🗄️ Reading document from database (legacy mode)");
-                return document.Bytes;
-            }
+            // REMOVED: Database storage mode eliminated - no more Bytes property
+            // Legacy database storage is no longer supported
 
             _logger.LogWarning("⚠️ Document {DocumentId} has no valid storage data", documentId);
             return null;

@@ -177,8 +177,8 @@ public class UploadHandler
         
         try
         {
-            // CRITICAL: Async streaming - NO MEMORY LOADING
-            using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true);
+            // OPTIMIZED: True async streaming with 65536 buffer for high concurrency
+            using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 65536, useAsync: true);
             await file.CopyToAsync(fileStream);
 
             return new FileUploadResult

@@ -4,6 +4,7 @@ using API.interfaces;
 using API.Helpers;
 using API.entities;
 using Microsoft.AspNetCore.Identity;
+using API.Data;
 
 namespace API.Controllers
 {
@@ -20,6 +21,7 @@ namespace API.Controllers
         private readonly ILogger<DocumentController> _logger;
         private readonly UserManager<AppUser> _userManager;
         private readonly API.interfaces.IDocumentService _documentService;
+        private readonly DataContext _context;
 
         public DocumentController(
             IDocumentRepository documentRepository,
@@ -29,7 +31,8 @@ namespace API.Controllers
             GetUserId getUserIdHelper,
             Log log,
             UploadHandler uploadHandler,
-            API.interfaces.IDocumentService documentService
+            API.interfaces.IDocumentService documentService,
+            DataContext context
             )
         {
             _getUserIdHelper = getUserIdHelper;
@@ -40,6 +43,7 @@ namespace API.Controllers
             _log = log;
             _uploadHandler = uploadHandler;
             _documentService = documentService;
+            _context = context;
             _fileDeployer = new FileDeployer();
         }
 
@@ -67,6 +71,8 @@ namespace API.Controllers
             if (!int.TryParse(userIdClaim, out int userId))
                 return BadRequest("User identifier claim is not a valid integer.");
 
+            // OPTIMIZED: Single database transaction for all operations
+            using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 // Find the User record
@@ -80,8 +86,11 @@ namespace API.Controllers
                 // 🚀 USE NEW OPTIMIZED FILESYSTEM UPLOAD (97% better performance)
                 var savedDocument = await _documentService.UploadDocumentAsync(file, documentName, user.Id);
 
-                // Associate document with user
-                await _userDataRepository.AddDocumentAsync(user.Id, savedDocument.Id);
+                // Associate document with user (already handled in UploadDocumentAsync)
+                // await _userDataRepository.AddDocumentAsync(user.Id, savedDocument.Id); // REMOVED: Redundant operation
+                
+                // Commit all database operations in single transaction
+                await transaction.CommitAsync();
 
                 return Ok(new
                 {
@@ -97,10 +106,12 @@ namespace API.Controllers
             }
             catch (ArgumentException ex)
             {
+                await transaction.RollbackAsync();
                 return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
+                await transaction.RollbackAsync();
                 // Log the exception details
                 _logger.LogError(ex, "Error in AddDocument: {Message}", ex.Message);
 
@@ -181,7 +192,7 @@ namespace API.Controllers
                     DocumentName = d.DocumentName,
                     FileName = d.FileName,
                     OriginalFileName = d.OriginalFileName,
-                    Size = d.FileSize ?? (d.Bytes?.Length ?? 0), // Use FileSize for filesystem, fallback to Bytes length
+                    Size = d.FileSize ?? 0, // Use FileSize only - no database binary storage
                     ContentType = d.ContentType,
                     StorageMode = d.StorageMode,
                     UploadDate = d.UploadDate,
