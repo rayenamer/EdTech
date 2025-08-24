@@ -24,6 +24,8 @@ builder.Services.AddScoped<IUniProgramRepository, UniProgramRepository>();
 builder.Services.AddScoped<IUserDataRepository, UserDataRepository>();
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
 builder.Services.AddScoped<IApplicationRepository, ApplicationRepository>();
+builder.Services.AddScoped<API.interfaces.IDocumentService, API.services.DocumentService>();
+builder.Services.AddScoped<UploadHandler>();
 builder.Services.AddScoped<GetUserId>();
 builder.Services.AddScoped<Log>();
 // ======== MAILERSEND SMTP CONFIGURATION ========

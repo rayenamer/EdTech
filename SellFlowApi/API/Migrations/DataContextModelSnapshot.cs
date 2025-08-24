@@ -271,8 +271,30 @@ namespace API.Migrations
                     b.Property<byte[]>("Bytes")
                         .HasColumnType("BLOB");
 
+                    b.Property<string>("ContentType")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("DocumentName")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FileName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FilePath")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long?>("FileSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("OriginalFileName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("StorageMode")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UploadDate")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("UserDataId")

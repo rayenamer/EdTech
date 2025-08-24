@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using API.Helpers;
 
 namespace API.Controllers;
 
@@ -18,7 +19,8 @@ public class AdminAndModeratorsController
     DataContext context,
     UserManager<AppUser> userManager,
     ITokenService tokenService,
-    IMapper mapper
+    IMapper mapper,
+    Log log
 //IEmailSender _emailSender,
 //ILogger<AdminAndModeratorsController> _logger
 ) : BaseApiController
@@ -26,6 +28,7 @@ public class AdminAndModeratorsController
     [HttpPost("register-admin")]
     public async Task<ActionResult<AppUserDto>> RegisterAdmin(AdminAndModeratorDto AdminAndModeratorDto)
     {
+        log.LogInformation("🚀 Registering new admin");
         var userExist = await userManager.FindByEmailAsync(AdminAndModeratorDto.Email);
         if (userExist != null) return BadRequest("Email already signed");
 
@@ -53,6 +56,7 @@ public class AdminAndModeratorsController
     [HttpPost("login")]
     public async Task<ActionResult> Login(LoginDto loginDto)
     {
+        log.LogInformation("🚀 Admin login attempt");
         var user = await context.Users
             .Include(u => u.UserRoles)
             .ThenInclude(ur => ur.Role)
@@ -85,6 +89,7 @@ public class AdminAndModeratorsController
     [HttpPost("logout")]
     public IActionResult Logout()
     {
+        log.LogInformation("🚀 Admin logout");
         Response.Cookies.Delete("jwt_token");
         return Ok(new { message = "Admin logged out successfully" });
     }
@@ -92,8 +97,7 @@ public class AdminAndModeratorsController
     [HttpGet("GetAllUsersForAdmin")]
     public async Task<IActionResult> GetAllUsersForAdmin()
     {
-
-
+        log.LogInformation("🚀 Getting all users for admin");
         var users = await userManager.Users
      .OrderBy(x => x.UserName)
      .Select(x => new
@@ -122,6 +126,7 @@ public class AdminAndModeratorsController
     [HttpGet("token-info")]
     public IActionResult TokenInfo()
     {
+        log.LogInformation("🚀 Getting token info");
         var isAuthenticated = User.Identity?.IsAuthenticated ?? false;
         var claims = User.Claims.Select(c => new { Type = c.Type, Value = c.Value }).ToList();
 

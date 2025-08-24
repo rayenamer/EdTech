@@ -22,6 +22,7 @@ using API.DATA;
 using API.entities;
 using Microsoft.AspNetCore.Http.HttpResults;
 using API.Data;
+using API.Helpers;
 
 namespace API.Controllers;
 
@@ -33,7 +34,8 @@ public class Register_LoginController
     ITokenService tokenService,
     IMapper mapper,
     IEmailSender _emailSender,
-    ILogger<Register_LoginController> _logger
+    ILogger<Register_LoginController> _logger,
+    Log _log
 ) : BaseApiController
 {
     /*[HttpPost("register")]
@@ -72,6 +74,7 @@ public class Register_LoginController
     [HttpPost("login")]
     public async Task<ActionResult<AppUserDto>> Login(LoginDto loginDto)
     {
+        _log.LogInformation("🚀 User login attempt");
         var user = await userManager.Users
             .FirstOrDefaultAsync(x => x.NormalizedEmail == loginDto.Email.ToUpper());
         if (user == null || user.Email == null)
@@ -112,6 +115,7 @@ public class Register_LoginController
     [HttpGet("me")]
     public async Task<ActionResult<AppUserDto>> GetCurrentUser()
     {
+        _log.LogInformation("🚀 Getting current user information");
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userIdClaim))
             return Unauthorized("User identifier claim not found.");
@@ -151,6 +155,7 @@ public class Register_LoginController
     [HttpPost("logout")]
     public IActionResult Logout()
     {
+        _log.LogInformation("🚀 User logout");
         Response.Cookies.Delete("jwt_token");
         return Ok(new { message = "Logged out successfully" });
     }
@@ -159,7 +164,7 @@ public class Register_LoginController
     [HttpGet("google-login")]
     public IActionResult GoogleLogin()
     {
-        _logger.LogInformation("====================LOGIN-STARTED===================");
+        _log.LogInformation("🚀 Google login initiated");
         var properties = new AuthenticationProperties
         {
             RedirectUri = "https://localhost:7030/api/Register_Login/google-response"
@@ -171,6 +176,7 @@ public class Register_LoginController
     [HttpGet("google-response")]
     public async Task<IActionResult> GoogleResponse([FromQuery] string state = "")
     {
+        _log.LogInformation("🚀 Processing Google authentication response");
         var config = HttpContext.RequestServices.GetService(typeof(IConfiguration)) as IConfiguration;
         var loginFailedUrl = config?["Frontend:LoginFailedUrl"] ?? "https://localhost:4200/login-failed";
         var googleSuccessUrl = config?["Frontend:GoogleSuccessUrl"] ?? "https://localhost:4200/login";

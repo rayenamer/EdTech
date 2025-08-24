@@ -29,20 +29,23 @@ public class UserDataController : ControllerBase
     private readonly IUserDataRepository _UserDataRepository;
     private readonly IMapper _mapper;
     private readonly ILogger<UserDataController> _logger;
+    private readonly Log _log;
 
-    public UserDataController(IUserDataRepository UserDataRepository, IMapper mapper, ILogger<UserDataController> logger, GetUserId getUserIdHelper, DataContext context)
+    public UserDataController(IUserDataRepository UserDataRepository, IMapper mapper, ILogger<UserDataController> logger, GetUserId getUserIdHelper, DataContext context, Log log)
     {
         _UserDataRepository = UserDataRepository;
         _mapper = mapper;
         _logger = logger;
         _getUserIdHelper = getUserIdHelper;
         this.context = context;
+        _log = log;
     }
 
     // all apps for admin working good
     [HttpGet("get-all-UserDatas")]
     public async Task<ActionResult<IEnumerable<UserDataDto>>> GetAll()
     {
+        _log.LogInformation("🚀 Retrieving all user data for admin");
         try
         {
             // Use projection to get document metadata without BLOB data
@@ -128,13 +131,7 @@ public class UserDataController : ControllerBase
     [HttpGet("get-user-UserDatas")]
     public async Task<ActionResult<IEnumerable<UserDataDto>>> GetUserUserDatas()
     {
-        _logger.LogInformation("===========================================");
-        _logger.LogInformation("=====Getting My User Profile Starting =====");
-        _logger.LogInformation("===========================================");
-        _logger.LogInformation("===========================================");
-        _logger.LogInformation("===========================================");
-        _logger.LogInformation("===========================================");
-        _logger.LogInformation("===========================================");
+        _log.LogInformation("🚀 Getting user profile data");
         try
         {
 
@@ -203,6 +200,7 @@ public class UserDataController : ControllerBase
     [HttpGet("get-UserData-by-id/{id}")]
     public async Task<ActionResult<UserDataDto>> GetById(int id)
     {
+        _log.LogInformation("🚀 Getting user data by ID");
         var UserData = await _UserDataRepository.GetByIdAsync(id);
         if (UserData == null)
             return NotFound("UserData not found.");
@@ -242,6 +240,7 @@ public class UserDataController : ControllerBase
     [HttpDelete("delete-UserData/{id}")]
     public async Task<IActionResult> Delete(int id)
     {
+        _log.LogInformation("🚀 Deleting user data");
         var deleted = await _UserDataRepository.DeleteAsync(id);
         if (!deleted)
             return NotFound("UserData not found.");
@@ -251,6 +250,7 @@ public class UserDataController : ControllerBase
     [HttpGet("check-user-has-data")]
     public async Task<IActionResult> CheckUserHasData()
     {
+        _log.LogInformation("🚀 Checking if user has complete data");
         var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userIdClaim))
             return Unauthorized("User identifier claim not found.");
@@ -293,9 +293,7 @@ public class UserDataController : ControllerBase
     [HttpPost("add/update-personal-information")]
     public async Task<IActionResult> AddOrUpdatePersonalInformation(PersonalInformationDto personalInfoDto)
     {
-        _logger.LogInformation("===========================================");
-        _logger.LogInformation("======== UpdateInfoDataCalled =============");
-        _logger.LogInformation("===========================================");
+        _log.LogInformation("🚀 Adding/updating personal information");
         try
         {
             var userIdResult = await _getUserIdHelper.GetUserIdFromClaims(User);
@@ -353,9 +351,7 @@ public class UserDataController : ControllerBase
     [HttpPost("add/update-education-background")]
     public async Task<IActionResult> AddOrUpdateEducationBackground(EducationBackgroundDto educationBackgroundDto)
     {
-         _logger.LogInformation("===========================================");
-        _logger.LogInformation("======== Updating education backg =============");
-        _logger.LogInformation("===========================================");
+        _log.LogInformation("🚀 Updating education background");
         try
         {
             var userIdResult = await _getUserIdHelper.GetUserIdFromClaims(User);
@@ -383,9 +379,7 @@ public class UserDataController : ControllerBase
     [HttpPost("add/update-work-experience")]
     public async Task<IActionResult> AddOrUpdateWorkExperience(WorkExperienceDto workExperienceDto)
     {
-         _logger.LogInformation("===========================================");
-        _logger.LogInformation("======== Updating work eperience =============");
-        _logger.LogInformation("===========================================");
+        _log.LogInformation("🚀 Updating work experience");
         try
         {
             var userIdResult = await _getUserIdHelper.GetUserIdFromClaims(User);
@@ -413,10 +407,7 @@ public class UserDataController : ControllerBase
     [HttpGet("get-user-data-with-documents")]
     public async Task<ActionResult<UserDataWithDocumentsDto>> GetUserDataWithDocuments()
     {
-        _logger.LogInformation("===========================================");
-        _logger.LogInformation("===== Getting User Profile with Documents =====");
-        _logger.LogInformation("===========================================");
-
+        _log.LogInformation("🚀 Getting user profile with documents");
         try
         {
             // Get current user ID once

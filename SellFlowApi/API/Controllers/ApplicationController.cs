@@ -7,6 +7,7 @@ using API.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using API.Helpers;
 
 namespace API.Controllers;
 
@@ -18,26 +19,30 @@ public class ApplicationController : ControllerBase
     private readonly UserManager<AppUser> _userManager;
     private readonly IUniProgramRepository _uniprogramRepository;
     private readonly ILogger<ApplicationController> _logger;
-    private readonly DataContext _context; // Add this
+    private readonly DataContext _context;
+    private readonly Log _log;
 
     public ApplicationController(
         IApplicationRepository applicationRepository,
         UserManager<AppUser> userManager,
         IUniProgramRepository uniprogramRepository,
         ILogger<ApplicationController> logger,
-        DataContext context) // Add this parameter
+        DataContext context,
+        Log log)
     {
         _applicationRepository = applicationRepository;
         _userManager = userManager;
         _uniprogramRepository = uniprogramRepository;
         _logger = logger;
-        _context = context; // Add this assignment
+        _context = context;
+        _log = log;
     }
 
 
     [HttpPost("add-application/{programId}")]
     public async Task<IActionResult> AddApplication(int programId, ApplicationDto applicationDto)
     {
+        _log.LogInformation("🚀 Adding new application");
         if (applicationDto == null)
         {
             _logger.LogWarning("Received null application object");
@@ -114,6 +119,7 @@ public class ApplicationController : ControllerBase
     [HttpGet("get-all-application-with-all-data")]
     public async Task<IActionResult> GetAllApplications()
     {
+        _log.LogInformation("🚀 Getting all applications with data");
         try
         {
             var applications = await _applicationRepository.GetAllApplicationsAsync();
@@ -183,6 +189,7 @@ public class ApplicationController : ControllerBase
     [HttpGet("test-get-data/{userId}/{programId}")]
     public async Task<IActionResult> TestGetDataForApplication(int userId, int programId)
     {
+        _log.LogInformation("🚀 Testing application data retrieval");
         var result = await GetDataForApplication(userId, programId);
 
         if (!result.success)
@@ -217,6 +224,7 @@ public class ApplicationController : ControllerBase
     [HttpGet("test-id-method")]
     public async Task<IActionResult> TestGetUserIdFromClaims()
     {
+        _log.LogInformation("🚀 Testing user ID retrieval from claims");
         var result = await GetUserIdFromClaims();
 
         if (!result.success)
@@ -284,6 +292,7 @@ public class ApplicationController : ControllerBase
     [HttpGet("get-applications-for-the-logged-in-user")]
     public async Task<IActionResult> GetApplicationsForLoggedInUser()
     {
+        _log.LogInformation("🚀 Getting applications for logged in user");
         var result = await GetUserIdFromClaims();
 
         if (!result.success)
@@ -314,6 +323,7 @@ public class ApplicationController : ControllerBase
     [HttpPut("change-application-state/{ApplicationId}")]
     public async Task<IActionResult> ChangeApplicationState(int ApplicationId, string NewState)
     {
+        _log.LogInformation("🚀 Changing application state");
         try
         {
             var application = await _context.Applications.FindAsync(ApplicationId);
