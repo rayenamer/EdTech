@@ -25,6 +25,7 @@ builder.Services.AddScoped<IUserDataRepository, UserDataRepository>();
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
 builder.Services.AddScoped<IApplicationRepository, ApplicationRepository>();
 builder.Services.AddScoped<GetUserId>();
+builder.Services.AddScoped<Log>();
 // ======== MAILERSEND SMTP CONFIGURATION ========
 // 1. Bind SMTP settings from configuration
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("SmtpSettings"));

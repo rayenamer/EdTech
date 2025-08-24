@@ -323,173 +323,89 @@ public class UserDataController : ControllerBase
     [HttpPost("add/update-personal-statements")]
     public async Task<IActionResult> AddOrUpdatePersonalStatements(PersonalStatementsDto personalStatementsDto)
     {
+         _logger.LogInformation("===========================================");
+        _logger.LogInformation("======== Updating Personal Stats =============");
+        _logger.LogInformation("===========================================");
         try
         {
             var userIdResult = await _getUserIdHelper.GetUserIdFromClaims(User);
-
             int userId = userIdResult.userId;
             _logger.LogInformation($"Processing request for UserId: {userId}");
-            _logger.LogInformation($"PersonalStatementsDto: Motivation={personalStatementsDto.Motivation}, LifeOutside={personalStatementsDto.LifeOutSide}");
 
-            var existingUser = await _UserDataRepository.GetByUserIdAsync(userId);
+            var updateResult = await _UserDataRepository.UpdatePersonalStatementsAsync(userId, personalStatementsDto);
 
-            Console.WriteLine($"Found existing User for UserId: {userId}");
-            if (existingUser != null)
+            if (!updateResult)
             {
-                Console.WriteLine($"Existing User ID: {existingUser.Id}, Motivation: {existingUser.Motivation}, LifeOutside: {existingUser.LifeOutSide}");
-            }
-
-            if (existingUser != null)
-            {
-                // Update existing user record
-                Console.WriteLine("Updating existing User record...");
-                existingUser.Motivation = personalStatementsDto.Motivation;
-                existingUser.LifeOutSide = personalStatementsDto.LifeOutSide;
-
-                var updateResult = await _UserDataRepository.UpdateAsync(existingUser);
-                Console.WriteLine($"Update result: {updateResult}");
-            }
-            else
-            {
-                // This case shouldn't happen as user should already exist
-                Console.WriteLine("User not found for personal statements update");
+                _logger.LogError("User not found for personal statements update");
                 return BadRequest("User not found");
             }
 
+            Console.WriteLine($"Update result: {updateResult}");
             return Ok(new { success = true });
         }
         catch (Exception ex)
         {
-            // Log the exception details
             Console.WriteLine($"Error in AddOrUpdatePersonalStatements: {ex.Message}");
-            Console.WriteLine($"StackTrace: {ex.StackTrace}");
-
-            if (ex.InnerException != null)
-            {
-                Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
-            }
-
             return BadRequest($"Error updating personal statements: {ex.Message}");
         }
     }
+
     [HttpPost("add/update-education-background")]
     public async Task<IActionResult> AddOrUpdateEducationBackground(EducationBackgroundDto educationBackgroundDto)
     {
+         _logger.LogInformation("===========================================");
+        _logger.LogInformation("======== Updating education backg =============");
+        _logger.LogInformation("===========================================");
         try
         {
-            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim))
-                return Unauthorized("User identifier claim not found.");
+            var userIdResult = await _getUserIdHelper.GetUserIdFromClaims(User);
+            int userId = userIdResult.userId;
+            _logger.LogInformation($"Processing request for UserId: {userId}");
 
-            if (!int.TryParse(userIdClaim, out int userId))
-                return BadRequest("User identifier claim is not a valid integer.");
+            var updateResult = await _UserDataRepository.UpdateEducationBackgroundAsync(userId, educationBackgroundDto);
 
-            Console.WriteLine($"Processing request for UserId: {userId}");
-            Console.WriteLine($"EducationBackgroundDto: {JsonConvert.SerializeObject(educationBackgroundDto)}");
-
-            var existingUser = await _UserDataRepository.GetByUserIdAsync(userId);
-
-            Console.WriteLine($"Found existing User for UserId: {userId}");
-            if (existingUser != null)
+            if (!updateResult)
             {
-                Console.WriteLine($"Existing User ID: {existingUser.Id}");
-            }
-
-            if (existingUser != null)
-            {
-                // Update existing user record
-                Console.WriteLine("Updating existing User record...");
-                existingUser.BaccalaureatDegree = educationBackgroundDto.BaccalaureatDegree;
-                existingUser.BaccalaureatInstitution = educationBackgroundDto.BaccalaureatInstitution;
-                existingUser.BaccalaureatDate = educationBackgroundDto.BaccalaureatDate;
-                existingUser.BachelorDegree = educationBackgroundDto.BachelorDegree;
-                existingUser.BachelorInstitution = educationBackgroundDto.BachelorInstitution;
-                existingUser.BachelorDate = educationBackgroundDto.BachelorDate;
-                existingUser.MasterDegree = educationBackgroundDto.MasterDegree;
-                existingUser.MasterInstitution = educationBackgroundDto.MasterInstitution;
-                existingUser.MasterDate = educationBackgroundDto.MasterDate;
-                existingUser.EngDegree = educationBackgroundDto.EngDegree;
-                existingUser.EngInstitution = educationBackgroundDto.EngInstitution;
-                existingUser.EngDate = educationBackgroundDto.EngDate;
-
-                var updateResult = await _UserDataRepository.UpdateAsync(existingUser);
-                Console.WriteLine($"Update result: {updateResult}");
-            }
-            else
-            {
-                // This case shouldn't happen as user should already exist
-                Console.WriteLine("User not found for education background update");
+                _logger.LogError("User not found for education background update");
                 return BadRequest("User not found");
             }
 
+            Console.WriteLine($"Update result: {updateResult}");
             return Ok(new { success = true });
         }
         catch (Exception ex)
         {
-            // Log the exception details
             Console.WriteLine($"Error in AddOrUpdateEducationBackground: {ex.Message}");
-            Console.WriteLine($"StackTrace: {ex.StackTrace}");
-
-            if (ex.InnerException != null)
-            {
-                Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
-            }
-
             return BadRequest($"Error updating education background: {ex.Message}");
         }
     }
+    
     [HttpPost("add/update-work-experience")]
     public async Task<IActionResult> AddOrUpdateWorkExperience(WorkExperienceDto workExperienceDto)
     {
+         _logger.LogInformation("===========================================");
+        _logger.LogInformation("======== Updating work eperience =============");
+        _logger.LogInformation("===========================================");
         try
         {
-            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim))
-                return Unauthorized("User identifier claim not found.");
+            var userIdResult = await _getUserIdHelper.GetUserIdFromClaims(User);
+            int userId = userIdResult.userId;
+            _logger.LogInformation($"Processing request for UserId: {userId}");
 
-            if (!int.TryParse(userIdClaim, out int userId))
-                return BadRequest("User identifier claim is not a valid integer.");
+            var updateResult = await _UserDataRepository.UpdateWorkExperienceAsync(userId, workExperienceDto);
 
-            Console.WriteLine($"Processing request for UserId: {userId}");
-            Console.WriteLine($"WorkExperienceDto: {JsonConvert.SerializeObject(workExperienceDto)}");
-
-            var existingUser = await _UserDataRepository.GetByUserIdAsync(userId);
-
-            Console.WriteLine($"Found existing User for UserId: {userId}");
-            if (existingUser != null)
+            if (!updateResult)
             {
-                Console.WriteLine($"Existing User ID: {existingUser.Id}");
-            }
-
-            if (existingUser != null)
-            {
-                // Update existing user record
-                Console.WriteLine("Updating existing User record...");
-                existingUser.WorkExperience = workExperienceDto.WorkExperience;
-
-                var updateResult = await _UserDataRepository.UpdateAsync(existingUser);
-                Console.WriteLine($"Update result: {updateResult}");
-            }
-            else
-            {
-                // This case shouldn't happen as user should already exist
-                Console.WriteLine("User not found for work experience update");
+                _logger.LogError("User not found for work experience update");
                 return BadRequest("User not found");
             }
 
+            Console.WriteLine($"Update result: {updateResult}");
             return Ok(new { success = true });
         }
         catch (Exception ex)
         {
-            // Log the exception details
             Console.WriteLine($"Error in AddOrUpdateWorkExperience: {ex.Message}");
-            Console.WriteLine($"StackTrace: {ex.StackTrace}");
-
-            if (ex.InnerException != null)
-            {
-                Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
-            }
-
             return BadRequest($"Error updating work experience: {ex.Message}");
         }
     }

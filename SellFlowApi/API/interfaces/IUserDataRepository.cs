@@ -17,5 +17,8 @@ public interface IUserDataRepository
     Task<AppUser?> FindByEmailAsync(string emailClaim);
     Task<AppUser?> GetUserWithDocumentsAsync(int userId);
     Task<bool> UpdatePersonalInformationAsync(int userId, PersonalInformationDto personalInfoDto);
+    Task<bool> UpdatePersonalStatementsAsync(int userId, PersonalStatementsDto personalStatementsDto);
+    Task<bool> UpdateEducationBackgroundAsync(int userId, EducationBackgroundDto educationBackgroundDto);
+    Task<bool> UpdateWorkExperienceAsync(int userId, WorkExperienceDto workExperienceDto);
 
 }

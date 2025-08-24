@@ -240,34 +240,89 @@ public class UserDataRepository : IUserDataRepository
     {
         try
         {
-            var user = await _context.Users
+            var rowsAffected = await _context.Users
                 .Where(u => u.Id == userId)
-                .FirstOrDefaultAsync();
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(u => u.FullName, personalInfoDto.FullName)
+                    .SetProperty(u => u.Number, personalInfoDto.Number)
+                    .SetProperty(u => u.LinkedinLink, personalInfoDto.LinkedinLink)
+                    .SetProperty(u => u.UserDataDateOfBirth, personalInfoDto.DateOfBirth ?? DateTime.MinValue)
+                    .SetProperty(u => u.LastActive, DateTime.UtcNow));
 
-            if (user == null)
-            {
-                return false;
-            }
-
-            // Update only the specific fields
-            user.FullName = personalInfoDto.FullName;
-            user.Number = personalInfoDto.Number;
-            user.LinkedinLink = personalInfoDto.LinkedinLink;
-
-            if (personalInfoDto.DateOfBirth.HasValue)
-            {
-                user.UserDataDateOfBirth = personalInfoDto.DateOfBirth.Value;
-            }
-
-            // Update timestamp
-            user.LastActive = DateTime.UtcNow;
-
-            var rowsAffected = await _context.SaveChangesAsync();
             return rowsAffected > 0;
         }
         catch (Exception ex)
         {
            // _logger.LogError(ex, "Error updating personal information for UserId: {UserId}", userId);
+            throw;
+        }    
+    }
+
+    public async Task<bool> UpdatePersonalStatementsAsync(int userId, PersonalStatementsDto personalStatementsDto)
+    {
+        try
+        {
+            var rowsAffected = await _context.Users
+                .Where(u => u.Id == userId)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(u => u.Motivation, personalStatementsDto.Motivation)
+                    .SetProperty(u => u.LifeOutSide, personalStatementsDto.LifeOutSide)
+                    .SetProperty(u => u.LastActive, DateTime.UtcNow));
+
+            return rowsAffected > 0;
+        }
+        catch (Exception ex)
+        {
+           // _logger.LogError(ex, "Error updating personal statements for UserId: {UserId}", userId);
+            throw;
+        }
+    }
+
+    public async Task<bool> UpdateEducationBackgroundAsync(int userId, EducationBackgroundDto educationBackgroundDto)
+    {
+        try
+        {
+            var rowsAffected = await _context.Users
+                .Where(u => u.Id == userId)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(u => u.BaccalaureatDegree, educationBackgroundDto.BaccalaureatDegree)
+                    .SetProperty(u => u.BaccalaureatInstitution, educationBackgroundDto.BaccalaureatInstitution)
+                    .SetProperty(u => u.BaccalaureatDate, educationBackgroundDto.BaccalaureatDate)
+                    .SetProperty(u => u.BachelorDegree, educationBackgroundDto.BachelorDegree)
+                    .SetProperty(u => u.BachelorInstitution, educationBackgroundDto.BachelorInstitution)
+                    .SetProperty(u => u.BachelorDate, educationBackgroundDto.BachelorDate)
+                    .SetProperty(u => u.MasterDegree, educationBackgroundDto.MasterDegree)
+                    .SetProperty(u => u.MasterInstitution, educationBackgroundDto.MasterInstitution)
+                    .SetProperty(u => u.MasterDate, educationBackgroundDto.MasterDate)
+                    .SetProperty(u => u.EngDegree, educationBackgroundDto.EngDegree)
+                    .SetProperty(u => u.EngInstitution, educationBackgroundDto.EngInstitution)
+                    .SetProperty(u => u.EngDate, educationBackgroundDto.EngDate)
+                    .SetProperty(u => u.LastActive, DateTime.UtcNow));
+
+            return rowsAffected > 0;
+        }
+        catch (Exception ex)
+        {
+           // _logger.LogError(ex, "Error updating education background for UserId: {UserId}", userId);
+            throw;
+        }
+    }
+
+    public async Task<bool> UpdateWorkExperienceAsync(int userId, WorkExperienceDto workExperienceDto)
+    {
+        try
+        {
+            var rowsAffected = await _context.Users
+                .Where(u => u.Id == userId)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(u => u.WorkExperience, workExperienceDto.WorkExperience)
+                    .SetProperty(u => u.LastActive, DateTime.UtcNow));
+
+            return rowsAffected > 0;
+        }
+        catch (Exception ex)
+        {
+           // _logger.LogError(ex, "Error updating work experience for UserId: {UserId}", userId);
             throw;
         }
     }

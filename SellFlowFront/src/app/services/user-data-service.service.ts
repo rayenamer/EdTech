@@ -124,6 +124,7 @@ export class UserDataServiceService {
       })
     );
   }
+
   AddOrUpdateEducationBackground(data: any) {
     return this.http.post(`${this.baseUrl}UserData/add/update-education-background`, data).pipe(
       tap(response => console.log('Education background updated successfully:', response)),
@@ -143,10 +144,6 @@ export class UserDataServiceService {
       })
     );
   }
-
- 
-
-
 
   GetAllData() {
     return this.http.get(`${this.baseUrl}UserData/get-all-UserDatas`).pipe(

@@ -11,6 +11,7 @@ namespace API.Controllers
     [Route("api/[controller]")]
     public class DocumentController : ControllerBase
     {
+        private readonly Log _log;
         private readonly GetUserId _getUserIdHelper;
         private readonly IDocumentRepository _documentRepository;
         private readonly IUserDataRepository _userDataRepository;
@@ -24,7 +25,8 @@ namespace API.Controllers
             IUserDataRepository userDataRepository,
             ILogger<DocumentController> logger,
             UserManager<AppUser> userManager,
-            GetUserId getUserIdHelper
+            GetUserId getUserIdHelper,
+            Log log
             )
         {
             _getUserIdHelper = getUserIdHelper;
@@ -32,6 +34,7 @@ namespace API.Controllers
             _userDataRepository = userDataRepository;
             _logger = logger;
             _userManager = userManager;
+            _log = log;
             _uploadHandler = new UploadHandler();
             _fileDeployer = new FileDeployer();
         }
@@ -45,6 +48,7 @@ namespace API.Controllers
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> AddDocument(IFormFile file, string documentName)
         {
+            _log.LogInformation("adding document");
             // Validate input
             if (file == null || file.Length == 0)
             {
@@ -240,6 +244,8 @@ namespace API.Controllers
         [HttpDelete("DeleteDocByName/{documentName}")]
         public async Task<bool> DeleteDocByName(string documentName)
         {
+            _log.LogInformation("deleting document");
+
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim))
                 return false;
