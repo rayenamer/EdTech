@@ -24,7 +24,7 @@ export class ProgramCardComponent implements OnInit {
   
   ngOnInit(): void {
     this.universityImage = this.getRandomUniversityImage();
-    this.userDataService.checkUserDataOnce(); // triggers the request
+    // Removed redundant checkUserDataOnce() call - AcceuilComponent handles this
     this.userDataService.hasData$.subscribe(data => {
       this.hasData = data;
     });

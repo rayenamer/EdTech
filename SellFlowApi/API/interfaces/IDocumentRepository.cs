@@ -1,7 +1,7 @@
 using System;
 using API.entities;
 
-namespace API.DATA;
+namespace API.interfaces;
 
 public interface IDocumentRepository
 {

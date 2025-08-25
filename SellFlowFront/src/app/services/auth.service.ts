@@ -3,6 +3,7 @@ import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../environments/environment.development';
 import { User } from '../models/user';
 import { catchError, map, throwError } from 'rxjs';
+//import { UserDataService } from './user-data-service.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,37 +11,46 @@ import { catchError, map, throwError } from 'rxjs';
 export class AuthService {
 
   private http = inject(HttpClient);
+ // private userDataService = inject(UserDataService);
 
   baseUrl = environment.apiUrl
 
   currentUser = signal<User | null>(null);
+  isAuthenticated = signal<boolean>(false);
   errorMessage: any;
 
   setCurrentUser(user: User){
-    localStorage.setItem('user', JSON.stringify(user));
+    // No longer storing in localStorage - using HTTP-only cookies
     this.currentUser.set(user);
+    this.isAuthenticated.set(true);
+  }
+
+  setAuthenticated(status: boolean) {
+    this.isAuthenticated.set(status);
+    if (!status) {
+      this.currentUser.set(null);
+    }
   }
 
   login(model: any) {
-    return this.http.post<User>(this.baseUrl + 'Register_Login/login', model).pipe(
-      map(user => {
-        if (user) {
-          this.setCurrentUser(user);
-        }
+    return this.http.post(this.baseUrl + 'Register_Login/login', model, { withCredentials: true }).pipe(
+      map((response) => {
+        this.setAuthenticated(true);
+        return response;
       })
-    )
+    );
   }
 
   loginWithGoogle() {
-    return this.http.get<User>(this.baseUrl + 'Register_Login/google-login').pipe(
+    return this.http.get<User>(this.baseUrl + 'Register_Login/google-login', { withCredentials: true }).pipe(
       map(user => {       
-          this.setCurrentUser(user);
+          this.currentUser.set(user);
       })
     )
   }
 
   register(model: any){
-    return this.http.post<User>(this.baseUrl + 'Register_Login/register', model).pipe(
+    return this.http.post<User>(this.baseUrl + 'Register_Login/register', model, { withCredentials: true }).pipe(
       map((user) => {
         if (user) {
           this.setCurrentUser(user);
@@ -63,10 +73,14 @@ export class AuthService {
     return this.http.get<User>(this.baseUrl + 'Register_Login/me', { withCredentials: true });
   }
 
-  logout() {
-    localStorage.removeItem('user');
-    this.currentUser.set(null);
-  }
+  //logout() {
+  //  return this.http.post(this.baseUrl + 'Register_Login/logout', {}, { withCredentials: true }).pipe(
+  //    map(() => {
+  //      this.setAuthenticated(false);
+  //      this.userDataService.resetCache();
+  //    })
+  //  );
+  //}
 
  
 }

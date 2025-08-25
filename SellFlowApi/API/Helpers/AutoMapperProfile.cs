@@ -13,7 +13,6 @@ public class AutoMapperProfiles : Profile
     public AutoMapperProfiles()
     {
         CreateMap<AppUser, AppUserDto>();
-        CreateMap<RegisterDto, AppUser>();
         CreateMap<AdminAndModeratorDto, AppUser>();
 
         // For reading from DB → sending to client
@@ -21,15 +20,15 @@ public class AutoMapperProfiles : Profile
 
         // For inserting/updating → mapping DTO to entity
         CreateMap<UniProgramDto, UniProgram>();
-        CreateMap<PersonalInformationDto, UserData>()
+        CreateMap<PersonalInformationDto, AppUser>()
             .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.FullName))
             .ForMember(dest => dest.Number, opt => opt.MapFrom(src => src.Number))
-            .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.DateOfBirth))
+            .ForMember(dest => dest.UserDataDateOfBirth, opt => opt.MapFrom(src => src.DateOfBirth))
             .ForMember(dest => dest.LinkedinLink, opt => opt.MapFrom(src => src.LinkedinLink));
-        CreateMap<PersonalStatementsDto, UserData>()
+        CreateMap<PersonalStatementsDto, AppUser>()
             .ForMember(dest => dest.Motivation, opt => opt.MapFrom(src => src.Motivation))
             .ForMember(dest => dest.LifeOutSide, opt => opt.MapFrom(src => src.LifeOutSide));
-        CreateMap<EducationBackgroundDto, UserData>()
+        CreateMap<EducationBackgroundDto, AppUser>()
             .ForMember(dest => dest.BaccalaureatDegree, opt => opt.MapFrom(src => src.BaccalaureatDegree))
             .ForMember(dest => dest.BaccalaureatInstitution, opt => opt.MapFrom(src => src.BaccalaureatInstitution))
             .ForMember(dest => dest.BaccalaureatDate, opt => opt.MapFrom(src => src.BaccalaureatDate))
@@ -43,14 +42,17 @@ public class AutoMapperProfiles : Profile
             .ForMember(dest => dest.EngInstitution, opt => opt.MapFrom(src => src.EngInstitution))
             .ForMember(dest => dest.EngDate, opt => opt.MapFrom(src => src.EngDate));
 
-        CreateMap<WorkExperienceDto, UserData>()
+        CreateMap<WorkExperienceDto, AppUser>()
             .ForMember(dest => dest.WorkExperience, opt => opt.MapFrom(src => src.WorkExperience));
 
 
-        CreateMap<UserDataDto, UserData>();
+        CreateMap<UserDataDto, AppUser>()
+            .ForMember(dest => dest.UserDataDateOfBirth, opt => opt.MapFrom(src => src.DateOfBirth));
         CreateMap<Document, DocumentDto>();
 
-        CreateMap<UserData, UserDataDto>();
+        CreateMap<AppUser, UserDataDto>()
+            .ForMember(dest => dest.DateOfBirth, opt => opt.MapFrom(src => src.UserDataDateOfBirth))
+            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.Id));
         CreateMap<Application, ApplicationDto>();
     }
 }

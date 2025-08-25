@@ -3,19 +3,20 @@ using API.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using API.Helpers;
 
 namespace API.Controllers;
 
 public class DevTools
 (
-    UserManager<AppUser> userManager
+    UserManager<AppUser> userManager,
+    Log log
 ) : BaseApiController
 {
     [HttpGet("GetAllUsers")]
     public async Task<IActionResult> GetAllUsersForAdmin()
     {
-
-
+        log.LogInformation("🚀 DevTools: Getting all users");
         var users = await userManager.Users
      .OrderBy(x => x.UserName)
      .Select(x => new
@@ -37,6 +38,7 @@ public class DevTools
     [HttpGet("DeleletAllUser")]
     public async Task<ActionResult> DeleteAllUsers()
     {
+        log.LogInformation("🚀 DevTools: Deleting all users");
         try
         {
             var users = userManager.Users.ExecuteDelete();

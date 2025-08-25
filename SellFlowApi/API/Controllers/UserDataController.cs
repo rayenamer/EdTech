@@ -14,40 +14,81 @@ using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using API.Helpers;
+using API.interfaces;
 
+using API.Helpers;
+using API.interfaces;
 namespace API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
 public class UserDataController : ControllerBase
 {
+    private readonly DataContext context;
+    private readonly GetUserId _getUserIdHelper;
     private readonly IUserDataRepository _UserDataRepository;
     private readonly IMapper _mapper;
     private readonly ILogger<UserDataController> _logger;
+    private readonly Log _log;
 
-    public UserDataController(IUserDataRepository UserDataRepository, IMapper mapper, ILogger<UserDataController> logger)
+    public UserDataController(IUserDataRepository UserDataRepository, IMapper mapper, ILogger<UserDataController> logger, GetUserId getUserIdHelper, DataContext context, Log log)
     {
         _UserDataRepository = UserDataRepository;
         _mapper = mapper;
         _logger = logger;
+        _getUserIdHelper = getUserIdHelper;
+        this.context = context;
+        _log = log;
     }
 
     // all apps for admin working good
     [HttpGet("get-all-UserDatas")]
     public async Task<ActionResult<IEnumerable<UserDataDto>>> GetAll()
     {
+        _log.LogInformation("🚀 Retrieving all user data for admin");
         try
         {
-            var UserDatas = await _UserDataRepository.GetAllAsync();
+            // Use projection to get document metadata without BLOB data
+            var UserDatas = await context.Users
+                .Select(u => new
+                {
+                    u.Id,
+                    u.FullName,
+                    u.Number,
+                    u.UserDataDateOfBirth,
+                    u.Motivation,
+                    u.LifeOutSide,
+                    u.BaccalaureatDegree,
+                    u.BaccalaureatInstitution,
+                    u.BaccalaureatDate,
+                    u.BachelorDegree,
+                    u.BachelorInstitution,
+                    u.BachelorDate,
+                    u.MasterDegree,
+                    u.MasterInstitution,
+                    u.MasterDate,
+                    u.EngDegree,
+                    u.EngInstitution,
+                    u.EngDate,
+                    u.WorkExperience,
+                    u.LinkedinLink,
+                    Documents = u.Documents.Select(d => new
+                    {
+                        d.Id,
+                        d.UserDataId,
+                        d.DocumentName
+                        // NO d.Bytes - just metadata!
+                    }).ToList()
+                })
+                .AsNoTracking()
+                .ToListAsync();
 
-            // Map UserDatas to DTOs with documents included (without content for efficiency)
             var UserDataDtos = UserDatas.Select(app => new UserDataDto
             {
                 Id = app.Id,
                 FullName = app.FullName,
                 Number = app.Number,
-                DateOfBirth = app.DateOfBirth,
+                DateOfBirth = app.UserDataDateOfBirth,
                 Motivation = app.Motivation,
                 LifeOutSide = app.LifeOutSide,
                 BaccalaureatDegree = app.BaccalaureatDegree,
@@ -64,15 +105,14 @@ public class UserDataController : ControllerBase
                 EngDate = app.EngDate,
                 WorkExperience = app.WorkExperience,
                 LinkedinLink = app.LinkedinLink,
-                UserId = app.UserId,
-                // Include documents with their names and download URLs
-                Documents = app.Documents?.Select(doc => new DocumentDto
+                UserId = app.Id,
+                Documents = app.Documents.Select(doc => new DocumentDto
                 {
                     Id = doc.Id,
                     UserDataId = doc.UserDataId,
                     DocumentName = doc.DocumentName,
                     DownloadUrl = Url.Action("DownloadDocument", "Document", new { id = doc.Id }, Request.Scheme)
-                }).ToList() ?? new List<DocumentDto>()
+                }).ToList()
             });
 
             return Ok(UserDataDtos);
@@ -91,8 +131,10 @@ public class UserDataController : ControllerBase
     [HttpGet("get-user-UserDatas")]
     public async Task<ActionResult<IEnumerable<UserDataDto>>> GetUserUserDatas()
     {
+        _log.LogInformation("🚀 Getting user profile data");
         try
         {
+
             // Get current user ID
             var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdClaim))
@@ -101,42 +143,49 @@ public class UserDataController : ControllerBase
             if (!int.TryParse(userIdClaim, out int userId))
                 return BadRequest("User identifier claim is not a valid integer.");
 
-            // Get UserDatas for the current user
-            var UserDatas = await _UserDataRepository.GetByUserIdAsync(userId);
+            // Get User data for the current user
+            var userData = await _UserDataRepository.GetByUserIdAsync(userId);
 
-            // Map UserDatas to DTOs
-            var UserDataDtos = UserDatas.Select(app => new UserDataDto
+            if (userData == null)
             {
-                Id = app.Id,
-                FullName = app.FullName,
-                Number = app.Number,
-                DateOfBirth = app.DateOfBirth,
-                Motivation = app.Motivation,
-                LifeOutSide = app.LifeOutSide,
-                BaccalaureatDegree = app.BaccalaureatDegree,
-                BaccalaureatInstitution = app.BaccalaureatInstitution,
-                BaccalaureatDate = app.BaccalaureatDate,
-                BachelorDegree = app.BachelorDegree,
-                BachelorInstitution = app.BachelorInstitution,
-                BachelorDate = app.BachelorDate,
-                MasterDegree = app.MasterDegree,
-                MasterInstitution = app.MasterInstitution,
-                MasterDate = app.MasterDate,
-                EngDegree = app.EngDegree,
-                EngInstitution = app.EngInstitution,
-                EngDate = app.EngDate,
-                WorkExperience = app.WorkExperience,
-                LinkedinLink = app.LinkedinLink,
-                UserId = app.UserId,
+                return Ok(new List<UserDataDto>());
+            }
+
+            // Map User to UserDataDto
+            var userDataDto = new UserDataDto
+            {
+                Id = userData.Id,
+                FullName = userData.FullName,
+                Number = userData.Number,
+                DateOfBirth = userData.UserDataDateOfBirth,
+                Motivation = userData.Motivation,
+                LifeOutSide = userData.LifeOutSide,
+                BaccalaureatDegree = userData.BaccalaureatDegree,
+                BaccalaureatInstitution = userData.BaccalaureatInstitution,
+                BaccalaureatDate = userData.BaccalaureatDate,
+                BachelorDegree = userData.BachelorDegree,
+                BachelorInstitution = userData.BachelorInstitution,
+                BachelorDate = userData.BachelorDate,
+                MasterDegree = userData.MasterDegree,
+                MasterInstitution = userData.MasterInstitution,
+                MasterDate = userData.MasterDate,
+                EngDegree = userData.EngDegree,
+                EngInstitution = userData.EngInstitution,
+                EngDate = userData.EngDate,
+                WorkExperience = userData.WorkExperience,
+                LinkedinLink = userData.LinkedinLink,
+                UserId = userData.Id,
                 // Include documents with download links
-                Documents = app.Documents?.Select(doc => new DocumentDto
+                Documents = userData.Documents?.Select(doc => new DocumentDto
                 {
                     Id = doc.Id,
                     UserDataId = doc.UserDataId,
                     // Add download link property
                     DownloadUrl = Url.Action("DownloadDocument", "Document", new { id = doc.Id }, Request.Scheme)
                 }).ToList() ?? new List<DocumentDto>()
-            }).ToList();
+            };
+
+            var UserDataDtos = new List<UserDataDto> { userDataDto };
 
             return Ok(UserDataDtos);
         }
@@ -151,17 +200,18 @@ public class UserDataController : ControllerBase
     [HttpGet("get-UserData-by-id/{id}")]
     public async Task<ActionResult<UserDataDto>> GetById(int id)
     {
+        _log.LogInformation("🚀 Getting user data by ID");
         var UserData = await _UserDataRepository.GetByIdAsync(id);
         if (UserData == null)
             return NotFound("UserData not found.");
 
-        // Map UserData to DTO with documents included
+        // Map User to UserDataDto with documents included
         var UserDataDto = new UserDataDto
         {
             Id = UserData.Id,
             FullName = UserData.FullName,
             Number = UserData.Number,
-            DateOfBirth = UserData.DateOfBirth,
+            DateOfBirth = UserData.UserDataDateOfBirth,
             Motivation = UserData.Motivation,
             LifeOutSide = UserData.LifeOutSide,
             BaccalaureatDegree = UserData.BaccalaureatDegree,
@@ -178,7 +228,7 @@ public class UserDataController : ControllerBase
             EngDate = UserData.EngDate,
             WorkExperience = UserData.WorkExperience,
             LinkedinLink = UserData.LinkedinLink,
-            UserId = UserData.UserId,
+            UserId = UserData.Id,
         };
 
         return Ok(UserDataDto);
@@ -190,6 +240,7 @@ public class UserDataController : ControllerBase
     [HttpDelete("delete-UserData/{id}")]
     public async Task<IActionResult> Delete(int id)
     {
+        _log.LogInformation("🚀 Deleting user data");
         var deleted = await _UserDataRepository.DeleteAsync(id);
         if (!deleted)
             return NotFound("UserData not found.");
@@ -199,6 +250,7 @@ public class UserDataController : ControllerBase
     [HttpGet("check-user-has-data")]
     public async Task<IActionResult> CheckUserHasData()
     {
+        _log.LogInformation("🚀 Checking if user has complete data");
         var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userIdClaim))
             return Unauthorized("User identifier claim not found.");
@@ -206,336 +258,232 @@ public class UserDataController : ControllerBase
         if (!int.TryParse(userIdClaim, out int userId))
             return BadRequest("User identifier claim is not a valid integer.");
 
-        var userData = await _UserDataRepository.GetByUserIdAsync(userId);
+        // Get user data WITHOUT loading document bytes
+        var userData = await context.Users
+            .Where(u => u.Id == userId)
+            .Select(u => new
+            {
+                u.FullName,
+                u.Number,
+                u.UserDataDateOfBirth,
+                u.Motivation,
+                u.LifeOutSide,
+                DocumentCount = u.Documents.Count() // Count without loading bytes
+            })
+            .FirstOrDefaultAsync();
 
-        if (userData == null || !userData.Any())
-        {
+        if (userData == null)
             return Ok(new { hasData = false, message = "No user data found." });
-        }
 
-        var userDataRecord = userData.First(); // Assuming one record per user
+        bool hasRequiredInfo = !string.IsNullOrWhiteSpace(userData.FullName) &&
+                              !string.IsNullOrWhiteSpace(userData.Number) &&
+                              userData.UserDataDateOfBirth != default(DateTime) &&
+                              !string.IsNullOrWhiteSpace(userData.Motivation) &&
+                              !string.IsNullOrWhiteSpace(userData.LifeOutSide);
 
-        // Check if required profile fields are completed
-        bool hasRequiredInfo = !string.IsNullOrWhiteSpace(userDataRecord.FullName) &&
-                              !string.IsNullOrWhiteSpace(userDataRecord.Number) &&
-                              userDataRecord.DateOfBirth != default(DateTime) &&
-                              !string.IsNullOrWhiteSpace(userDataRecord.Motivation) &&
-                              !string.IsNullOrWhiteSpace(userDataRecord.LifeOutSide);
-
-        // Check if user has at least 2 documents
-        bool hasMinimumDocuments = userDataRecord.Documents != null &&
-                                  userDataRecord.Documents.Count >= 2;
-
+        bool hasMinimumDocuments = userData.DocumentCount >= 2;
         bool profileCompleted = hasRequiredInfo && hasMinimumDocuments;
 
         return Ok(new { hasData = profileCompleted });
     }
 
     // Helper method to get user ID from claims (works with both JWT and OAuth)
-    private async Task<(bool success, int userId, IActionResult error)> GetUserIdFromClaims()
-    {
-        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(userIdClaim))
-            return (false, 0, Unauthorized("User identifier claim not found."));
 
-        // Try to parse the claim as an integer (works for classic JWT auth)
-        if (int.TryParse(userIdClaim, out int userId))
-        {
-            _logger.LogInformation($"Found numeric user ID: {userId}");
-            return (true, userId, null);
-        }
-
-        // For Google OAuth users, find the user by email
-        _logger.LogInformation($"Non-integer user ID found: {userIdClaim}. This might be a Google OAuth user.");
-
-        var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
-        if (string.IsNullOrEmpty(email))
-        {
-            _logger.LogWarning("No email claim found for OAuth user");
-            return (false, 0, BadRequest("Could not identify user from claims."));
-        }
-
-        // Look up the user in the database by email
-        var userManager = HttpContext.RequestServices.GetService(typeof(Microsoft.AspNetCore.Identity.UserManager<API.Entities.AppUser>))
-            as Microsoft.AspNetCore.Identity.UserManager<API.Entities.AppUser>;
-
-        if (userManager == null)
-        {
-            _logger.LogError("Failed to get UserManager service");
-            return (false, 0, StatusCode(500, "Internal server error"));
-        }
-
-        var appUser = await userManager.FindByEmailAsync(email);
-        if (appUser == null)
-        {
-            _logger.LogWarning($"No user found with email: {email}");
-            return (false, 0, BadRequest("User not found."));
-        }
-
-        userId = appUser.Id;
-        _logger.LogInformation($"Found user ID {userId} for email {email}");
-        return (true, userId, null);
-    }
 
     [HttpPost("add/update-personal-information")]
     public async Task<IActionResult> AddOrUpdatePersonalInformation(PersonalInformationDto personalInfoDto)
     {
+        _log.LogInformation("🚀 Adding/updating personal information");
         try
         {
-            var userIdResult = await GetUserIdFromClaims();
-            if (!userIdResult.success)
-                return userIdResult.error;
-
+            var userIdResult = await _getUserIdHelper.GetUserIdFromClaims(User);
             int userId = userIdResult.userId;
             _logger.LogInformation($"Processing request for UserId: {userId}");
-            _logger.LogInformation($"PersonalInfoDto: FullName={personalInfoDto.FullName}, Number={personalInfoDto.Number}, DateOfBirth={personalInfoDto.DateOfBirth}");
 
-            var userDatas = await _UserDataRepository.GetByUserIdAsync(userId);
-            var existingUserData = userDatas.FirstOrDefault();
+            var updateResult = await _UserDataRepository.UpdatePersonalInformationAsync(userId, personalInfoDto);
 
-            Console.WriteLine($"Found {userDatas.Count()} existing UserData records for UserId: {userId}");
-            if (existingUserData != null)
+            if (!updateResult)
             {
-                Console.WriteLine($"Existing UserData ID: {existingUserData.Id}, FullName: {existingUserData.FullName}");
+                _logger.LogError("User not found for personal information update");
+                return BadRequest("User not found");
             }
 
-            if (existingUserData != null)
-            {
-                // Update existing record
-                _logger.LogInformation("Updating existing UserData record...");
-                existingUserData.FullName = personalInfoDto.FullName;
-                existingUserData.Number = personalInfoDto.Number;
-
-                // Si DateOfBirth est null, conservez la valeur existante au lieu d'utiliser DateTime.MinValue
-                if (personalInfoDto.DateOfBirth.HasValue)
-                {
-                    existingUserData.DateOfBirth = personalInfoDto.DateOfBirth.Value;
-                }
-
-                existingUserData.LinkedinLink = personalInfoDto.LinkedinLink;
-
-                var updateResult = await _UserDataRepository.UpdateAsync(existingUserData);
-                Console.WriteLine($"Update result: {updateResult}");
-            }
-            else
-            {
-                // Create new record if none exists
-                _logger.LogInformation("Creating new UserData record...");
-                var newUserData = _mapper.Map<UserData>(personalInfoDto);
-                newUserData.UserId = userId;
-
-                // Utiliser une date par défaut seulement si DateOfBirth est null
-                if (personalInfoDto.DateOfBirth.HasValue)
-                {
-                    newUserData.DateOfBirth = personalInfoDto.DateOfBirth.Value;
-                }
-                else
-                {
-                    // Utiliser une date par défaut raisonnable (aujourd'hui) au lieu de DateTime.MinValue
-                    newUserData.DateOfBirth = DateTime.Today;
-                }
-
-                await _UserDataRepository.AddAsync(newUserData);
-            }
-
+            Console.WriteLine($"Update result: {updateResult}");
             return Ok(new { success = true });
         }
         catch (Exception ex)
         {
-            // Log the exception details
             Console.WriteLine($"Error in AddOrUpdatePersonalInformation: {ex.Message}");
-            Console.WriteLine($"StackTrace: {ex.StackTrace}");
-
-            if (ex.InnerException != null)
-            {
-                Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
-            }
-
             return BadRequest($"Error updating personal information: {ex.Message}");
         }
     }
+
     [HttpPost("add/update-personal-statements")]
     public async Task<IActionResult> AddOrUpdatePersonalStatements(PersonalStatementsDto personalStatementsDto)
     {
+         _logger.LogInformation("===========================================");
+        _logger.LogInformation("======== Updating Personal Stats =============");
+        _logger.LogInformation("===========================================");
         try
         {
-            var userIdResult = await GetUserIdFromClaims();
-            if (!userIdResult.success)
-                return userIdResult.error;
-
+            var userIdResult = await _getUserIdHelper.GetUserIdFromClaims(User);
             int userId = userIdResult.userId;
             _logger.LogInformation($"Processing request for UserId: {userId}");
-            _logger.LogInformation($"PersonalStatementsDto: Motivation={personalStatementsDto.Motivation}, LifeOutside={personalStatementsDto.LifeOutSide}");
 
-            var userDatas = await _UserDataRepository.GetByUserIdAsync(userId);
-            var existingUserData = userDatas.FirstOrDefault();
+            var updateResult = await _UserDataRepository.UpdatePersonalStatementsAsync(userId, personalStatementsDto);
 
-            Console.WriteLine($"Found {userDatas.Count()} existing UserData records for UserId: {userId}");
-            if (existingUserData != null)
+            if (!updateResult)
             {
-                Console.WriteLine($"Existing UserData ID: {existingUserData.Id}, Motivation: {existingUserData.Motivation}, LifeOutside: {existingUserData.LifeOutSide}");
+                _logger.LogError("User not found for personal statements update");
+                return BadRequest("User not found");
             }
 
-            if (existingUserData != null)
-            {
-                // Update existing record
-                Console.WriteLine("Updating existing UserData record...");
-                existingUserData.Motivation = personalStatementsDto.Motivation;
-                existingUserData.LifeOutSide = personalStatementsDto.LifeOutSide;
-
-                var updateResult = await _UserDataRepository.UpdateAsync(existingUserData);
-                Console.WriteLine($"Update result: {updateResult}");
-            }
-            else
-            {
-                // Create new record if none exists
-                Console.WriteLine("Creating new UserData record...");
-                var newUserData = _mapper.Map<UserData>(personalStatementsDto);
-                newUserData.UserId = userId;
-                await _UserDataRepository.AddAsync(newUserData);
-            }
-
+            Console.WriteLine($"Update result: {updateResult}");
             return Ok(new { success = true });
         }
         catch (Exception ex)
         {
-            // Log the exception details
             Console.WriteLine($"Error in AddOrUpdatePersonalStatements: {ex.Message}");
-            Console.WriteLine($"StackTrace: {ex.StackTrace}");
-
-            if (ex.InnerException != null)
-            {
-                Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
-            }
-
             return BadRequest($"Error updating personal statements: {ex.Message}");
         }
     }
+
     [HttpPost("add/update-education-background")]
     public async Task<IActionResult> AddOrUpdateEducationBackground(EducationBackgroundDto educationBackgroundDto)
     {
+        _log.LogInformation("🚀 Updating education background");
         try
         {
-            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim))
-                return Unauthorized("User identifier claim not found.");
+            var userIdResult = await _getUserIdHelper.GetUserIdFromClaims(User);
+            int userId = userIdResult.userId;
+            _logger.LogInformation($"Processing request for UserId: {userId}");
 
-            if (!int.TryParse(userIdClaim, out int userId))
-                return BadRequest("User identifier claim is not a valid integer.");
+            var updateResult = await _UserDataRepository.UpdateEducationBackgroundAsync(userId, educationBackgroundDto);
 
-            Console.WriteLine($"Processing request for UserId: {userId}");
-            Console.WriteLine($"EducationBackgroundDto: {JsonConvert.SerializeObject(educationBackgroundDto)}");
-
-            var userDatas = await _UserDataRepository.GetByUserIdAsync(userId);
-            var existingUserData = userDatas.FirstOrDefault();
-
-            Console.WriteLine($"Found {userDatas.Count()} existing UserData records for UserId: {userId}");
-            if (existingUserData != null)
+            if (!updateResult)
             {
-                Console.WriteLine($"Existing UserData ID: {existingUserData.Id}");
+                _logger.LogError("User not found for education background update");
+                return BadRequest("User not found");
             }
 
-            if (existingUserData != null)
-            {
-                // Update existing record
-                Console.WriteLine("Updating existing UserData record...");
-                existingUserData.BaccalaureatDegree = educationBackgroundDto.BaccalaureatDegree;
-                existingUserData.BaccalaureatInstitution = educationBackgroundDto.BaccalaureatInstitution;
-                existingUserData.BaccalaureatDate = educationBackgroundDto.BaccalaureatDate;
-                existingUserData.BachelorDegree = educationBackgroundDto.BachelorDegree;
-                existingUserData.BachelorInstitution = educationBackgroundDto.BachelorInstitution;
-                existingUserData.BachelorDate = educationBackgroundDto.BachelorDate;
-                existingUserData.MasterDegree = educationBackgroundDto.MasterDegree;
-                existingUserData.MasterInstitution = educationBackgroundDto.MasterInstitution;
-                existingUserData.MasterDate = educationBackgroundDto.MasterDate;
-                existingUserData.EngDegree = educationBackgroundDto.EngDegree;
-                existingUserData.EngInstitution = educationBackgroundDto.EngInstitution;
-                existingUserData.EngDate = educationBackgroundDto.EngDate;
-
-                var updateResult = await _UserDataRepository.UpdateAsync(existingUserData);
-                Console.WriteLine($"Update result: {updateResult}");
-            }
-            else
-            {
-                // Create new record if none exists
-                Console.WriteLine("Creating new UserData record...");
-                var newUserData = _mapper.Map<UserData>(educationBackgroundDto);
-                newUserData.UserId = userId;
-                await _UserDataRepository.AddAsync(newUserData);
-            }
-
+            Console.WriteLine($"Update result: {updateResult}");
             return Ok(new { success = true });
         }
         catch (Exception ex)
         {
-            // Log the exception details
             Console.WriteLine($"Error in AddOrUpdateEducationBackground: {ex.Message}");
-            Console.WriteLine($"StackTrace: {ex.StackTrace}");
-
-            if (ex.InnerException != null)
-            {
-                Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
-            }
-
             return BadRequest($"Error updating education background: {ex.Message}");
         }
     }
+    
     [HttpPost("add/update-work-experience")]
     public async Task<IActionResult> AddOrUpdateWorkExperience(WorkExperienceDto workExperienceDto)
     {
+        _log.LogInformation("🚀 Updating work experience");
         try
         {
-            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim))
-                return Unauthorized("User identifier claim not found.");
+            var userIdResult = await _getUserIdHelper.GetUserIdFromClaims(User);
+            int userId = userIdResult.userId;
+            _logger.LogInformation($"Processing request for UserId: {userId}");
 
-            if (!int.TryParse(userIdClaim, out int userId))
-                return BadRequest("User identifier claim is not a valid integer.");
+            var updateResult = await _UserDataRepository.UpdateWorkExperienceAsync(userId, workExperienceDto);
 
-            Console.WriteLine($"Processing request for UserId: {userId}");
-            Console.WriteLine($"WorkExperienceDto: {JsonConvert.SerializeObject(workExperienceDto)}");
-
-            var userDatas = await _UserDataRepository.GetByUserIdAsync(userId);
-            var existingUserData = userDatas.FirstOrDefault();
-
-            Console.WriteLine($"Found {userDatas.Count()} existing UserData records for UserId: {userId}");
-            if (existingUserData != null)
+            if (!updateResult)
             {
-                Console.WriteLine($"Existing UserData ID: {existingUserData.Id}");
+                _logger.LogError("User not found for work experience update");
+                return BadRequest("User not found");
             }
 
-            if (existingUserData != null)
-            {
-                // Update existing record
-                Console.WriteLine("Updating existing UserData record...");
-                existingUserData.WorkExperience = workExperienceDto.WorkExperience;
-
-                var updateResult = await _UserDataRepository.UpdateAsync(existingUserData);
-                Console.WriteLine($"Update result: {updateResult}");
-            }
-            else
-            {
-                // Create new record if none exists
-                Console.WriteLine("Creating new UserData record...");
-                var newUserData = _mapper.Map<UserData>(workExperienceDto);
-                newUserData.UserId = userId;
-                await _UserDataRepository.AddAsync(newUserData);
-            }
-
+            Console.WriteLine($"Update result: {updateResult}");
             return Ok(new { success = true });
         }
         catch (Exception ex)
         {
-            // Log the exception details
             Console.WriteLine($"Error in AddOrUpdateWorkExperience: {ex.Message}");
-            Console.WriteLine($"StackTrace: {ex.StackTrace}");
+            return BadRequest($"Error updating work experience: {ex.Message}");
+        }
+    }
 
-            if (ex.InnerException != null)
+    [HttpGet("get-user-data-with-documents")]
+    public async Task<ActionResult<UserDataWithDocumentsDto>> GetUserDataWithDocuments()
+    {
+        _log.LogInformation("🚀 Getting user profile with documents");
+        try
+        {
+            // Get current user ID once
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
             {
-                Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+                return BadRequest("Invalid user identifier.");
             }
 
-            return BadRequest($"Error updating work experience: {ex.Message}");
+            _logger.LogInformation("Processing request for User ID: {UserId}", userId);
+
+            // SINGLE database call to get user with documents
+            var userData = await _UserDataRepository.GetUserWithDocumentsAsync(userId);
+
+            if (userData == null)
+            {
+                _logger.LogInformation("User not found for ID: {UserId}", userId);
+                return NotFound("User data not found.");
+            }
+
+            // Create UserDataDto
+            var userDataDto = new UserDataDto
+            {
+                Id = userData.Id,
+                FullName = userData.FullName,
+                Number = userData.Number,
+                DateOfBirth = userData.UserDataDateOfBirth,
+                Motivation = userData.Motivation,
+                LifeOutSide = userData.LifeOutSide,
+                BaccalaureatDegree = userData.BaccalaureatDegree,
+                BaccalaureatInstitution = userData.BaccalaureatInstitution,
+                BaccalaureatDate = userData.BaccalaureatDate,
+                BachelorDegree = userData.BachelorDegree,
+                BachelorInstitution = userData.BachelorInstitution,
+                BachelorDate = userData.BachelorDate,
+                MasterDegree = userData.MasterDegree,
+                MasterInstitution = userData.MasterInstitution,
+                MasterDate = userData.MasterDate,
+                EngDegree = userData.EngDegree,
+                EngInstitution = userData.EngInstitution,
+                EngDate = userData.EngDate,
+                WorkExperience = userData.WorkExperience,
+                LinkedinLink = userData.LinkedinLink,
+                UserId = userData.Id,
+                Documents = userData.Documents?.Select(doc => new DocumentDto
+                {
+                    Id = doc.Id,
+                    UserDataId = doc.UserDataId,
+                    DocumentName = doc.DocumentName,
+                    DownloadUrl = Url.Action("DownloadDocument", "Document", new { id = doc.Id }, Request.Scheme)
+                }).ToList() ?? new List<DocumentDto>()
+            };
+
+            // Create document status based on existing documents
+            var documentStatus = new DocumentStatusDto
+            {
+                Cv = userData.Documents?.Any(d => d.DocumentName.Equals("CV", StringComparison.OrdinalIgnoreCase)) ?? false,
+                Baccalaureat = userData.Documents?.Any(d => d.DocumentName.Equals("Baccalaureat", StringComparison.OrdinalIgnoreCase)) ?? false,
+                BaccalaureatGrades = userData.Documents?.Any(d => d.DocumentName.Equals("BaccalaureatGrades", StringComparison.OrdinalIgnoreCase)) ?? false,
+                Bachelor = userData.Documents?.Any(d => d.DocumentName.Equals("Bachelor", StringComparison.OrdinalIgnoreCase)) ?? false,
+                BachelorGrades = userData.Documents?.Any(d => d.DocumentName.Equals("BachelorGrades", StringComparison.OrdinalIgnoreCase)) ?? false
+            };
+
+            var result = new UserDataWithDocumentsDto
+            {
+                UserData = userDataDto,
+                DocumentStatus = documentStatus
+            };
+
+            _logger.LogInformation("Successfully retrieved user data with documents for User ID: {UserId}", userId);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving user data with documents");
+            return BadRequest($"Error retrieving user data with documents: {ex.Message}");
         }
     }
 

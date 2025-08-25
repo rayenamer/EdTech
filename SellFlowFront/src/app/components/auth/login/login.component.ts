@@ -53,16 +53,23 @@ export class LoginComponent implements OnInit{
     window.location.href = 'https://localhost:7030/api/Register_Login/google-login';
   }
 
-  logout() {
-    // Call backend to sign out (Google + cookies)
-    fetch('https://localhost:7030/api/Register_Login/google-signout', {
-      method: 'POST',
-      credentials: 'include'
-    }).then(() => {
-      this.authService.logout();
-      window.location.href = '/';
-    });
-  }
+  //logout() {
+  //  // Call backend to sign out (Google + cookies)
+  //  fetch('https://localhost:7030/api/Register_Login/google-signout', {
+  //    method: 'POST',
+  //    credentials: 'include'
+  //  }).then(() => {
+  //    this.authService.logout().subscribe({
+  //      next: () => {
+  //        window.location.href = '/';
+  //      },
+  //      error: (error) => {
+  //        console.error('Logout error:', error);
+  //        window.location.href = '/';
+  //      }
+  //    });
+  //  });
+  //}
 
   
   private handleGoogleRedirect(): void {
@@ -89,8 +96,8 @@ export class LoginComponent implements OnInit{
             password: '' // Google users don't have passwords
           };
           
-          // Store user in localStorage and set current user
-          this.authService.setCurrentUser(user);
+          // Set current user (no localStorage needed with cookies)
+          this.authService.currentUser.set(user);
           
           // Navigate to home page
           this.router.navigate(['/Acceuil']);
@@ -104,7 +111,7 @@ export class LoginComponent implements OnInit{
         // Fallback: try to get user from backend if no userData in URL
         this.authService.getCurrentUser().subscribe({
           next: user => {
-            this.authService.setCurrentUser(user);
+            this.authService.currentUser.set(user);
             this.router.navigate(['/Acceuil']);
           },
           error: () => {

@@ -20,194 +20,151 @@ using System.Drawing;
 using Microsoft.Extensions.Configuration;
 using API.DATA;
 using API.entities;
+using Microsoft.AspNetCore.Http.HttpResults;
+using API.Data;
+using API.Helpers;
 
 namespace API.Controllers;
 
 public class Register_LoginController
 (
+    DataContext _context,
     UserManager<AppUser> userManager,
     IUserDataRepository _UserDataRepository,
     ITokenService tokenService,
     IMapper mapper,
     IEmailSender _emailSender,
-    ILogger<Register_LoginController> _logger
+    ILogger<Register_LoginController> _logger,
+    Log _log
 ) : BaseApiController
 {
-    [HttpPost("register")]
+    /*[HttpPost("register")]
     public async Task<ActionResult<AppUserDto>> Register(RegisterDto registerDto)
     {
-        var user = mapper.Map<AppUser>(registerDto);
-
         var userExist = await userManager.FindByEmailAsync(registerDto.Email);
-        if (userExist != null) return BadRequest("Email already Signed");
-        //
-        user.EmailConfirmed = !registerDto.requiredEmailConfirmation;
-        //
+        if (userExist != null) return BadRequest("Email already registered");
+
+        var user = mapper.Map<AppUser>(registerDto);
         var result = await userManager.CreateAsync(user, registerDto.Password);
         if (!result.Succeeded) return BadRequest(result.Errors);
 
-        // INIT UserData
-        await _UserDataRepository.AddAsync(new UserData
+        var token = await tokenService.CreateToken(user);
+
+        // Set token as HTTP-only cookie
+        Response.Cookies.Append("jwt_token", token, new CookieOptions
         {
-            UserId = user.Id, // Connect to the created user
-            exists = "true",
-            // Add other required properties based on your UserData model
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddDays(7)
         });
-
-        //
-        var emailToken = await userManager.GenerateEmailConfirmationTokenAsync(user);
-        var confirmationLink = Url.Action(
-        "ConfirmEmail",
-        "Register_Login",
-        new { userId = user.Id, token = emailToken },
-        Request.Scheme
-        );
-
-
-        _ = Task.Run(async () =>
-        {
-            try
-            {
-                await _emailSender.SendEmailAsync(
-                    registerDto.Email,
-                    "Confirm your email",
-                    $"Please confirm your account by <a href='{confirmationLink}'>clicking here</a>."
-                );
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to send confirmation email");
-            }
-
-            return new AppUserDto
-            {
-                Username = user.UserName ?? "",
-                Token = await tokenService.CreateToken(user),
-                Gender = registerDto.Gender,
-                city = registerDto.city,
-                Country = registerDto.Country,
-                PhoneNumber = user.PhoneNumber ?? "",
-                Email = user.Email ?? "",
-                EmailConfirmed = true // Indicate email needs confirmation
-            };
-
-        });
-        return Ok(new { Message = "Registration successful. Please check your email." });
-    }
-    [HttpGet("confirm-email")]
-    public async Task<IActionResult> ConfirmEmail(string userId, string token)
-    {
-        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
-            return BadRequest("Invalid request");
-
-        var user = await userManager.FindByIdAsync(userId);
-        if (user == null) return NotFound("User not found");
-
-        var result = await userManager.ConfirmEmailAsync(user, token);
-        if (!result.Succeeded) return BadRequest("Confirmation failed");
-
-        return Ok("Email confirmed successfully!");
-    }
-
-    [HttpPost("login")]
-    public async Task<ActionResult<AppUserDto>> Login(LoginDto loginDto)
-    {
-        var user = await userManager.Users
-            .FirstOrDefaultAsync(x =>
-                x.NormalizedEmail == loginDto.Email.ToUpper());
-        _logger.LogInformation($"User: {user?.UserName}, EmailConfirmed: {user?.EmailConfirmed}");
-        if (user == null || user.Email == null)
-        {
-            return Unauthorized("Invalid mail");
-        }
-
-        // ⚠️⚠️⚠️ we will comment this so everyone can test on their machines⚠️⚠️⚠️
-
-        //if (!user.EmailConfirmed)
-        //{
-        //    // If the email is not confirmed, reject login attempt
-        //    return Unauthorized("Email is not confirmed.");
-        //}
-
-
-
-
-        var result = await userManager.CheckPasswordAsync(user, loginDto.Password);
-        if (!result) return Unauthorized();
 
         return new AppUserDto
         {
             Username = user.UserName ?? "",
-            Token = await tokenService.CreateToken(user),
+            Token = token,
             Gender = user.Gender,
-            Email = user.Email,
             city = user.city,
             Country = user.Country,
             PhoneNumber = user.PhoneNumber ?? "",
+            Email = user.Email ?? "",
+        };
+    }*/
+
+    [HttpPost("login")]
+    public async Task<ActionResult<AppUserDto>> Login(LoginDto loginDto)
+    {
+        _log.LogInformation("🚀 User login attempt");
+        var user = await userManager.Users
+            .FirstOrDefaultAsync(x => x.NormalizedEmail == loginDto.Email.ToUpper());
+        if (user == null || user.Email == null)
+        {
+            return Unauthorized("Invalid email");
+        }
+
+        var result = await userManager.CheckPasswordAsync(user, loginDto.Password);
+        if (!result) return Unauthorized("Wrong password");
+
+        var token = await tokenService.CreateToken(user);
+
+        // Set token as HTTP-only cookie
+        Response.Cookies.Append("jwt_token", token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddDays(7)
+        });
+
+        user.LastActive = DateTime.UtcNow;
+        await userManager.UpdateAsync(user);
+
+        return new AppUserDto
+        {
+            Username = user.UserName ?? "",
+            Token = token,
+            Gender = user.Gender,
+            city = user.city,
+            Country = user.Country,
+            PhoneNumber = user.PhoneNumber ?? "",
+            Email = user.Email ?? "",
         };
     }
-    [HttpPost("ForgotPassword")]
-    public async Task<IActionResult> ForgotPassword(RequestForgotPasswordDto request)
+
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<ActionResult<AppUserDto>> GetCurrentUser()
     {
-        if (!ModelState.IsValid)
-            return BadRequest("Invalid payload");
+        _log.LogInformation("🚀 Getting current user information");
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userIdClaim))
+            return Unauthorized("User identifier claim not found.");
 
-        var user = await userManager.FindByEmailAsync(request.Email);
+        AppUser user;
+
+        // Try to parse as integer first (for regular JWT users)
+        if (int.TryParse(userIdClaim, out int userId))
+        {
+            user = await userManager.FindByIdAsync(userId.ToString());
+        }
+        else
+        {
+            // For Google OAuth users, find by email
+            var email = User.FindFirst(ClaimTypes.Email)?.Value;
+            if (string.IsNullOrEmpty(email))
+                return BadRequest("Could not identify user from claims.");
+
+            user = await userManager.FindByEmailAsync(email);
+        }
+
         if (user == null)
-            return BadRequest("Something went wrong");
+            return NotFound("User not found");
 
-        var token = await userManager.GeneratePasswordResetTokenAsync(user);
-        if (string.IsNullOrEmpty(token))
-            return BadRequest("No token generated");
-
-        var callbackUrl = $"http://localhost:4200/resetpass?code={Uri.EscapeDataString(token)}&email={Uri.EscapeDataString(user.Email)}";
-
-        // Send email in background
-        _ = Task.Run(async () =>
+        return new AppUserDto
         {
-            try
-            {
-                await _emailSender.SendEmailAsync(
-                    user.Email,
-                    "Reset your password",
-                    $"You can reset your password by <a href='{callbackUrl}'>clicking here</a>."
-                );
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to send reset password email");
-            }
-        });
-
-        return Ok(new
-        {
-            message = "Password reset email sent.",
-            email = user.Email
-        });
+            Username = user.UserName ?? "",
+            Token = "", // Don't send token in response for security
+            Gender = user.Gender,
+            city = user.city,
+            Country = user.Country,
+            PhoneNumber = user.PhoneNumber ?? "",
+            Email = user.Email ?? "",
+        };
     }
 
-
-    [HttpPost("ResetPassword")]
-    public async Task<IActionResult> ResetPassword(ResetPasswordRequestDto request)
+    [HttpPost("logout")]
+    public IActionResult Logout()
     {
-        if (!ModelState.IsValid)
-            return BadRequest("invalid model or whatever");
-
-        var user = await userManager.FindByEmailAsync(request.Email);
-        if (user == null)
-            return BadRequest("no user");
-
-        var result = await userManager.ResetPasswordAsync(user, request.token, request.Password);
-        if (result.Succeeded)
-            return Ok(new { message = "Password reset is successful" });
-
-        return BadRequest("something went wrong ");
+        _log.LogInformation("🚀 User logout");
+        Response.Cookies.Delete("jwt_token");
+        return Ok(new { message = "Logged out successfully" });
     }
 
     //
     [HttpGet("google-login")]
     public IActionResult GoogleLogin()
     {
+        _log.LogInformation("🚀 Google login initiated");
         var properties = new AuthenticationProperties
         {
             RedirectUri = "https://localhost:7030/api/Register_Login/google-response"
@@ -219,7 +176,7 @@ public class Register_LoginController
     [HttpGet("google-response")]
     public async Task<IActionResult> GoogleResponse([FromQuery] string state = "")
     {
-        // Get configuration for URLs
+        _log.LogInformation("🚀 Processing Google authentication response");
         var config = HttpContext.RequestServices.GetService(typeof(IConfiguration)) as IConfiguration;
         var loginFailedUrl = config?["Frontend:LoginFailedUrl"] ?? "https://localhost:4200/login-failed";
         var googleSuccessUrl = config?["Frontend:GoogleSuccessUrl"] ?? "https://localhost:4200/login";
@@ -242,7 +199,12 @@ public class Register_LoginController
             return Redirect($"{loginFailedUrl}?error=missing_claims");
         }
 
-        var user = await userManager.FindByEmailAsync(email);
+        // OPTIMIZATION 1: Use context directly with roles loaded
+        var user = await _context.Users
+            .Include(u => u.UserRoles)
+            .ThenInclude(ur => ur.Role)
+            .FirstOrDefaultAsync(u => u.NormalizedEmail == email.ToUpperInvariant());
+
         if (user == null)
         {
             user = new AppUser
@@ -254,6 +216,8 @@ public class Register_LoginController
                 city = "",
                 Country = "",
                 PhoneNumber = "",
+                UserDataExists = "true",
+                LastActive = DateTime.UtcNow // Set here instead of separate update
             };
 
             var resultCreate = await userManager.CreateAsync(user);
@@ -262,27 +226,18 @@ public class Register_LoginController
                 _logger.LogError("Failed to create user for Google login: {Errors}", resultCreate.Errors);
                 return Redirect($"{loginFailedUrl}?error=user_creation_failed");
             }
-            try
-            {
-                await _UserDataRepository.AddAsync(new UserData
-                {
-                    UserId = user.Id, // Connect to the created user
-                    exists = "true",
-                    // Add other required properties based on your UserData model
-                });
-                _logger.LogInformation("UserData created successfully for Google user {Email}", email);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to create UserData for Google user {Email}", email);
-                // You might want to decide whether to continue or fail here
-                // For now, we'll continue but log the error
-            }
+        }
+        else
+        {
+            // OPTIMIZATION 2: Only update LastActive, not entire entity
+            await _context.Users
+                .Where(u => u.Id == user.Id)
+                .ExecuteUpdateAsync(u => u.SetProperty(p => p.LastActive, DateTime.UtcNow));
         }
 
+        // Keep original token creation (no modification)
         var token = await tokenService.CreateToken(user);
 
-        // Set token as HTTP-only cookie (recommended for security)
         Response.Cookies.Append("jwt_token", token, new CookieOptions
         {
             HttpOnly = true,
@@ -293,7 +248,6 @@ public class Register_LoginController
 
         _logger.LogInformation("Google login successful for user {Email}", email);
 
-        // Create user data to pass to frontend
         var userData = new
         {
             username = user.UserName ?? "",
@@ -306,14 +260,11 @@ public class Register_LoginController
             emailConfirmed = user.EmailConfirmed
         };
 
-        // Encode user data as base64 to pass safely in URL
         var userDataJson = System.Text.Json.JsonSerializer.Serialize(userData);
         var userDataEncoded = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(userDataJson));
 
-        // Redirect back to frontend with user data
         var redirectUrl = $"{googleSuccessUrl}?status=success&userData={Uri.EscapeDataString(userDataEncoded)}";
 
-        // Optionally, pass the state parameter back for CSRF protection
         if (!string.IsNullOrEmpty(state))
             redirectUrl += $"&state={Uri.EscapeDataString(state)}";
 
@@ -325,25 +276,5 @@ public class Register_LoginController
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return Ok(new { message = "Signed out successfully" });
-    }
-
-    [Authorize]
-    [HttpGet("me")]
-    public async Task<ActionResult<AppUserDto>> GetCurrentUser()
-    {
-        var email = User.FindFirstValue(ClaimTypes.Email);
-        var user = await userManager.FindByEmailAsync(email);
-        if (user == null) return NotFound();
-        return new AppUserDto
-        {
-            Username = user.UserName ?? "",
-            Email = user.Email ?? "",
-            Gender = user.Gender,
-            city = user.city,
-            Country = user.Country,
-            PhoneNumber = user.PhoneNumber ?? "",
-            EmailConfirmed = user.EmailConfirmed,
-            Token = await tokenService.CreateToken(user)
-        };
     }
 }

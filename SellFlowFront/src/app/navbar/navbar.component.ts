@@ -17,8 +17,8 @@ export class NavbarComponent implements OnInit {
   private adminService = inject(AdminService);
   private authService = inject(AuthService);
 
-  isAdminLoggedIn = computed(() => !!this.adminService.currentUser());
-  isUserLoggedIn = computed(() =>  !!this.authService.currentUser());
+  isAdminLoggedIn = computed(() => this.adminService.isAuthenticated());
+  isUserLoggedIn = computed(() => this.authService.isAuthenticated());
 
   ngOnInit() {
     this.checkScroll();
@@ -41,6 +41,25 @@ export class NavbarComponent implements OnInit {
     this.isMenuOpen = false;
   }
   logout() {
-    this.authService.logout();
+    // Check if user is admin or regular user and logout accordingly
+    //if (this.adminService.isAuthenticated()) {
+    //  this.adminService.logout().subscribe({
+    //    next: () => {
+    //      console.log('Admin logged out successfully');
+    //    },
+    //    error: (error) => {
+    //      console.error('Admin logout error:', error);
+    //    }
+    //  });
+    //} else if (this.authService.isAuthenticated()) {
+    //  this.authService.logout().subscribe({
+    //    next: () => {
+    //      console.log('User logged out successfully');
+    //    },
+    //    error: (error) => {
+    //      console.error('User logout error:', error);
+    //    }
+    //  });
+    //}
   }
 }

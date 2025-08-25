@@ -1,5 +1,6 @@
 using System;
 using System.Security.Claims;
+using API.Data;
 using API.Dtos;
 using API.Entities;
 using API.interfaces;
@@ -9,21 +10,25 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using API.Helpers;
 
 namespace API.Controllers;
 
 public class AdminAndModeratorsController
 (
+    DataContext context,
     UserManager<AppUser> userManager,
     ITokenService tokenService,
-    IMapper mapper
-    //IEmailSender _emailSender,
-    //ILogger<AdminAndModeratorsController> _logger
+    IMapper mapper,
+    Log log
+//IEmailSender _emailSender,
+//ILogger<AdminAndModeratorsController> _logger
 ) : BaseApiController
 {
     [HttpPost("register-admin")]
     public async Task<ActionResult<AppUserDto>> RegisterAdmin(AdminAndModeratorDto AdminAndModeratorDto)
     {
+        log.LogInformation("🚀 Registering new admin");
         var userExist = await userManager.FindByEmailAsync(AdminAndModeratorDto.Email);
         if (userExist != null) return BadRequest("Email already signed");
 
@@ -49,35 +54,50 @@ public class AdminAndModeratorsController
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<AppUserDto>> Login(LoginDto loginDto)
+    public async Task<ActionResult> Login(LoginDto loginDto)
     {
-        var user = await userManager.Users
-            .FirstOrDefaultAsync(x => x.NormalizedEmail == loginDto.Email.ToUpper());
-        if (user == null || user.Email == null)
+        log.LogInformation("🚀 Admin login attempt");
+        var user = await context.Users
+            .Include(u => u.UserRoles)
+            .ThenInclude(ur => ur.Role)
+            .FirstOrDefaultAsync(u => u.NormalizedEmail == loginDto.Email.ToUpperInvariant());
+
+        if (user == null)
         {
-            return Unauthorized("invalid email ");
+            return Unauthorized("Invalid credentials");
         }
 
+        // Validate password
         var result = await userManager.CheckPasswordAsync(user, loginDto.Password);
-        if (!result) return Unauthorized("wrong password");
-
-        return new AppUserDto
+        if (!result)
         {
-            Username = user.UserName ?? "",
-            Token = await tokenService.CreateToken(user),
-            Gender = user.Gender,
-            city = user.city,
-            Country = user.Country,
-            PhoneNumber = user.PhoneNumber ?? "",
-            Email = user.Email ?? "",
-        };
+            return Unauthorized("Invalid credentials");
+        }
+        var token = await tokenService.CreateToken(user);
+
+        // Set token as HTTP-only cookie
+        Response.Cookies.Append("jwt_token", token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddDays(7)
+        });
+        return Ok(new { message = "Login successful" });
+    }
+
+    [HttpPost("logout")]
+    public IActionResult Logout()
+    {
+        log.LogInformation("🚀 Admin logout");
+        Response.Cookies.Delete("jwt_token");
+        return Ok(new { message = "Admin logged out successfully" });
     }
     [Authorize(Policy = "RequireAdminRole")]
     [HttpGet("GetAllUsersForAdmin")]
     public async Task<IActionResult> GetAllUsersForAdmin()
     {
-
-
+        log.LogInformation("🚀 Getting all users for admin");
         var users = await userManager.Users
      .OrderBy(x => x.UserName)
      .Select(x => new
@@ -106,9 +126,10 @@ public class AdminAndModeratorsController
     [HttpGet("token-info")]
     public IActionResult TokenInfo()
     {
+        log.LogInformation("🚀 Getting token info");
         var isAuthenticated = User.Identity?.IsAuthenticated ?? false;
         var claims = User.Claims.Select(c => new { Type = c.Type, Value = c.Value }).ToList();
-        
+
         return Ok(new { isAuthenticated, claims });
     }
 

@@ -1,28 +1,32 @@
 using System;
-using API.DATA;
+using API.interfaces;
 using API.Dtos;
 using API.entities;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
+using API.interfaces;
+using API.Helpers;
 namespace API.Controllers;
 
 public class UniProgramController : BaseApiController
 {
     private readonly IUniProgramRepository _repository;
     private readonly IMapper _mapper;
+    private readonly Log _log;
 
-    public UniProgramController(IUniProgramRepository repository, IMapper mapper)
+    public UniProgramController(IUniProgramRepository repository, IMapper mapper, Log log)
     {
         _repository = repository;
         _mapper = mapper;
+        _log = log;
     }
 
     [Authorize(Policy = "RequireAdminRole")]
     [HttpPost("add-program")]
     public async Task<IActionResult> AddProgram(UniProgramDto UniProgramDto)
     {
+        _log.LogInformation("🚀 Adding new university program");
         // Map DTO to entity
         var uniProgram = _mapper.Map<UniProgram>(UniProgramDto);
 
@@ -32,10 +36,11 @@ public class UniProgramController : BaseApiController
 
     
     
-    [Authorize]
+    //[Authorize]
     [HttpGet("get-programs")]
     public async Task<ActionResult<IEnumerable<UniProgram>>> GetPrograms()
     {
+        _log.LogInformation("🚀 Getting all university programs");
         var programs = await _repository.GetAllAsync();
         return Ok(programs);
     }
@@ -45,6 +50,7 @@ public class UniProgramController : BaseApiController
     [HttpGet("get-program/{id}")]
     public async Task<ActionResult<UniProgram>> GetProgram(int id)
     {
+        _log.LogInformation("🚀 Getting university program by ID");
         var program = await _repository.GetByIdAsync(id);
         var programDto = _mapper.Map<UniProgramDto>(program);
         if (program == null) return NotFound("Program not found");
@@ -57,6 +63,7 @@ public class UniProgramController : BaseApiController
     [HttpDelete("delete-program/{id}")]
     public async Task<IActionResult> DeleteProgram(int id)
     {
+        _log.LogInformation("🚀 Deleting university program");
         var deleted = await _repository.DeleteAsync(id);
         if (!deleted) return NotFound("Program not found");
 
@@ -67,6 +74,7 @@ public class UniProgramController : BaseApiController
     [HttpDelete("delete-programs")]
     public async Task<IActionResult> DeleteAllPrograms()
     {
+        _log.LogInformation("🚀 Deleting all university programs");
         var programs = await _repository.GetAllAsync();
         foreach (var program in programs)
         {

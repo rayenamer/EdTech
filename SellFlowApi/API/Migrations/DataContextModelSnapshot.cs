@@ -53,6 +53,24 @@ namespace API.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTime?>("BaccalaureatDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("BaccalaureatDegree")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("BaccalaureatInstitution")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("BachelorDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("BachelorDegree")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("BachelorInstitution")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("TEXT");
@@ -74,11 +92,31 @@ namespace API.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTime?>("EngDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EngDegree")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EngInstitution")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Gender")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("LastActive")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LifeOutSide")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LinkedinLink")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("LockoutEnabled")
@@ -87,12 +125,29 @@ namespace API.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime?>("MasterDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("MasterDegree")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("MasterInstitution")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Motivation")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("NormalizedUserName")
                         .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("PasswordHash")
@@ -110,8 +165,18 @@ namespace API.Migrations
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("INTEGER");
 
+                    b.Property<DateTime>("UserDataDateOfBirth")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserDataExists")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("WorkExperience")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("city")
@@ -203,11 +268,30 @@ namespace API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<byte[]>("Bytes")
-                        .HasColumnType("BLOB");
+                    b.Property<string>("ContentType")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("DocumentName")
                         .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FileName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FilePath")
+                        .HasColumnType("TEXT");
+
+                    b.Property<long?>("FileSize")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("OriginalFileName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("StorageMode")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UploadDate")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("UserDataId")
@@ -255,88 +339,6 @@ namespace API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("UniPrograms");
-                });
-
-            modelBuilder.Entity("API.entities.UserData", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime?>("BaccalaureatDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("BaccalaureatDegree")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("BaccalaureatInstitution")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("BachelorDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("BachelorDegree")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("BachelorInstitution")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("DateOfBirth")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("EngDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("EngDegree")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("EngInstitution")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("LifeOutSide")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("LinkedinLink")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("MasterDate")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("MasterDegree")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("MasterInstitution")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Motivation")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Number")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("WorkExperience")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("exists")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("UserDatas");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -463,22 +465,11 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.entities.Document", b =>
                 {
-                    b.HasOne("API.entities.UserData", null)
+                    b.HasOne("API.Entities.AppUser", null)
                         .WithMany("Documents")
                         .HasForeignKey("UserDataId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("API.entities.UserData", b =>
-                {
-                    b.HasOne("API.Entities.AppUser", "User")
-                        .WithOne("UserData")
-                        .HasForeignKey("API.entities.UserData", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -526,7 +517,7 @@ namespace API.Migrations
                 {
                     b.Navigation("Applications");
 
-                    b.Navigation("UserData");
+                    b.Navigation("Documents");
 
                     b.Navigation("UserRoles");
                 });
@@ -534,11 +525,6 @@ namespace API.Migrations
             modelBuilder.Entity("API.entities.UniProgram", b =>
                 {
                     b.Navigation("Applications");
-                });
-
-            modelBuilder.Entity("API.entities.UserData", b =>
-                {
-                    b.Navigation("Documents");
                 });
 #pragma warning restore 612, 618
         }

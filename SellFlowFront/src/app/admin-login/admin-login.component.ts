@@ -18,8 +18,7 @@ export class AdminLoginComponent {
     login(){ 
       this.AdminService.login(this.model).subscribe({
         next: _ => {
-          console.log('API response:', Response);
-          console.log(this.AdminService.currentUser()?.username);
+          console.log('Login successful');
           this.router.navigateByUrl('/AdminDashboard');
         },
         error: (error) => {
@@ -32,10 +31,6 @@ export class AdminLoginComponent {
           
           this.toastr.error(message);
         }
-        
-        
-        
-        
       })
     }
 }

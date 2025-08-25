@@ -21,7 +21,6 @@ public class DataContext(DbContextOptions options)
         >(options)
 {
         public DbSet<UniProgram> UniPrograms { get; set; } = null!;
-        public DbSet<UserData> UserDatas { get; set; } = null!;
         public DbSet<Document> Documents { get; set; } = null!;
         public DbSet<Application> Applications { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder builder)
@@ -40,15 +39,11 @@ public class DataContext(DbContextOptions options)
                         .HasForeignKey(ur => ur.RoleId)
                         .IsRequired();
 
-                // AppUser ↔ UserData (1:1)
+                // AppUser ↔ Documents (1:Many)
                 builder.Entity<AppUser>()
-                        .HasOne(u => u.UserData)
-                        .WithOne(ud => ud.User)
-                        .HasForeignKey<UserData>(ud => ud.UserId); // FK in UserData
-                builder.Entity<UserData>()
-                        .HasMany(ud => ud.Documents)
-                        .WithOne()  // Empty WithOne() since Document has no navigation property back to UserData
-                        .HasForeignKey(d => d.UserDataId);
+                        .HasMany(u => u.Documents)
+                        .WithOne()  // Empty WithOne() since Document has no navigation property back to AppUser
+                        .HasForeignKey(d => d.UserDataId); // Keep existing FK name for compatibility
 
                         
                 builder.Entity<AppUser>()
@@ -63,16 +58,6 @@ public class DataContext(DbContextOptions options)
                     .WithOne(a => a.Program)
                     .HasForeignKey(a => a.ProgramId)
                     .IsRequired();
-
-                /*builder.Entity<UserData>()
-                    .HasMany(ud => ud.Documents)
-                    .WithOne(d => d.UserData)
-                    .HasForeignKey(d => d.UserDataId); // FK in Document*/
-
-
-                /*HasMany(ud => ud.Documents) - UserData has many Documents
-                WithOne(d => d.UserData) - Each Document has one UserData (navigation property)
-                HasForeignKey(d => d.UserDataId) - The foreign key in Document table*/
 
 
 

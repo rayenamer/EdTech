@@ -9,7 +9,7 @@ public class DocumentDto
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
-    public byte[] ?Bytes { get; set; }
+    // REMOVED: Bytes property eliminated - no binary data in DTOs
     public string DownloadUrl { get; set; }
     public string DocumentName { get; set; } = string.Empty;
     public int UserDataId { get; set; } // Foreign key for UserData

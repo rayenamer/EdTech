@@ -1,9 +1,11 @@
 using System;
 using API.Data;
 using API.entities;
-using Microsoft.AspNetCore.Http.HttpResults;
+using API.Entities;
+using API.interfaces;
 using Microsoft.EntityFrameworkCore;
-
+using API.interfaces;
+using API.Dtos;
 namespace API.DATA;
 
 public class UserDataRepository : IUserDataRepository
@@ -15,65 +17,66 @@ public class UserDataRepository : IUserDataRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<UserData>> GetAllAsync()
+    public async Task<IEnumerable<AppUser>> GetAllAsync()
     {
-        return await _context.UserDatas
-            .Include(a => a.Documents)
-            .ToListAsync();
+        return await _context.Users
+            .AsNoTracking()
+            .ToListAsync(); // No documents loaded
     }
 
-    public async Task<UserData?> GetByIdAsync(int id)
+    public async Task<AppUser?> GetByIdAsync(int id)
     {
-        return await _context.UserDatas
+        return await _context.Users
             .Include(a => a.Documents)
             .FirstOrDefaultAsync(a => a.Id == id);
     }
 
-    public async Task<UserData> AddAsync(UserData userData)
+    public async Task<AppUser> AddAsync(AppUser user)
     {
-        _context.UserDatas.Add(userData);
+        _context.Users.Add(user);
         await _context.SaveChangesAsync();
-        return userData;
+        return user;
     }
 
-    public async Task<bool> UpdateAsync(UserData userData)
+    public async Task<bool> UpdateAsync(AppUser user)
     {
         try
         {
-            var existingUserData = await _context.UserDatas.FindAsync(userData.Id);
-            if (existingUserData == null)
+            var existingUser = await _context.Users.FindAsync(user.Id);
+            if (existingUser == null)
             {
-                Console.WriteLine($"UserData with ID {userData.Id} not found for update");
+                Console.WriteLine($"User with ID {user.Id} not found for update");
                 return false;
             }
 
-            Console.WriteLine($"Updating UserData ID: {userData.Id}");
-            Console.WriteLine($"Old values: FullName={existingUserData.FullName}, Number={existingUserData.Number}");
-            Console.WriteLine($"New values: FullName={userData.FullName}, Number={userData.Number}");
+            Console.WriteLine($"Updating User ID: {user.Id}");
+            Console.WriteLine($"Old values: FullName={existingUser.FullName}, Number={existingUser.Number}");
+            Console.WriteLine($"New values: FullName={user.FullName}, Number={user.Number}");
 
             // Update all the properties
-            existingUserData.FullName = userData.FullName;
-            existingUserData.Number = userData.Number;
-            existingUserData.DateOfBirth = userData.DateOfBirth;
-            existingUserData.Motivation = userData.Motivation;
-            existingUserData.LifeOutSide = userData.LifeOutSide;
-            existingUserData.BaccalaureatDegree = userData.BaccalaureatDegree;
-            existingUserData.BaccalaureatInstitution = userData.BaccalaureatInstitution;
-            existingUserData.BaccalaureatDate = userData.BaccalaureatDate;
-            existingUserData.BachelorDegree = userData.BachelorDegree;
-            existingUserData.BachelorInstitution = userData.BachelorInstitution;
-            existingUserData.BachelorDate = userData.BachelorDate;
-            existingUserData.MasterDegree = userData.MasterDegree;
-            existingUserData.MasterInstitution = userData.MasterInstitution;
-            existingUserData.MasterDate = userData.MasterDate;
-            existingUserData.EngDegree = userData.EngDegree;
-            existingUserData.EngInstitution = userData.EngInstitution;
-            existingUserData.EngDate = userData.EngDate;
-            existingUserData.WorkExperience = userData.WorkExperience;
-            existingUserData.LinkedinLink = userData.LinkedinLink;
+            existingUser.FullName = user.FullName;
+            existingUser.Number = user.Number;
+            existingUser.UserDataDateOfBirth = user.UserDataDateOfBirth;
+            existingUser.Motivation = user.Motivation;
+            existingUser.LifeOutSide = user.LifeOutSide;
+            existingUser.BaccalaureatDegree = user.BaccalaureatDegree;
+            existingUser.BaccalaureatInstitution = user.BaccalaureatInstitution;
+            existingUser.BaccalaureatDate = user.BaccalaureatDate;
+            existingUser.BachelorDegree = user.BachelorDegree;
+            existingUser.BachelorInstitution = user.BachelorInstitution;
+            existingUser.BachelorDate = user.BachelorDate;
+            existingUser.MasterDegree = user.MasterDegree;
+            existingUser.MasterInstitution = user.MasterInstitution;
+            existingUser.MasterDate = user.MasterDate;
+            existingUser.EngDegree = user.EngDegree;
+            existingUser.EngInstitution = user.EngInstitution;
+            existingUser.EngDate = user.EngDate;
+            existingUser.WorkExperience = user.WorkExperience;
+            existingUser.LinkedinLink = user.LinkedinLink;
+            existingUser.UserDataExists = user.UserDataExists;
 
             // Mark as modified
-            _context.UserDatas.Update(existingUserData);
+            _context.Users.Update(existingUser);
 
             var result = await _context.SaveChangesAsync();
             Console.WriteLine($"SaveChanges result: {result} rows affected");
@@ -90,51 +93,53 @@ public class UserDataRepository : IUserDataRepository
 
     public async Task<bool> DeleteAsync(int id)
     {
-        var userData = await _context.UserDatas.FindAsync(id);
-        if (userData == null)
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
             return false;
 
-        _context.UserDatas.Remove(userData);
+        _context.Users.Remove(user);
         await _context.SaveChangesAsync();
         return true;
     }
 
     public async Task<bool> DeletePersonalinfo(int id)
     {
-        var userData = await _context.UserDatas.FindAsync(id);
-        if (userData == null)
+        var user = await _context.Users.FindAsync(id);
+        if (user == null)
             return false;
 
-        userData.FullName = string.Empty;
-        userData.Number = string.Empty;
-        userData.DateOfBirth = DateTime.MinValue;
-        userData.LinkedinLink = null;
+        user.FullName = string.Empty;
+        user.Number = string.Empty;
+        user.UserDataDateOfBirth = DateTime.MinValue;
+        user.LinkedinLink = null;
 
-        _context.UserDatas.Update(userData);
+        _context.Users.Update(user);
         await _context.SaveChangesAsync();
         return true;
     }
 
 
 
-    public async Task<IEnumerable<UserData>> GetByUserIdAsync(int userId)
+    public async Task<AppUser?> GetByUserIdAsync(int userId)
     {
         try
         {
             Console.WriteLine($"GetByUserIdAsync called for UserId: {userId}");
 
-            var userDatas = await _context.UserDatas
+            var user = await _context.Users
                 .Include(a => a.Documents)
-                .Where(a => a.UserId == userId)
-                .ToListAsync();
+                .FirstOrDefaultAsync(a => a.Id == userId);
 
-            Console.WriteLine($"Found {userDatas.Count} UserData records for UserId: {userId}");
-            foreach (var ud in userDatas)
+            if (user != null)
             {
-                Console.WriteLine($"UserData ID: {ud.Id}, FullName: {ud.FullName}, UserId: {ud.UserId}");
+                Console.WriteLine($"Found user: ID: {user.Id}, FullName: {user.FullName}");
+            }
+            else
+            {
+                Console.WriteLine($"No user found with ID: {userId}");
             }
 
-            return userDatas;
+            return user;
         }
         catch (Exception ex)
         {
@@ -142,38 +147,182 @@ public class UserDataRepository : IUserDataRepository
             throw;
         }
     }
-     public async Task<bool> AddDocumentAsync(int userDataId, int documentId)
+    public async Task<bool> AddDocumentAsync(int userId, int documentId)
     {
         var document = await _context.Documents.FindAsync(documentId);
         if (document == null) return false;
 
-        document.UserDataId = userDataId;
+        document.UserDataId = userId;
         await _context.SaveChangesAsync();
         return true;
     }
-    
-    public async Task FindByEmailAsync(string emailClaim)
+
+    public async Task<AppUser?> FindByEmailAsync(string emailClaim)
     {
         try
         {
             // Recherche des utilisateurs par email
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == emailClaim);
+            var user = await _context.Users
+                .Include(u => u.Documents)
+                .FirstOrDefaultAsync(u => u.Email == emailClaim);
+
             if (user == null)
             {
                 Console.WriteLine($"No user found with email: {emailClaim}");
-                return;
+                return null;
             }
 
-            // Récupération des données utilisateur associées
-            var userDatas = await _context.UserDatas
-                .Where(ud => ud.UserId == user.Id)
-                .ToListAsync();
-
-            Console.WriteLine($"Found {userDatas.Count} UserData records for user with email: {emailClaim}");
+            Console.WriteLine($"Found user with email: {emailClaim}, FullName: {user.FullName}");
+            return user;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error in FindByEmailAsync: {ex.Message}");
+            throw;
+        }
+    }
+
+    public async Task<AppUser?> GetUserWithDocumentsAsync(int userId)
+    {
+        try
+        {
+            var user = await _context.Users
+                .Where(u => u.Id == userId)
+                .Select(u => new AppUser
+                {
+                    // Only select needed user fields - exclude sensitive data
+                    Id = u.Id,
+                    UserName = u.UserName,
+                    Email = u.Email,
+                    FullName = u.FullName,
+                    Number = u.Number,
+                    DateOfBirth = u.DateOfBirth,
+                    city = u.city, // Required field
+                    Gender = u.Gender, // Required field
+                    Country = u.Country, // Required field
+                    Motivation = u.Motivation,
+                    LifeOutSide = u.LifeOutSide,
+                    BaccalaureatDegree = u.BaccalaureatDegree,
+                    BaccalaureatInstitution = u.BaccalaureatInstitution,
+                    BaccalaureatDate = u.BaccalaureatDate,
+                    BachelorDegree = u.BachelorDegree,
+                    BachelorInstitution = u.BachelorInstitution,
+                    BachelorDate = u.BachelorDate,
+                    MasterDegree = u.MasterDegree,
+                    MasterInstitution = u.MasterInstitution,
+                    MasterDate = u.MasterDate,
+                    EngDegree = u.EngDegree,
+                    EngInstitution = u.EngInstitution,
+                    EngDate = u.EngDate,
+                    WorkExperience = u.WorkExperience,
+                    LinkedinLink = u.LinkedinLink,
+                    // Only select minimal document fields - exclude Bytes
+                    Documents = u.Documents.Select(d => new Document
+                    {
+                        Id = d.Id,
+                        DocumentName = d.DocumentName,
+                        UserDataId = d.UserDataId
+                        // Explicitly exclude Bytes field for performance
+                    }).ToList()
+                })
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+
+            return user;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in GetUserWithDocumentsAsync: {ex.Message}");
+            throw;
+        }
+    }
+    public async Task<bool> UpdatePersonalInformationAsync(int userId, PersonalInformationDto personalInfoDto)
+    {
+        try
+        {
+            var rowsAffected = await _context.Users
+                .Where(u => u.Id == userId)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(u => u.FullName, personalInfoDto.FullName)
+                    .SetProperty(u => u.Number, personalInfoDto.Number)
+                    .SetProperty(u => u.LinkedinLink, personalInfoDto.LinkedinLink)
+                    .SetProperty(u => u.UserDataDateOfBirth, personalInfoDto.DateOfBirth ?? DateTime.MinValue)
+                    .SetProperty(u => u.LastActive, DateTime.UtcNow));
+
+            return rowsAffected > 0;
+        }
+        catch (Exception ex)
+        {
+           // _logger.LogError(ex, "Error updating personal information for UserId: {UserId}", userId);
+            throw;
+        }    
+    }
+
+    public async Task<bool> UpdatePersonalStatementsAsync(int userId, PersonalStatementsDto personalStatementsDto)
+    {
+        try
+        {
+            var rowsAffected = await _context.Users
+                .Where(u => u.Id == userId)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(u => u.Motivation, personalStatementsDto.Motivation)
+                    .SetProperty(u => u.LifeOutSide, personalStatementsDto.LifeOutSide)
+                    .SetProperty(u => u.LastActive, DateTime.UtcNow));
+
+            return rowsAffected > 0;
+        }
+        catch (Exception ex)
+        {
+           // _logger.LogError(ex, "Error updating personal statements for UserId: {UserId}", userId);
+            throw;
+        }
+    }
+
+    public async Task<bool> UpdateEducationBackgroundAsync(int userId, EducationBackgroundDto educationBackgroundDto)
+    {
+        try
+        {
+            var rowsAffected = await _context.Users
+                .Where(u => u.Id == userId)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(u => u.BaccalaureatDegree, educationBackgroundDto.BaccalaureatDegree)
+                    .SetProperty(u => u.BaccalaureatInstitution, educationBackgroundDto.BaccalaureatInstitution)
+                    .SetProperty(u => u.BaccalaureatDate, educationBackgroundDto.BaccalaureatDate)
+                    .SetProperty(u => u.BachelorDegree, educationBackgroundDto.BachelorDegree)
+                    .SetProperty(u => u.BachelorInstitution, educationBackgroundDto.BachelorInstitution)
+                    .SetProperty(u => u.BachelorDate, educationBackgroundDto.BachelorDate)
+                    .SetProperty(u => u.MasterDegree, educationBackgroundDto.MasterDegree)
+                    .SetProperty(u => u.MasterInstitution, educationBackgroundDto.MasterInstitution)
+                    .SetProperty(u => u.MasterDate, educationBackgroundDto.MasterDate)
+                    .SetProperty(u => u.EngDegree, educationBackgroundDto.EngDegree)
+                    .SetProperty(u => u.EngInstitution, educationBackgroundDto.EngInstitution)
+                    .SetProperty(u => u.EngDate, educationBackgroundDto.EngDate)
+                    .SetProperty(u => u.LastActive, DateTime.UtcNow));
+
+            return rowsAffected > 0;
+        }
+        catch (Exception ex)
+        {
+           // _logger.LogError(ex, "Error updating education background for UserId: {UserId}", userId);
+            throw;
+        }
+    }
+
+    public async Task<bool> UpdateWorkExperienceAsync(int userId, WorkExperienceDto workExperienceDto)
+    {
+        try
+        {
+            var rowsAffected = await _context.Users
+                .Where(u => u.Id == userId)
+                .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(u => u.WorkExperience, workExperienceDto.WorkExperience)
+                    .SetProperty(u => u.LastActive, DateTime.UtcNow));
+
+            return rowsAffected > 0;
+        }
+        catch (Exception ex)
+        {
+           // _logger.LogError(ex, "Error updating work experience for UserId: {UserId}", userId);
             throw;
         }
     }

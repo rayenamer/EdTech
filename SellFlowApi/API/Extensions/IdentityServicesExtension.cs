@@ -48,8 +48,19 @@ public static class IdentityServiceExtensions
                 ClockSkew = TimeSpan.Zero
             };
             
+            // Configure JWT Bearer events for cookie support and token validation
             Options.Events = new JwtBearerEvents
             {
+                OnMessageReceived = context =>
+                {
+                    // Try to get token from cookie first
+                    var token = context.Request.Cookies["jwt_token"];
+                    if (!string.IsNullOrEmpty(token))
+                    {
+                        context.Token = token;
+                    }
+                    return Task.CompletedTask;
+                },
                 OnTokenValidated = context =>
                 {
                     var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<JwtBearerHandler>>();
