@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\User\\Desktop\\EduPlatform\\sellflowapi\\api\\API.csproj": {}
+    "C:\\Users\\User\\Desktop\\EduPlatform\\SellFlowApi\\API\\API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\User\\Desktop\\EduPlatform\\sellflowapi\\api\\API.csproj": {
+    "C:\\Users\\User\\Desktop\\EduPlatform\\SellFlowApi\\API\\API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\User\\Desktop\\EduPlatform\\sellflowapi\\api\\API.csproj",
+        "projectUniqueName": "C:\\Users\\User\\Desktop\\EduPlatform\\SellFlowApi\\API\\API.csproj",
         "projectName": "API",
-        "projectPath": "C:\\Users\\User\\Desktop\\EduPlatform\\sellflowapi\\api\\API.csproj",
+        "projectPath": "C:\\Users\\User\\Desktop\\EduPlatform\\SellFlowApi\\API\\API.csproj",
         "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\User\\Desktop\\EduPlatform\\sellflowapi\\api\\obj\\",
+        "outputPath": "C:\\Users\\User\\Desktop\\EduPlatform\\SellFlowApi\\API\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config"
