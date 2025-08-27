@@ -19,7 +19,7 @@ body {
 
 /* Hero Section */
 .hero {
-    background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+    background: linear-gradient(135deg, #c31e33 0%, #ef4444 100%);
     min-height: 80vh;
     display: flex;
     align-items: center;
@@ -116,7 +116,7 @@ body {
 
 .btn-primary {
     background: white;
-    color: #dc2626;
+    color: #c31e33;
 }
 
 .btn-primary:hover {
@@ -125,19 +125,19 @@ body {
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
-.discord-btn {
-    background: #5865f2;
+.facebook-btn {
+    background: #1877f2;
     color: white;
-    border: 2px solid #5865f2;
+    border: 2px solid #1877f2;
     font-size: 1.1rem;
     padding: 20px 40px;
 }
 
-.discord-btn:hover {
-    background: #4752c4;
-    border-color: #4752c4;
+.facebook-btn:hover {
+    background: #166fe5;
+    border-color: #166fe5;
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(88, 101, 242, 0.3);
+    box-shadow: 0 10px 25px rgba(24, 119, 242, 0.3);
 }
 
 .hero-image {
@@ -165,7 +165,7 @@ body {
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    color: #dc2626;
+    color: #c31e33;
     font-size: 18px;
 }
 

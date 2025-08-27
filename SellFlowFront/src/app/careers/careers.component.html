@@ -1,51 +1,54 @@
+<!-- Life at EduHelper Section -->
+<section class="life-at-eduhelper">
+    <div class="container">
+        <div class="section-header">
+            <h2>What's it like to work at EduHelper?</h2>
+        </div>
+        
+        <div class="life-content-wrapper">
+            <div class="life-text-section">
+                <h3 class="life-title" id="life-title">{{ lifeContent[currentLifeIndex].title }}</h3>
+                <div class="life-description" id="life-description">
+                    <p>{{ lifeContent[currentLifeIndex].description }}</p>
+                </div>
+                
+                <div class="life-dots">
+                    <div 
+                        class="dot" 
+                        [class.active]="i === currentLifeIndex"
+                        *ngFor="let content of lifeContent; let i = index"
+                        (click)="switchLifeContent(i)"
+                        [attr.data-index]="i">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="life-image-section">
+                <div class="life-main-image">
+                    <img id="main-image" [src]="lifeContent[currentLifeIndex].image" [alt]="lifeContent[currentLifeIndex].title">
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</section>
 <!-- Hero Section -->
 <section class="hero">
     <div class="container">
         <div class="hero-content">
             <div class="hero-text">
-                <div class="logo">
-                    <div class="logo-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" fill="white"/>
-                            <polyline points="3.27,6.96 12,12.01 20.73,6.96" stroke="currentColor" stroke-width="2"/>
-                            <line x1="12" y1="22.08" x2="12" y2="12" stroke="currentColor" stroke-width="2"/>
-                        </svg>
-                    </div>
-                    <span class="logo-text">EduHelper</span>
-                </div>
                 <h1>Innovate. Inspire. Grow.</h1>
                 <h2>Join our team and shape the future of education with cutting-edge solutions.</h2>
                 <p>Empower Tunisian students to unlock their global potential while building your career in educational innovation.</p>
             </div>
             <div class="hero-image">
                 <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Team collaboration">
-                <div class="tn-badge">TN</div>
-                <div class="growth-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="white" stroke-width="2"/>
-                    </svg>
-                </div>
+                
             </div>
         </div>
     </div>
 </section>
 
-
-<!-- Become a Valued Member Section -->
-<section id="become-member" class="become-member">
-    <div class="container">
-        <div class="section-header">
-            <h2>Become a valued member of our team</h2>
-            <p>We embrace the potential of innovation and teamwork. As a renowned educational consulting provider, we seek individuals with a passion for education and a commitment to excellence.</p>
-        </div>
-        
-        <div class="content-grid">
-            <div class="content-image">
-                <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Team collaboration">
-            </div>
-        </div>
-    </div>
-</section>
 
 <!-- Open Positions Section -->
 <section class="open-positions">
@@ -187,46 +190,48 @@
     </div>
 </section>
 
-<!-- Talent Community Section -->
-<section id="talent-community" class="talent-community">
-    <div class="container">
-        <div class="section-header">
-            <h2>Join EduHelper's Talent Community</h2>
-            <p>Don't see the perfect role? Join our talent community and we'll notify you when opportunities that match your skills become available.</p>
-        </div>
-        
-        <div class="community-form">
-            <form class="talent-form">
-                <div class="form-group">
-                    <input type="text" placeholder="Full Name" required>
+<!-- Campus Ambassador CTA Section -->
+        <section id="campus-ambassador" class="campus-ambassador">
+            <div class="container">
+                <div class="ambassador-content">
+                    <div class="ambassador-text">
+                        <h2>Become a Campus Ambassador</h2>
+                        <p class="ambassador-subtitle">Lead the educational revolution on your campus. Join our elite network of student leaders and shape the future of education while building your career.</p>
+                        
+                        <div class="ambassador-benefits">
+                            <div class="benefit-list">
+                                <div class="benefit-item">
+                                    
+                                    <span>Gain real-world leadership experience representing EduHelper</span>
+                                </div>
+                                <div class="benefit-item">
+                                    <span>Monthly stipend, exclusive merchandise, and priority internships</span>
+                                </div>
+                                <div class="benefit-item">
+                                    <span>Connect with like-minded student leaders nationwide</span>
+                                </div>
+                                <div class="benefit-item">
+                                    <span>Flexible schedule that works around your academic commitments</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="ambassador-cta">
+                            <h3>Ready to Make an Impact?</h3>
+                            <p>Join hundreds of student leaders who are already transforming education on their campuses.</p>
+                            <button class="btn btn-primary btn-ambassador">
+                                Apply to Become Ambassador
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="margin-left: 8px;">
+                                    <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <input type="email" placeholder="Email Address" required>
-                </div>
-                <div class="form-group">
-                    <select required>
-                        <option value="">Select your area of interest</option>
-                        <option value="partnerships">Partnerships & Business Development</option>
-                        <option value="student-services">Student Services & Support</option>
-                        <option value="marketing">Marketing & Communications</option>
-                        <option value="technology">Technology & Innovation</option>
-                        <option value="operations">Operations & Administration</option>
-                        <option value="internship">Internship Opportunities</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <textarea placeholder="Tell us about your background and what interests you about EduHelper" rows="4"></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">
-                    Join Talent Community
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="margin-left: 8px;">
-                        <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
-            </form>
-        </div>
-    </div>
-</section>
+            </div>
+        </section>
+
+
 
 <!-- CTA Section -->
 <section class="cta">

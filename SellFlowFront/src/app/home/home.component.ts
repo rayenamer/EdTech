@@ -1,6 +1,6 @@
 
 import { Component } from '@angular/core';
-import { RouterModule, RouterOutlet } from '@angular/router';
+import { Router, RouterModule, RouterOutlet } from '@angular/router';
 
 @Component({
     selector: 'app-home',
@@ -9,6 +9,12 @@ import { RouterModule, RouterOutlet } from '@angular/router';
     styleUrl: './home.component.css'
 })
 export class HomeComponent {
+
+    constructor(private router: Router) {}
+
+    navigateToService(serviceRoute: string) {
+        this.router.navigate(['/service', serviceRoute]);
+    }
 
     scrollCards(section: string, direction: 'left' | 'right') {
         const cardsContainer = document.getElementById(`${section}-cards`);

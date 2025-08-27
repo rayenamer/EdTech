@@ -19,7 +19,7 @@ body {
 
 /* Hero Section */
 .hero {
-    background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+    background: linear-gradient(135deg, #c31e33 0%, #ef4444 100%);
     min-height: 80vh;
     display: flex;
     align-items: center;
@@ -116,7 +116,7 @@ body {
 
 .btn-primary {
     background: white;
-    color: #dc2626;
+    color: #c31e33;
 }
 
 .btn-primary:hover {
@@ -161,7 +161,7 @@ body {
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    color: #dc2626;
+    color: #c31e33;
     font-size: 18px;
 }
 
@@ -201,7 +201,7 @@ body {
 .section-header h3 {
     font-size: 2rem;
     font-weight: 600;
-    color: #dc2626;
+    color: #c31e33;
     margin-bottom: 16px;
 }
 
@@ -285,7 +285,7 @@ body {
 }
 
 .stats-icon {
-    background: #b71c1c;
+    background: #c31e33;
     color: #fff;
     border-radius: 50%;
     width: 56px;
@@ -297,7 +297,7 @@ body {
 }
 
 .stats-number {
-    color: #b71c1c;
+    color: #c31e33;
     font-size: 2rem;
     font-weight: 800;
     margin-bottom: 6px;
@@ -423,11 +423,11 @@ body {
 }
 
 .scroll-arrow:hover {
-    background: #dc2626;
-    border-color: #dc2626;
+    background: #c31e33;
+    border-color: #c31e33;
     color: white;
     transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
+    box-shadow: 0 6px 20px rgba(195, 30, 51, 0.3);
 }
 
 .scroll-arrow.scroll-left {
@@ -526,7 +526,7 @@ body {
 }
 
 .leadership-card .position {
-    color: #dc2626;
+    color: #c31e33;
     font-weight: 600;
     font-size: 14px;
     margin-bottom: 8px;
@@ -545,7 +545,7 @@ body {
 }
 
 .social-link {
-    color: #dc2626;
+    color: #c31e33;
     text-decoration: none;
     font-size: 14px;
     font-weight: 600;
@@ -600,7 +600,7 @@ body {
 
 /* CTA Section */
 .cta {
-    background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+    background: linear-gradient(135deg, #c31e33 0%, #ef4444 100%);
     padding: 80px 0;
     text-align: center;
     color: white;
