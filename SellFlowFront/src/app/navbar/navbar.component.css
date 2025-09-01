@@ -29,8 +29,8 @@
 }
 
 .logo-icon {
-  width: 40px;
-  height: 40px;
+  width: 60px;
+  height: 60px;
   background: rgba(220, 38, 38, 0.1);
   border-radius: 50%;
   display: flex;
@@ -47,7 +47,7 @@
 .logo-text {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #dc2626;
+  color: #c31e33;
 }
 
 .nav-menu {
@@ -72,13 +72,13 @@
 }
 
 .nav-link:hover {
-  color: #dc2626;
-  background: rgba(220, 38, 38, 0.05);
+  color: #c31e33;
+  background: rgba(195, 30, 51, 0.05);
 }
 
 .nav-link.active {
-  color: #dc2626;
-  background: rgba(220, 38, 38, 0.1);
+  color: #c31e33;
+  background: rgba(195, 30, 51, 0.1);
   font-weight: 600;
 }
 
@@ -90,12 +90,12 @@
   transform: translateX(-50%);
   width: 20px;
   height: 2px;
-  background: #dc2626;
+  background: #c31e33;
   border-radius: 1px;
 }
 
 .login-btn {
-  background: #dc2626;
+  background: #c31e33;
   color: white !important;
   padding: 10px 20px;
   border-radius: 25px;
@@ -104,9 +104,9 @@
 }
 
 .login-btn:hover {
-  background: #b91c1c;
+  background: #a11d2a;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  box-shadow: 0 4px 12px rgba(195, 30, 51, 0.3);
 }
 
 .login-btn.active {
@@ -115,21 +115,21 @@
 
 /* Admin button uses an outlined variant to differentiate from user login */
 .admin-btn {
-  border: 2px solid #dc2626;
-  color: #dc2626;
+  border: 2px solid #c31e33;
+  color: #c31e33;
   border-radius: 25px;
   padding: 8px 18px;
   font-weight: 600;
 }
 
 .admin-btn:hover {
-  background: rgba(220, 38, 38, 0.06);
-  color: #b91c1c;
+  background: rgba(195, 30, 51, 0.06);
+  color: #a11d2a;
 }
 
 .admin-btn.active {
-  background: rgba(220, 38, 38, 0.1);
-  color: #b91c1c;
+  background: rgba(195, 30, 51, 0.1);
+  color: #a11d2a;
 }
 
 .nav-toggle {
@@ -143,7 +143,7 @@
 .bar {
   width: 25px;
   height: 3px;
-  background: #dc2626;
+  background: #c31e33;
   margin: 3px 0;
   transition: 0.3s;
   border-radius: 2px;
