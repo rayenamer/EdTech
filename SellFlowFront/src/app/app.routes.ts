@@ -2,15 +2,11 @@ import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 import { LoginComponent } from './components/auth/login/login.component';
 import { AppComponent } from './app.component';
-import { HomeComponent } from './home/home.component';
 import { RegisterComponent } from './components/auth/register/register.component';
 import { AcceuilComponent } from './acceuil/acceuil.component';
 import { AdminLoginComponent } from './admin-login/admin-login.component';
 import { AdminRegisterComponent } from './admin-register/admin-register.component';
 import { AdminComponent } from './admin/admin.component';
-import { AboutusComponent } from './aboutus/aboutus.component';
-import { CareersComponent } from './careers/careers.component';
-import { CommunityComponent } from './community/community.component';
 import { UserFoAdminComponent } from './users/userFoAdmin.component';
 import { ProgramsComponent } from './programs/programs.component';
 import { AddProgramComponent } from './add-program/add-program.component';
@@ -30,13 +26,9 @@ import { InterviewPreparationComponent } from './services-detail/interview-prepa
 import { OfficialTranslationComponent } from './services-detail/official-translation/official-translation.component';
 import { HotelTicketReservationComponent } from './services-detail/hotel-ticket-reservation/hotel-ticket-reservation.component';
 export const routes: Routes = [
-    {path: '', component: HomeComponent },
     {path:'programs', component: ProgramsComponent, canActivate: [adminGuard]},
     {path:'add-program', component: AddProgramComponent, canActivate: [adminGuard]},
     {path:'add-application/:id', component: AddApplicationComponent, canActivate: [authGuard]},
-    {path:'community',component:CommunityComponent},
-    {path: 'careers', component: CareersComponent },
-    {path: 'aboutus', component: AboutusComponent },
     {path:'AdminDashboard', component: AdminComponent, canActivate: [adminGuard]},
     {path:'users', component: UserFoAdminComponent, canActivate: [adminGuard]},
     {path: 'AdminLogin', component: AdminLoginComponent},
@@ -57,5 +49,5 @@ export const routes: Routes = [
     {path: 'service/interview-preparation', component: InterviewPreparationComponent},
     {path: 'service/official-translation', component: OfficialTranslationComponent},
     {path: 'service/hotel-ticket-reservation', component: HotelTicketReservationComponent},
-    {path: '**', component: HomeComponent, pathMatch: 'full' },
+    {path: '**', component: LoginComponent, pathMatch: 'full' },
 ];

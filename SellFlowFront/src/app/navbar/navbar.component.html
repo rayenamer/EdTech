@@ -1,8 +1,8 @@
-<nav class="navbar" [class.scrolled]="isScrolled">
+<nav class="navbar" [class.scrolled]="isScrolled" *ngIf="isAdminLoggedIn() || isUserLoggedIn()">
   <div class="nav-container">
     <div class="nav-logo">
       <div class="logo-icon">
-        <img src="https://ik.imagekit.io/p51pyfdvv/Design%20sans%20titre%20(5).png?updatedAt=1756125953598" alt="EduHelper Logo" width="100" height="100">
+        <img src="https://ik.imagekit.io/p51pyfdvv/Design%20sans%20titre%20(5).png?updatedAt=1756125953598" alt="EduHelper Logo" width="60" height="60">
       </div>
       
     </div>
@@ -49,26 +49,14 @@
 
       <!-- Guest menu (original public links) -->
       <ng-template #guestMenu>
-        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link"
-          (click)="closeMenu()">
-          Home
-        </a>
-        <a routerLink="/aboutus" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
-          About Us
-        </a>
-        <a routerLink="/careers" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
-          Life At EduHelper
-        </a>
-        <a routerLink="/community" routerLinkActive="active" class="nav-link" (click)="closeMenu()">
-          Community
-        </a>
+        <!--
         <a routerLink="/AdminLogin" routerLinkActive="active" class="nav-link admin-btn" (click)="closeMenu()">
           Admin
         </a>
         <a routerLink="/login" routerLinkActive="active" class="nav-link login-btn" (click)="closeMenu()">
           Login
         </a>
-
+        -->
       </ng-template>
     </div>
 

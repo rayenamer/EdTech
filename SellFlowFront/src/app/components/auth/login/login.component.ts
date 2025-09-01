@@ -39,7 +39,6 @@ export class LoginComponent implements OnInit{
           ? 'Please write your credentials' 
           : errorTitle || 'An error occurred';
         
-        this.toastr.error(message);
         this.isLoading = false;
       }
       
