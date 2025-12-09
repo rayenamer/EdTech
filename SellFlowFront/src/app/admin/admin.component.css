@@ -30,7 +30,7 @@
 }
 
 .admin-dashboard-header h2 {
-  color: #b71c1c;
+  color: #011e81;
   font-size: 2rem;
   font-weight: 800;
   margin-bottom: 0.5rem;
@@ -43,7 +43,7 @@
 
 .stats-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
 .stat-card { background: #fff; border-radius: 16px; padding: 1.25rem; box-shadow: 0 10px 20px rgba(0,0,0,0.08); text-align: center; }
-.stat-value { font-size: 2rem; font-weight: 700; color: #b71c1c; }
+.stat-value { font-size: 2rem; font-weight: 700; color: #011e81; }
 .stat-label { color: #6b7280; margin-top: 0.25rem; }
 .actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
@@ -52,7 +52,7 @@
 }
 
 .admin-dashboard-button {
-  background-color: #b71c1c;
+  background-color: #011e81;
   color: #fff;
   padding: 0.9rem 2rem;
   border: none;
@@ -69,7 +69,7 @@
 }
 
 .admin-dashboard-button:hover:not(:disabled) {
-  background-color: #a31515;
+  background-color: #011e81;
   transform: translateY(-2px);
 }
 

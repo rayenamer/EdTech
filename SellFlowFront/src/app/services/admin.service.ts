@@ -75,7 +75,13 @@ export class AdminService {
   //  );
   //}
 
-  
+  AdminLogout() {
+    return this.http.post<any>(this.baseUrl + 'AdminAndModerators/logout', {}, { withCredentials: true }).pipe(
+      map(() => {
+        this.setAuthenticated(false);
+      })
+    );
+  }
 
 
   constructor() { }

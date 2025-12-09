@@ -4,7 +4,7 @@
   align-items: center;
   min-height: 100vh;
   background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
-              url('https://ik.imagekit.io/p51pyfdvv/0D2A9632.JPG?updatedAt=1756104670315') center/cover;
+              url('https://ik.imagekit.io/lif4gux2ri/GenevaBusinessSchool-278-1536x1024.jpg?updatedAt=1758462056117') center/cover;
   font-family: 'Inter', system-ui, sans-serif;
   padding: 0;
   margin: 0;
@@ -36,7 +36,7 @@
     margin-bottom: 1.5rem;
   
     h2 {
-      color: #b71c1c;
+      color: #011e81;
       font-size: 1.8rem;
       font-weight: 800;
       margin-bottom: 0.3rem;
@@ -77,7 +77,7 @@
   
     &:focus {
       outline: none;
-      border-color: #b71c1c;
+      border-color: #011e81;
       box-shadow: 0 0 0 0.1rem rgba(183,28,28,0.08);
       background: rgba(255, 255, 255, 0.8);
     }
@@ -135,7 +135,7 @@
 
   .login-button {
     width: 100%;
-    background-color: #b71c1c;
+    background-color: #011e81;
     color: #fff;
     padding: 0.9rem;
     border: none;
@@ -149,7 +149,7 @@
     letter-spacing: 0.5px;
 
     &:hover:not(:disabled) {
-      background-color: #a31515;
+      background-color: #011e81;
       transform: translateY(-2px);
     }
 
@@ -167,7 +167,7 @@
   }
   
   .cta-button {
-    color: #b71c1c;
+    color: #011e81;
     text-decoration: none;
     font-weight: 600;
     font-size: 1rem;
@@ -175,7 +175,7 @@
   }
   
   .cta-button:hover {
-    color: #a31515;
+    color: #011e81;
     text-decoration: underline;
   }
   

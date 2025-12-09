@@ -43,7 +43,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, #c31e33, #dc2626);
+  background: linear-gradient(135deg, #011e81, #011e81);
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -56,7 +56,7 @@
 }
 
 .home-btn:hover {
-  background: linear-gradient(135deg, #a91b2e, #b91c1c);
+  background: linear-gradient(135deg, #011e81, #011e81);
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(195, 30, 51, 0.4);
 }
@@ -83,7 +83,7 @@
 }
 
 .service-info h2 {
-  color: #c31e33;
+  color: #011e81;
   font-size: 2rem;
   margin-bottom: 1rem;
   font-weight: 700;
@@ -126,7 +126,7 @@
 }
 
 .contact-section {
-  background: linear-gradient(135deg, #c31e33, #dc2626);
+  background: linear-gradient(135deg, #011e81, #011e81);
   color: white;
   padding: 2rem;
   border-radius: 20px;
@@ -146,7 +146,7 @@
 
 .contact-btn {
   background: white;
-  color: #c31e33;
+  color: #011e81;
   border: none;
   padding: 1rem 2rem;
   border-radius: 25px;

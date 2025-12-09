@@ -41,25 +41,8 @@ export class NavbarComponent implements OnInit {
     this.isMenuOpen = false;
   }
   logout() {
-    // Check if user is admin or regular user and logout accordingly
-    //if (this.adminService.isAuthenticated()) {
-    //  this.adminService.logout().subscribe({
-    //    next: () => {
-    //      console.log('Admin logged out successfully');
-    //    },
-    //    error: (error) => {
-    //      console.error('Admin logout error:', error);
-    //    }
-    //  });
-    //} else if (this.authService.isAuthenticated()) {
-    //  this.authService.logout().subscribe({
-    //    next: () => {
-    //      console.log('User logged out successfully');
-    //    },
-    //    error: (error) => {
-    //      console.error('User logout error:', error);
-    //    }
-    //  });
-    //}
+    this.authService.logOut();
+    this.adminService.AdminLogout();
+    this.closeMenu();
   }
 }

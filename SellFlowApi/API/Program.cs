@@ -112,6 +112,24 @@ try
             await roleManager.CreateAsync(new AppRole { Name = role });
         }
     }
+    // Seed default admin user
+    var adminUsername = "admin";
+    var adminEmail = "admin@admin.com";
+    var adminPassword = "admin123";
+
+    var adminUser = await userManager.FindByNameAsync(adminUsername);
+    if (adminUser == null)
+    {
+        adminUser = new AppUser
+        {
+            UserName = adminUsername,
+            Email = adminEmail,
+            EmailConfirmed = true,
+            Gender = "NotSpecified",
+            city = "Unknown",
+            Country = "Unknown"
+        };
+    }
 }
 catch (Exception ex)
 {

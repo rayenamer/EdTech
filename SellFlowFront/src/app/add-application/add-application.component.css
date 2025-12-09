@@ -44,7 +44,7 @@
 }
 
 h2 {
-  color: #b71c1c;
+  color: #011e81;
   margin-bottom: 1.5rem;
   font-size: 2.2rem;
   font-weight: 700;
@@ -61,7 +61,7 @@ h2::after {
   transform: translateX(-50%);
   width: 60px;
   height: 3px;
-  background: linear-gradient(90deg, #b71c1c, #a31515);
+  background: linear-gradient(90deg, #011e81, #011e81);
   border-radius: 2px;
 }
 
@@ -74,7 +74,7 @@ h2::after {
   background: rgba(248, 250, 252, 0.8);
   padding: 1rem 1.5rem;
   border-radius: 12px;
-  border-left: 4px solid #b71c1c;
+  border-left: 4px solid #011e81;
 }
 
 .form-group {
@@ -86,7 +86,7 @@ label {
   display: block;
   margin-bottom: 0.75rem;
   font-weight: 600;
-  color: #b71c1c;
+  color: #011e81;
   font-size: 1.1rem;
   position: relative;
 }
@@ -114,7 +114,7 @@ textarea {
 
 textarea:focus {
   outline: none;
-  border-color: #b71c1c;
+  border-color: #011e81;
   box-shadow: 0 0 0 3px rgba(183, 28, 28, 0.1), 0 4px 16px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
   background: white;
@@ -126,7 +126,7 @@ textarea::placeholder {
 }
 
 .error-message {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
+  background: linear-gradient(135deg, #011e81, #011e81);
   color: white;
   padding: 1rem 1.25rem;
   border-radius: 12px;
@@ -156,7 +156,7 @@ textarea::placeholder {
 }
 
 .btn-submit {
-  background: linear-gradient(135deg, #b71c1c, #a31515);
+  background: linear-gradient(135deg, #011e81, #011e81);
   color: white;
   border: none;
   border-radius: 16px;
@@ -185,7 +185,7 @@ textarea::placeholder {
 }
 
 .btn-submit:hover {
-  background: linear-gradient(135deg, #a31515, #8b1538);
+  background: linear-gradient(135deg, #011e81, #011e81);
   transform: translateY(-3px);
   box-shadow: 0 8px 24px rgba(183, 28, 28, 0.4);
 }

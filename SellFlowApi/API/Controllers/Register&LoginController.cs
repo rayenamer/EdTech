@@ -152,13 +152,6 @@ public class Register_LoginController
         };
     }
 
-    [HttpPost("logout")]
-    public IActionResult Logout()
-    {
-        _log.LogInformation("🚀 User logout");
-        Response.Cookies.Delete("jwt_token");
-        return Ok(new { message = "Logged out successfully" });
-    }
 
     //
     [HttpGet("google-login")]
@@ -271,10 +264,17 @@ public class Register_LoginController
         return Redirect(redirectUrl);
     }
 
-    [HttpPost("google-signout")]
-    public async Task<IActionResult> SignOutUser()
+    [HttpPost("UserLogOut")]
+    public async Task<IActionResult> LogOut()
     {
+        _log.LogInformation("🚀 User logout");
+        
+        // Sign out from Google authentication
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-        return Ok(new { message = "Signed out successfully" });
+        
+        // Delete JWT token cookie
+        Response.Cookies.Delete("jwt_token");
+        
+        return Ok(new { message = "Logged out successfully" });
     }
 }

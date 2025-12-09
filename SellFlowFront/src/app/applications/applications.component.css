@@ -46,7 +46,7 @@ h2::after {
 }
 
 .alert-error {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
+  background: linear-gradient(135deg, #011e81, #011e81);
   color: white;
 }
 
@@ -188,7 +188,7 @@ h2::after {
 }
 
 .status-rejected {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
+  background: linear-gradient(135deg, #011e81, #011e81);
   color: white;
 }
 

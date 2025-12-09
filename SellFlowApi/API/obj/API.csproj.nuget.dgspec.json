@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\User\\Desktop\\EduPlatform\\sellflowapi\\api\\API.csproj": {}
+    "/home/rayounouna/EdTech/SellFlowApi/API/API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\User\\Desktop\\EduPlatform\\sellflowapi\\api\\API.csproj": {
+    "/home/rayounouna/EdTech/SellFlowApi/API/API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\User\\Desktop\\EduPlatform\\sellflowapi\\api\\API.csproj",
+        "projectUniqueName": "/home/rayounouna/EdTech/SellFlowApi/API/API.csproj",
         "projectName": "API",
-        "projectPath": "C:\\Users\\User\\Desktop\\EduPlatform\\sellflowapi\\api\\API.csproj",
-        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\User\\Desktop\\EduPlatform\\sellflowapi\\api\\obj\\",
+        "projectPath": "/home/rayounouna/EdTech/SellFlowApi/API/API.csproj",
+        "packagesPath": "/home/rayounouna/.nuget/packages/",
+        "outputPath": "/home/rayounouna/EdTech/SellFlowApi/API/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "/home/rayounouna/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -32,11 +32,6 @@
           "warnAsError": [
             "NU1605"
           ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -103,12 +98,6 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.NETCore.App.Host.win-x64",
-              "version": "[8.0.15, 8.0.15]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
@@ -117,7 +106,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.408/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/8.0.121/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

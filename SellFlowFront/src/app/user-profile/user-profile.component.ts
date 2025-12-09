@@ -167,7 +167,7 @@ export class UserProfileComponent implements OnInit {
 
     switch (documentType.toLowerCase()) {
       case 'pdf':
-        return '#dc2626';
+        return '#011e81';
       case 'image':
       case 'jpg':
       case 'jpeg':

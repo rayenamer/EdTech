@@ -2,7 +2,7 @@
   padding: 1rem;
   margin: 0;
   background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
-              url('https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80') center/cover;
+              url('https://ik.imagekit.io/lif4gux2ri/GenevaBusinessSchool-278-1536x1024.jpg?updatedAt=1758462056117') center/cover;
   min-height: 100vh;
   width: 100%;
 }
@@ -10,7 +10,7 @@
 h1 {
   margin-bottom: 1.5rem;
   margin-top: 0;
-  color: #b71c1c;
+  color: #011e81;
   font-size: 2.5rem;
   font-weight: 700;
   text-align: center;
@@ -26,7 +26,7 @@ h1::after {
   transform: translateX(-50%);
   width: 100px;
   height: 4px;
-  background: linear-gradient(90deg, #b71c1c, #a31515);
+  background: linear-gradient(90deg, #011e81, #011e81);
   border-radius: 2px;
 }
 
@@ -44,8 +44,8 @@ h1::after {
 .spinner {
   border: 4px solid rgba(183, 28, 28, 0.1);
   border-radius: 50%;
-  border-top: 4px solid #b71c1c;
-  border-right: 4px solid #a31515;
+  border-top: 4px solid #011e81;
+  border-right: 4px solid #011e81;
   width: 50px;
   height: 50px;
   animation: spin 1s linear infinite;
@@ -65,7 +65,7 @@ h1::after {
 }
 
 .error-message {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
+  background: linear-gradient(135deg, #011e81, #011e81);
   color: white;
   padding: 1.25rem 1.5rem;
   border-radius: 12px;
@@ -139,7 +139,7 @@ h1::after {
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #b71c1c, #a31515, #8b0000);
+  background: linear-gradient(90deg, #011e81, #011e81, #011e81);
   border-radius: 20px 20px 0 0;
 }
 
@@ -200,7 +200,7 @@ h1::after {
 }
 
 .status-rejected {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
+  background: linear-gradient(135deg, #011e81, #011e81);
   color: white;
 }
 
@@ -282,7 +282,7 @@ h1::after {
   backdrop-filter: blur(5px);
   padding: 1rem;
   border-radius: 12px;
-  border-left: 4px solid #b71c1c;
+  border-left: 4px solid #011e81;
   margin: 0;
 }
 

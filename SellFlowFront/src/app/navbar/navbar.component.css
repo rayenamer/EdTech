@@ -47,7 +47,7 @@
 .logo-text {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #c31e33;
+  color: #011e81;
 }
 
 .nav-menu {
@@ -72,12 +72,12 @@
 }
 
 .nav-link:hover {
-  color: #c31e33;
+  color: #011e81;
   background: rgba(195, 30, 51, 0.05);
 }
 
 .nav-link.active {
-  color: #c31e33;
+  color: #011e81;
   background: rgba(195, 30, 51, 0.1);
   font-weight: 600;
 }
@@ -90,12 +90,12 @@
   transform: translateX(-50%);
   width: 20px;
   height: 2px;
-  background: #c31e33;
+  background: #011e81;
   border-radius: 1px;
 }
 
 .login-btn {
-  background: #c31e33;
+  background: #011e81;
   color: white !important;
   padding: 10px 20px;
   border-radius: 25px;
@@ -110,13 +110,13 @@
 }
 
 .login-btn.active {
-  background: #b91c1c;
+  background: #011e81;
 }
 
 /* Admin button uses an outlined variant to differentiate from user login */
 .admin-btn {
-  border: 2px solid #c31e33;
-  color: #c31e33;
+  border: 2px solid #011e81;
+  color: #011e81;
   border-radius: 25px;
   padding: 8px 18px;
   font-weight: 600;
@@ -143,7 +143,7 @@
 .bar {
   width: 25px;
   height: 3px;
-  background: #c31e33;
+  background: #011e81;
   margin: 3px 0;
   transition: 0.3s;
   border-radius: 2px;

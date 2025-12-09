@@ -1,2 +1,15 @@
+<!--
+  This is a custom Angular component, defined as a selector in a component's decorator (e.g., @Component({ selector: 'app-navbar', ... })).
+  It renders the application's navigation bar, which typically contains links, a title, or user information.
+  This component is static; it will appear on every page of the application because it is placed outside the router-outlet.
+-->
 <app-navbar></app-navbar>
+
+<!--
+  This is a directive from the Angular Router module. It acts as a placeholder in the template.
+  The Angular Router will dynamically load and display the component that corresponds to the current browser URL here.
+  For example, if the route for '/products' is configured to load 'ProductListComponent', that component's view
+  will be rendered here when the user navigates to the '/products' URL.
+  The content of this element changes as the user navigates between different routes in the application.
+-->
 <router-outlet></router-outlet>
