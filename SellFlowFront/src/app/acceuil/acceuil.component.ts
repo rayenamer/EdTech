@@ -50,7 +50,7 @@ export class AcceuilComponent implements OnInit {
 
     this.uniProgramService.getPrograms().subscribe({
       next: (programs) => {
-        this.programs = programs;
+        this.programs = programs || [];
         this.loading = false;
         console.log('Programs loaded successfully:', programs);
       },

@@ -44,5 +44,6 @@ export class NavbarComponent implements OnInit {
     this.authService.logOut();
     this.adminService.AdminLogout();
     this.closeMenu();
+    
   }
 }

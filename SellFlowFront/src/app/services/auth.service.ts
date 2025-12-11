@@ -3,16 +3,17 @@ import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../environments/environment.development';
 import { User } from '../models/user';
 import { catchError, map, throwError } from 'rxjs';
-import { Action } from 'rxjs/internal/scheduler/Action';
-//import { UserDataService } from './user-data-service.service';
+import { UniProgramService } from './uni-program.service';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
+  private uniProgramService = inject(UniProgramService);
   private http = inject(HttpClient);
- // private userDataService = inject(UserDataService);
+  private router = inject(Router);
 
   baseUrl = environment.apiUrl
 
@@ -75,9 +76,11 @@ export class AuthService {
   }
 
   logOut() {
+    this.uniProgramService.clearCache();
     return this.http.post<any>(this.baseUrl + 'Register_Login/UserLogOut', {}, { withCredentials: true }).pipe(
       map(() => {
         this.setAuthenticated(false);
+        this.router.navigateByUrl("*"); // Redirect to the home page
       })
     );
   }
